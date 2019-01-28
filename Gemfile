@@ -1,7 +1,4 @@
-source "https://rubygems.org"
-
-git_source(:github) {|repo_name| "https://github.com/rubynetix/sparse-matrix" }
-
-# Specify your gem's dependencies in sparse-matrix.gemspec
-gem 'codecov', require: false, group: :test
-gemspec
+source "https://rubygems.org" do
+  gem 'test-unit', '~>3.2.0', require: false, group: :test
+  gem 'codecov', require: false, group: :test
+end
