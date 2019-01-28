@@ -1,0 +1,18 @@
+language: ruby
+sudo: false
+dist: trusty
+
+rvm: 2.5.3
+
+stages:
+  - lint
+  - test
+
+jobs:
+  include:
+    - stage: lint
+    - stage: test
+      before_install:
+        - gem install test-unit
+      script:
+        - bundle exec ruby test/*.rb
