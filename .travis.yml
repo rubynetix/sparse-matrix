@@ -13,10 +13,11 @@ jobs:
     - stage: lint
       before_install:
         - gem install rubocop
-      script:
+      allow_failures:
+      - script:
         - rubocop # https://rubocop.readthedocs.io/en/latest/basic_usage/
     - stage: test
       before_install:
-        - gem install test-unit
+        - bundler install
       script:
         - bundle exec ruby test/*.rb
