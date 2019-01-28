@@ -1,17 +1,16 @@
 
 lib = File.expand_path("../lib", __FILE__)
 $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
-require "sparse/matrix/version"
 
 Gem::Specification.new do |spec|
   spec.name          = "sparse-matrix"
-  spec.version       = VERSION
+  spec.version       = "0.0.0"
   spec.authors       = ["Ryan Furrer"]
   spec.email         = ["rfurrer@ualberta.ca"]
 
-  spec.summary       = %q{TODO: Write a short summary, because RubyGems requires one.}
-  spec.description   = %q{TODO: Write a longer description or delete this line.}
-  spec.homepage      = "TODO: Put your gem's website or public repo URL here."
+  spec.summary       = "This is a gem"
+  spec.description   = "Longer desc"
+  spec.homepage      = "https://github.com/rubynetix/sparse-matrix"
   spec.license       = "MIT"
 
   # Prevent pushing this gem to RubyGems.org. To allow pushes either set the 'allowed_push_host'
@@ -30,8 +29,6 @@ Gem::Specification.new do |spec|
   spec.executables   = spec.files.grep(%r{^exe/}) { |f| File.basename(f) }
   spec.require_paths = ["lib"]
 
-  spec.add_development_dependency "bundler", "~> 1.16"
-  spec.add_development_dependency "rake", "~> 10.0"
-  spec.add_development_dependency "rubocop"
+  spec.add_development_dependency "bundler", "~> 2.0.1"
   spec.add_development_dependency "test-unit"
 end
