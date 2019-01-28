@@ -1,1 +1,4 @@
 # enable/disable certain checks here
+
+Metrics/LineLength:
+  Max: 98
