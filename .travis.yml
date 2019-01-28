@@ -8,7 +8,6 @@ stages:
   - lint
   - test
 
-
 jobs:
   include:
     - stage: lint
