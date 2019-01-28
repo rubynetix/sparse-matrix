@@ -11,6 +11,10 @@ stages:
 jobs:
   include:
     - stage: lint
+      before_install:
+        - gem install rubocop
+      script:
+        - rubocop # https://rubocop.readthedocs.io/en/latest/basic_usage/
     - stage: test
       before_install:
         - gem install test-unit
