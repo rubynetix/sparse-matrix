@@ -10,10 +10,11 @@ stages:
 
 jobs:
   include:
+    allow_failures:
+      - stage: "lint"
     - stage: lint
       before_install:
         - gem install rubocop
-      allow_failures:
         script:
           - rubocop # https://rubocop.readthedocs.io/en/latest/basic_usage/
     - stage: test
