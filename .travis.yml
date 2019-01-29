@@ -14,8 +14,8 @@ jobs:
       before_install:
         - gem install rubocop
       allow_failures:
-      - script:
-        - rubocop # https://rubocop.readthedocs.io/en/latest/basic_usage/
+        script:
+          - rubocop # https://rubocop.readthedocs.io/en/latest/basic_usage/
     - stage: test
       before_install:
         - bundler install
