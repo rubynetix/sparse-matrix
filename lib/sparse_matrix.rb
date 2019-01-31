@@ -1,10 +1,14 @@
 class SparseMatrix
 
+  def initialize(rows, cols)
+    raise "Not implemented"
+  end
+
   def self.zero(rows, cols)
     raise "Not implemented"
   end
 
-  def self.identity(rows, cols)
+  def self.identity(size)
       raise "Not implemented"
   end
 
@@ -13,6 +17,10 @@ class SparseMatrix
   end
 
   def cols
+    raise "Not implemented"
+  end
+
+  def nnz
     raise "Not implemented"
   end
 
