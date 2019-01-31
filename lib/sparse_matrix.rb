@@ -1,6 +1,6 @@
 class SparseMatrix
 
-  def initialize(rows, cols)
+  def initialize(rows, cols = rows)
     raise "Not implemented"
   end
 
@@ -8,7 +8,7 @@ class SparseMatrix
     raise "Not implemented"
   end
 
-  def self.identity(size)
+  def self.identity(n)
       raise "Not implemented"
   end
 
@@ -163,6 +163,9 @@ class SparseMatrix
   def upper_hessenberg?
     raise "Not implemented"
   end
+
+alias_method :I, :identity
+alias_method :t, :transpose
 
 private
   def plus_matrix(o)
