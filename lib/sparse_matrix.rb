@@ -4,12 +4,16 @@ class SparseMatrix
     raise "Not implemented"
   end
 
-  def self.zero(rows, cols)
-    raise "Not implemented"
-  end
-
-  def self.identity(n)
+  class << self
+    def zero(rows, cols)
       raise "Not implemented"
+    end
+
+    def identity(n)
+        raise "Not implemented"
+    end
+
+    alias :I :identity
   end
 
   def rows
@@ -164,7 +168,6 @@ class SparseMatrix
     raise "Not implemented"
   end
 
-alias_method :I, :identity
 alias_method :t, :transpose
 
 private
