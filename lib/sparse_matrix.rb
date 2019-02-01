@@ -1,15 +1,19 @@
 class SparseMatrix
 
-  def initialize(rows, cols)
+  def initialize(rows, cols = rows)
     raise "Not implemented"
   end
 
-  def self.zero(rows, cols)
-    raise "Not implemented"
-  end
-
-  def self.identity(size)
+  class << self
+    def zero(rows, cols)
       raise "Not implemented"
+    end
+
+    def identity(n)
+        raise "Not implemented"
+    end
+
+    alias :I :identity
   end
 
   def rows
@@ -163,6 +167,8 @@ class SparseMatrix
   def upper_hessenberg?
     raise "Not implemented"
   end
+
+alias_method :t, :transpose
 
 private
   def plus_matrix(o)
