@@ -15,6 +15,11 @@ module TestUtil
   def rand_matrix(r, c)
     # return r x c matrix with random values.
   end
+
+  def sparse_to_matrix(s):
+    #TODO: Implement
+    # Returns a regular Ruby matrix equivalent to Sparse Matrix s
+  end
 end
 
 class SparseMatrixTest < Test::Unit::TestCase
@@ -73,4 +78,35 @@ class SparseMatrixTest < Test::Unit::TestCase
     end
   end
 
+  def tst_lower_triangular
+    r = rand(0..10000)
+    c = rand(1..10000)
+    m = rand_matrix(r, c)
+    for i in 0..20
+      # No Preconditions
+
+      expected = sparse_to_matrix(s).lower_triangular?
+
+      # Postconditions
+      begin
+        assert_equal(expected, m.lower_triangular?)
+      end
+    end
+  end
+
+  def tst_upper_triangular
+    r = rand(0..10000)
+    c = rand(1..10000)
+    m = rand_matrix(r, c)
+    for i in 0..20
+      # No Preconditions
+
+      expected = sparse_to_matrix(s).upper_triangular?
+
+      # Postconditions
+      begin
+        assert_equal(expected, m.upper_triangular?)
+      end
+    end
+  end
 end
