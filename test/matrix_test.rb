@@ -21,10 +21,11 @@ class MatrixTest < Test::Unit::TestCase
   end
 
   def tst_set_zero
+    m = MatrixTestUtil::rand_sparse_matrix(rand(1..@@MAX_ROWS), rand(1..@@MAX_COLS), @@MIN_VAL..@@MAX_VAL)
+
     # Preconditions
     # N/A
 
-    m = MatrixTestUtil::rand_sparse_matrix(rand(1..@@MAX_ROWS), rand(1..@@MAX_COLS), @@MIN_VAL..@@MAX_VAL)
     m.set_zero
 
     # Postconditions
@@ -38,10 +39,11 @@ class MatrixTest < Test::Unit::TestCase
   end
 
   def tst_set_identity
+    m = MatrixTestUtil::rand_sparse_matrix(rand(1..@@MAX_ROWS), rand(1..@@MAX_COLS), @@MIN_VAL..@@MAX_VAL)
+
     # Preconditions
     # N/A
 
-    m = MatrixTestUtil::rand_sparse_matrix(rand(1..@@MAX_ROWS), rand(1..@@MAX_COLS), @@MIN_VAL..@@MAX_VAL)
     m.set_identity
 
     # Postconditions
@@ -59,10 +61,11 @@ class MatrixTest < Test::Unit::TestCase
   end
 
   def tst_clone
+    m1 = MatrixTestUtil::rand_sparse_matrix(rand(1..@@MAX_ROWS), rand(1..@@MAX_COLS), @@MIN_VAL..@@MAX_VAL)
+
     # Preconditions
     # N/A
 
-    m1 = MatrixTestUtil::rand_sparse_matrix(rand(1..@@MAX_ROWS), rand(1..@@MAX_COLS), @@MIN_VAL..@@MAX_VAL)
     m2 = m1.clone
 
     # Postconditions
@@ -76,10 +79,11 @@ class MatrixTest < Test::Unit::TestCase
   end
 
   def tst_sum
+    m = MatrixTestUtil::rand_sparse_matrix(rand(1..@@MAX_ROWS), rand(1..@@MAX_COLS), @@MIN_VAL..@@MAX_VAL)
+
     # Preconditions
     # N/A
 
-    m = MatrixTestUtil::rand_sparse_matrix(rand(1..@@MAX_ROWS), rand(1..@@MAX_COLS), @@MIN_VAL..@@MAX_VAL)
     sum = m.sum
 
     # Postconditions
@@ -97,42 +101,42 @@ class MatrixTest < Test::Unit::TestCase
   end
 
   def tst_add_scalar
+    m1 = MatrixTestUtil::rand_sparse_matrix(rand(1..@@MAX_ROWS), rand(1..@@MAX_COLS), @@MIN_VAL..@@MAX_VAL)
+    num = rand(@@MIN_VAL..@@MAX_VAL)
+
     # Preconditions
     # N/A
 
-    m1 = MatrixTestUtil::rand_sparse_matrix(rand(1..@@MAX_ROWS), rand(1..@@MAX_COLS), @@MIN_VAL..@@MAX_VAL)
-    m2 = m1.clone
-    num = rand(@@MIN_VAL..@@MAX_VAL)
-    m + num
+    m2 = m1 + num
 
     # Postconditions
     begin
-      assert_equal(m1.sum, m2.sum + num * m2.nnz)
+      assert_equal(m1.sum + num * m1.nnz, m2.sum)
 
       (0..m1.rows).each do |r|
         (0..m1.cols).each do |c|
-          assert_equal(m1.at(r, c), m2.at(r, c) + num)
+          assert_equal(m1.at(r, c) + num, m2.at(r, c))
         end
       end
     end
   end
 
   def tst_subtract_scalar
+    m1 = MatrixTestUtil::rand_sparse_matrix(rand(1..@@MAX_ROWS), rand(1..@@MAX_COLS), @@MIN_VAL..@@MAX_VAL)
+    num = rand(@@MIN_VAL..@@MAX_VAL)
+
     # Preconditions
     # N/A
 
-    m1 = MatrixTestUtil::rand_sparse_matrix(rand(1..@@MAX_ROWS), rand(1..@@MAX_COLS), @@MIN_VAL..@@MAX_VAL)
-    m2 = m1.clone
-    num = rand(@@MIN_VAL..@@MAX_VAL)
-    m1 - num
+    m2 = m1 - num
 
     # Postconditions
     begin
-      assert_equal(m1.sum, m2.sum - num * m2.nnz)
+      assert_equal(m1.sum - num * m1.nnz, m2.sum)
 
       (0..m1.rows).each do |r|
         (0..m1.cols).each do |c|
-          assert_equal(m1.at(r, c), m2.at(r, c) - num)
+          assert_equal(m1.at(r, c) - num, m2.at(r, c))
         end
       end
     end
@@ -203,10 +207,11 @@ class MatrixTest < Test::Unit::TestCase
   end
 
   def tst_invertible
+    m = MatrixTestUtil::rand_sparse_matrix(rand(1..@@MAX_ROWS), rand(1..@@MAX_COLS), @@MIN_VAL..@@MAX_VAL)
+
     # Preconditions
     # N/A
 
-    m = MatrixTestUtil::rand_sparse_matrix(rand(1..@@MAX_ROWS), rand(1..@@MAX_COLS), @@MIN_VAL..@@MAX_VAL)
     inv = m.invertible?
 
     # Postconditions
@@ -233,27 +238,29 @@ class MatrixTest < Test::Unit::TestCase
   end
 
   def tst_positive
+    pos_m = MatrixTestUtil::rand_sparse_matrix(rand(1..@@MAX_ROWS), rand(1..@@MAX_COLS), 0..@@MAX_VAL)
+    neg_m = MatrixTestUtil::rand_sparse_matrix(rand(1..@@MAX_ROWS), rand(1..@@MAX_COLS), @@MIN_VAL..-1)
+
     # Preconditions
     # N/A
 
-    pos = MatrixTestUtil::rand_sparse_matrix(rand(1..@@MAX_ROWS), rand(1..@@MAX_COLS), 0..@@MAX_VAL)
-    neg = MatrixTestUtil::rand_sparse_matrix(rand(1..@@MAX_ROWS), rand(1..@@MAX_COLS), @@MIN_VAL..-1)
-    is_pos = pos.positive?
-    not_pos = neg.positive?
+    pos = pos_m.positive?
+    neg = neg_m.positive?
 
     # Postconditions
     begin
-      assert_true(is_pos)
-      assert_false(not_pos)
+      assert_true(pos)
+      assert_false(neg)
     end
   end
 
 
   def tst_square
+    m = MatrixTestUtil::rand_sparse_matrix(rand(1...@@MAX_ROWS), rand(1..@@MAX_COLS), @@MIN_VAL..@@MAX_VAL)
+
     # Preconditions
     # N/A
 
-    m = MatrixTestUtil::rand_sparse_matrix(rand(1...@@MAX_ROWS), rand(1..@@MAX_COLS), @@MIN_VAL..@@MAX_VAL)
     sq = m.square?
 
     # Postconditions
@@ -263,10 +270,11 @@ class MatrixTest < Test::Unit::TestCase
   end
 
   def tst_symmetric
+    m = MatrixTestUtil::rand_sparse_matrix(rand(1...@@MAX_ROWS), rand(1..@@MAX_COLS), @@MIN_VAL..@@MAX_VAL)
+
     # Preconditions
     # N/A
 
-    m = MatrixTestUtil::rand_sparse_matrix(rand(1...@@MAX_ROWS), rand(1..@@MAX_COLS), @@MIN_VAL..@@MAX_VAL)
     sym = m.symmetric?
 
     # Postconditions
@@ -276,10 +284,11 @@ class MatrixTest < Test::Unit::TestCase
   end
 
   def tst_traceable
+    m = MatrixTestUtil::rand_sparse_matrix(rand(1...@@MAX_ROWS), rand(1..@@MAX_COLS), @@MIN_VAL..@@MAX_VAL)
+
     # Preconditions
     # N/A
 
-    m = MatrixTestUtil::rand_sparse_matrix(rand(1...@@MAX_ROWS), rand(1..@@MAX_COLS), @@MIN_VAL..@@MAX_VAL)
     tr = m.traceable?
 
     # Postconditions
