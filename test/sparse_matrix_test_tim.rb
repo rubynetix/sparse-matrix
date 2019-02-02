@@ -79,10 +79,26 @@ class SparseMatrixTest < Test::Unit::TestCase
   end
 
   def tst_lower_triangular
-    r = rand(0..10000)
-    c = rand(1..10000)
-    m = rand_matrix(r, c)
-    for i in 0..20
+    for i in 0..5
+      r = rand(0..10000)
+      c = rand(1..10000)
+      m = rand_matrix(r, c)
+
+      # No Preconditions
+
+      expected = sparse_to_matrix(s).lower_triangular?
+
+      # Postconditions
+      begin
+        assert_equal(expected, m.lower_triangular?)
+      end
+    end
+
+    # test with 15 matrices that are guaranteed to be square.
+    for i in 0..15
+      rc = rand(0..10000)
+      m = rand_matrix(rc, rc)
+
       # No Preconditions
 
       expected = sparse_to_matrix(s).lower_triangular?
@@ -95,10 +111,26 @@ class SparseMatrixTest < Test::Unit::TestCase
   end
 
   def tst_upper_triangular
-    r = rand(0..10000)
-    c = rand(1..10000)
-    m = rand_matrix(r, c)
-    for i in 0..20
+    for i in 0..5
+      r = rand(0..10000)
+      c = rand(1..10000)
+      m = rand_matrix(r, c)
+
+      # No Preconditions
+
+      expected = sparse_to_matrix(s).upper_triangular?
+
+      # Postconditions
+      begin
+        assert_equal(expected, m.upper_triangular?)
+      end
+    end
+
+    # test with 15 matrices that are guaranteed to be square.
+    for i in 0..15
+      rc = rand(0..10000)
+      m = rand_matrix(rc, rc)
+
       # No Preconditions
 
       expected = sparse_to_matrix(s).upper_triangular?
@@ -109,4 +141,5 @@ class SparseMatrixTest < Test::Unit::TestCase
       end
     end
   end
+
 end
