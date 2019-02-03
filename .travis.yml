@@ -11,6 +11,6 @@ jobs:
   include:
     - stage: test
       before_install:
-        - bundler install
+        - ./scripts/setup.sh
       script:
         - bundle exec ruby test/*.rb
