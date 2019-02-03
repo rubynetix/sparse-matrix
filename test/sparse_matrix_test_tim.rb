@@ -16,7 +16,7 @@ module TestUtil
     # return r x c matrix with random values.
   end
 
-  def sparse_to_matrix(s):
+  def sparse_to_matrix(s)
     #TODO: Implement
     # Returns a regular Ruby matrix equivalent to Sparse Matrix s
   end
@@ -114,7 +114,7 @@ class SparseMatrixTest < Test::Unit::TestCase
   def test_nothing
   end
 
-  def tst_*
+  def tst_scalar_mult
     r = rand(0..10000)
     c = rand(1..10000)
     m = rand_matrix(r, c)
@@ -137,7 +137,7 @@ class SparseMatrixTest < Test::Unit::TestCase
     end
   end
 
-  def tst_**
+  def tst_exponentiation
     r = rand(0..10000)
     c = rand(1..10000)
     m = rand_matrix(r, c)
@@ -155,6 +155,7 @@ class SparseMatrixTest < Test::Unit::TestCase
         (0..exp).each do |i|
           expected = expected.*(m)
         assert_equal(expected, new_m)
+        end
       end
     end
   end
@@ -168,17 +169,17 @@ class SparseMatrixTest < Test::Unit::TestCase
       m = rand_matrix(r, c)
     end
 
-      # No Preconditions
+    # No Preconditions
 
-      # Postconditions
-      begin
-        assert_equal(sparse_to_matrix(m).lower_triangular?, m.lower_triangular?)
-      end
+    # Postconditions
+    begin
+      assert_equal(sparse_to_matrix(m).lower_triangular?, m.lower_triangular?)
     end
   end
 
   def tst_lower_triangular_square
-    for i in 0..20
+    i = 0
+    while i < 20
       rc = rand(0..10000)
       m_tri = TestUtil::lower_triangular_matrix(rc, 0, 1000)
       m_random = TestUtil::rand_matrix(rc, rc)
@@ -190,6 +191,7 @@ class SparseMatrixTest < Test::Unit::TestCase
         assert_equal(sparse_to_matrix(m_tri).lower_triangular?, m_tri.lower_triangular?)
         assert_equal(sparse_to_matrix(m_random).lower_triangular?, m_random.lower_triangular?)
       end
+      i += 1
     end
   end
 
@@ -211,7 +213,8 @@ class SparseMatrixTest < Test::Unit::TestCase
   end
 
   def tst_upper_triangular_square
-    for i in 0..20
+    i = 0
+    while i < 20
       rc = rand(0..10000)
       m_tri = TestUtil::upper_triangular_matrix(rc, 0, 1000)
       m_random = TestUtil::rand_matrix(rc, rc)
@@ -223,6 +226,7 @@ class SparseMatrixTest < Test::Unit::TestCase
         assert_equal(sparse_to_matrix(m_tri).upper_triangular?, m_tri.upper_triangular?)
         assert_equal(sparse_to_matrix(m_random).upper_triangular?, m_random.upper_triangular?)
       end
+      i += 1
     end
   end
 
@@ -260,7 +264,8 @@ class SparseMatrixTest < Test::Unit::TestCase
 
   def tst_lower_hessenberg_square
     # tests lower_hessenberg with a square matrix
-    for i in 0..20
+    i = 0
+    while i < 20
       rc = rand(0..10000)
       m_hess = TestUtil::lower_hessenberg_matrix(rc, 0, 1000)
       m_random = TestUtil::rand_matrix(rc, rc)
@@ -271,11 +276,12 @@ class SparseMatrixTest < Test::Unit::TestCase
         check_lower_hessenberg(m_hess)
         check_lower_hessenberg(m_random)
       end
+      i += 1
     end
   end
 
   def check_upper_hessenberg(m)
-    # algorithm to test if matrix m is upper_hessenberg
+    # algorithm to test matrix m is upper_hessenberg
     if !m.square?
       assert(!m.upper_hessenberg?)
     else
@@ -308,7 +314,8 @@ class SparseMatrixTest < Test::Unit::TestCase
 
   def tst_upper_hessenberg_square
     # tests upper_hessenberg with a square matrix
-    for i in 0..10
+    i = 0
+    while i < 10
       rc = rand(0..10000)
       m_hess = TestUtil::upper_hessenberg_matrix(rc, 0, 1000)
       m_random = TestUtil::rand_matrix(rc, rc)
@@ -319,6 +326,8 @@ class SparseMatrixTest < Test::Unit::TestCase
         check_upper_hessenberg(m_hess)
         check_upper_hessenberg(m_random)
       end
+      i += 1
     end
   end
+
 end
