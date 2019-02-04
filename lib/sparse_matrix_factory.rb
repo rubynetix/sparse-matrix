@@ -9,9 +9,8 @@
 #             to construct an empty matrix with shape (rows, cols)
 #         SparseMatrixFactory.new((data, indices, indptr), [shape=(rows, cols)])
 #             is the standard CSR representation where the column indices for
-#             row i are stored in ``indices[indptr[i]:indptr[i+1]]`` and their
-#             corresponding values are stored in
-#             ``data[indptr[i]:indptr[i+1]]``.
+#             row i are stored in +indices[indptr[i]:indptr[i+1]]+ and their
+#             corresponding values are stored in +data[indptr[i]:indptr[i+1]]+.
 #             If the shape parameter is not supplied, the matrix dimensions
 #             are inferred from the index arrays.
 #

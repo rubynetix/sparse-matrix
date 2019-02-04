@@ -1,28 +1,8 @@
-# Compressed Sparse Row Matrix
-class SparseMatrix < AbstractSparseMatrix
-  attr_reader(:data, :indices, :indptr)
-  attr_reader(:rows, :cols, :nnz)
+# Abstract matrix - allows for multiple data structures
+class AbstractSparseMatrix
 
-  def initialize(rows, cols = rows)
-    raise TypeError unless rows > 0 && cols > 0
-    data = []
-    indices = []
-    indptr = []
-    rows = rows
-    cols = cols
+  def to_matrix
     raise "Not implemented"
-  end
-
-  class << self
-    def zero(rows, cols)
-      raise "Not implemented"
-    end
-
-    def identity(n)
-      raise "Not implemented"
-    end
-
-    alias :I :identity
   end
 
   def rows
@@ -158,8 +138,8 @@ class SparseMatrix < AbstractSparseMatrix
     raise "Not implemented"
   end
 
-alias_method :t, :transpose
-alias_method :tr, :trace
+  alias_method :t, :transpose
+  alias_method :tr, :trace
 
   def plus_matrix(o)
     raise "Not implemented"
