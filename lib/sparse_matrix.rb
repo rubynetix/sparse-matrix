@@ -109,15 +109,15 @@ class SparseMatrix
     raise "Not implemented"
   end
 
-  def rref
-    raise "Not implemented"
-  end
-
   def trace
     raise "Not implemented"
   end
 
-  def null?
+  def nil?
+    raise "Not implemented"
+  end
+
+  def zero?
     raise "Not implemented"
   end
 
@@ -169,9 +169,8 @@ class SparseMatrix
     raise "Not implemented"
   end
 
-  alias_method :t, :transpose
-
-  private
+alias_method :t, :transpose
+alias_method :tr, :trace
 
   def plus_matrix(o)
     raise "Not implemented"
@@ -186,6 +185,10 @@ class SparseMatrix
   end
 
   def mul_scalar(x)
+    raise "Not implemented"
+  end
+
+  def rref
     raise "Not implemented"
   end
 end
