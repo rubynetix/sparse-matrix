@@ -53,6 +53,6 @@ class MatrixOperationsTest < Test::Unit::TestCase
   def tst_sub_mat; end
   def tst_mult_num; end
   def tst_mult_mat; end
-  def tst_expontial; end
+  def tst_exponential; end
   def tst_equals; end
 end
