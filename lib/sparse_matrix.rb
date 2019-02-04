@@ -16,34 +16,6 @@ class SparseMatrix
     alias :I :identity
   end
 
-  def rows
-    raise "Not implemented"
-  end
-
-  def cols
-    raise "Not implemented"
-  end
-
-  def nnz
-    raise "Not implemented"
-  end
-
-  def resize(rows, cols)
-    raise "Not implemented"
-  end
-
-  def set_zero
-    raise "Not implemented"
-  end
-
-  def set_identity
-    raise "Not implemented"
-  end
-
-  def at(row, col)
-    raise "Not implemented"
-  end
-
   def sum
     raise "Not implemented"
   end
