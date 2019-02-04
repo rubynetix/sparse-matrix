@@ -10,7 +10,7 @@ class SparseMatrix
     end
 
     def identity(n)
-        raise "Not implemented"
+      raise "Not implemented"
     end
 
     alias :I :identity
@@ -66,6 +66,7 @@ class SparseMatrix
 
   def **(o)
     raise "Not implemented"
+
   end
 
   def ==(o)
@@ -168,9 +169,10 @@ class SparseMatrix
     raise "Not implemented"
   end
 
-alias_method :t, :transpose
+  alias_method :t, :transpose
 
-private
+  private
+
   def plus_matrix(o)
     raise "Not implemented"
   end
