@@ -136,6 +136,26 @@ class SparseMatrixTest < Test::Unit::TestCase
     end
   end
 
+  def tst_det_triangular
+    s = rand(1..1000)
+    m = SparseMatrix.new(s)
+
+    # Preconditions
+    begin
+      assert_true(square?)
+      assert_true(m.diagonal? || m.lower_triangular? || m.upper_triangular?)
+    end
+
+    d = m.det
+    expected = 1
+    m.diagonal.each { |val| expected *= val }
+
+    # Postconditions
+    begin
+      assert_equal(d, expected)
+    end
+  end
+
   def tst_resize_up
     r = rand(1..10_000)
     c = rand(1..10_000)
