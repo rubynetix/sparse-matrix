@@ -1,7 +1,16 @@
+# Compressed Sparse Row Matrix
 class SparseMatrix
+  attr_reader(:data, :indices, :indptr)
+  attr_reader(:rows, :cols, :nnz)
 
   def initialize(rows, cols = rows)
-    raise "Not implemented"
+    raise TypeError unless rows > 0 && cols > 0
+    @data = []
+    @indices = []
+    @indptr = []
+    @rows = rows
+    @cols = cols
+    raise NotImplementedError
   end
 
   class << self
@@ -29,7 +38,7 @@ class SparseMatrix
   end
 
   def det
-    raise "Not implemented"
+    raise 'Not implemented'
   end
 
   def resize(rows, cols)
