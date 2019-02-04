@@ -1,4 +1,6 @@
+# Compressed Sparse Row Matrix
 class SparseMatrix
+  attr_reader(:data, :indices, :indptr)
 
   def initialize(rows, cols = rows)
     raise "Not implemented"
