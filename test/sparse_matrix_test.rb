@@ -5,17 +5,19 @@ module TestUtil
   def rand_range(l, h, size)
     i = 0
     a = []
-    while i < size
-      a.push(rand(l..h))
-    end
+    a.push(rand(l..h)) while i < size
     a
   end
 
-  def rand_matrix(rows = 100, cols = rows, range = (-1000..1000))
+  def self.rand_matrix(rows = 100, cols = rows,
+                       scarcity = 0.4, range = (-1000..1000))
+    arr = Array.new(rows, Array.new(cols, 0))
+    arr.map! { |row| row.map { rand < scarcity ? rand(range) : 0 } }
+    arr
   end
 
   def sparse_to_matrix(s)
-    m = Matrix.build(s.rows, s.cols) {|row, col| 0}
+    m = Matrix.build(s.rows, s.cols) { |row, col| 0 }
     it = s.iterator
     while s.next?
       e = s.next
@@ -25,11 +27,11 @@ module TestUtil
   end
 
   def iterate_matrix(m)
-    (0..m.rows-1).each do |i|
-      (0..m.cols-1).each do |j|
-          yield(i, j, m.at(i,j))
-        end
+    (0..m.rows - 1).each do |i|
+      (0..m.cols - 1).each do |j|
+        yield(i, j, m.at(i, j))
       end
+    end
   end
 
   def char_count(c, s)
@@ -40,18 +42,14 @@ module TestUtil
 end
 
 class SparseMatrixTest < Test::Unit::TestCase
+  def setup; end
 
-  def setup
-  end
+  def teardown; end
 
-  def teardown
-  end
-
-  def test_nothing
-  end
+  def test_nothing; end
 
   def tst_identity
-    TestUtil::rand_range(1, 10000, 20).each do |size|
+    TestUtil.rand_range(1, 10_000, 20).each do |size|
       # Preconditions
       begin
         assert_true(size > 0)
@@ -65,7 +63,7 @@ class SparseMatrixTest < Test::Unit::TestCase
         assert_true(m.diagonal?)
         assert_true(m.symmetric?)
         assert_equal(size, m.sum)
-        (0..size-1).each do |i|
+        (0..size - 1).each do |i|
           assert_equal(1, m.at(i, i))
         end
       end
@@ -89,8 +87,8 @@ class SparseMatrixTest < Test::Unit::TestCase
   end
 
   def tst_rows
-    r = rand(0..10000)
-    c = rand(1..10000)
+    r = rand(0..10_000)
+    c = rand(1..10_000)
     m = SparseMatrix.new(r, c)
 
     # Preconditions
@@ -105,8 +103,8 @@ class SparseMatrixTest < Test::Unit::TestCase
   end
 
   def tst_cols
-    r = rand(1..10000)
-    c = rand(0..10000)
+    r = rand(1..10_000)
+    c = rand(0..10_000)
     m = SparseMatrix.new(r, c)
 
     # Preconditions
@@ -139,10 +137,10 @@ class SparseMatrixTest < Test::Unit::TestCase
   end
 
   def tst_resize_up
-    r = rand(1..10000)
-    c = rand(1..10000)
-    ur = rand(r..10000)
-    uc = rand(c..10000)
+    r = rand(1..10_000)
+    c = rand(1..10_000)
+    ur = rand(r..10_000)
+    uc = rand(c..10_000)
     m = SparseMatrix.new(r, c)
     nnzi = m.nnz
 
@@ -167,8 +165,8 @@ class SparseMatrixTest < Test::Unit::TestCase
   end
 
   def tst_resize_down
-    r = rand(2..10000)
-    c = rand(2..10000)
+    r = rand(2..10_000)
+    c = rand(2..10_000)
     dr = r - 1
     dc = c - 1
     m = SparseMatrix.new(r, c)
@@ -202,8 +200,8 @@ class SparseMatrixTest < Test::Unit::TestCase
 
     # Preconditions
     begin
-      assert_true(0 <= r && r <= m.rows - 1)
-      assert_true(0 <= c && c <= m.cols - 1)
+      assert_true(r >= 0 && r <= m.rows - 1)
+      assert_true(c >= 0 && c <= m.cols - 1)
     end
 
     # Postconditions
@@ -220,8 +218,8 @@ class SparseMatrixTest < Test::Unit::TestCase
 
     # Preconditions
     begin
-      assert_true(0 <= r && r <= m.rows - 1)
-      assert_true(0 <= c && c <= m.cols - 1)
+      assert_true(r >= 0 && r <= m.rows - 1)
+      assert_true(c >= 0 && c <= m.cols - 1)
     end
 
     nnz_before = m.nnz
@@ -233,32 +231,29 @@ class SparseMatrixTest < Test::Unit::TestCase
       # Check that the value is set
       assert_equal(v, m.at(r, c))
 
-      if (v != 0 and v_before != 0) or (v == 0 and v_before == 0)
+      if ((v != 0) && (v_before != 0)) || ((v == 0) && (v_before == 0))  # TODO: note ruby objects have val.nil? and val.zero? methods
         assert_equal(nnz_before, m.nnz)
-      elsif v != 0 and v_before == 0
-        assert_equal(nnz_before+1, m.nnz)
+      elsif (v != 0) && (v_before == 0)
+        assert_equal(nnz_before + 1, m.nnz)
       else # v == 0 and v_before != 0
-        assert_equal(nnz_before-1, m.nnz)
+        assert_equal(nnz_before - 1, m.nnz)
       end
     end
   end
 
   # Helper function for test_diagonal?
   def nnz_off_diagonal?(m)
-    (0..m.rows-1).each do |i|
-      (0..m.cols-1).each do |j|
-        if i != j
-          if m.at(i,j) != 0
-            return true
-          end
-        end
+    (0..m.rows - 1).each do |i|
+      (0..m.cols - 1).each do |j|
+        next unless i != j
+        return true if m.at(i, j) != 0
       end
     end
     false
   end
 
   def tst_diagonal?
-    m = TestUtil::rand_matrix
+    m = TestUtil.rand_matrix
 
     # Preconditions
     begin
@@ -273,9 +268,9 @@ class SparseMatrixTest < Test::Unit::TestCase
         assert_true(m.square?)
 
         # For all i,j where i != j -> at(i,j) == 0
-        iterate_matrix(m) {|i, j, v|
+        iterate_matrix(m) do |i, j, v|
           assert_equal(0, v) unless i == j
-        }
+        end
       else
         # For some i,j where i != j -> at(i,j) != 0
         assert_true(nnz_off_diagonal?(m))
@@ -284,7 +279,7 @@ class SparseMatrixTest < Test::Unit::TestCase
   end
 
   def tst_diagonal
-    m = TestUtil::rand_matrix
+    m = TestUtil.rand_matrix
 
     # Preconditions
     begin
@@ -298,8 +293,8 @@ class SparseMatrixTest < Test::Unit::TestCase
       assert_true(m.diagonal?)
 
       # All elements on the diagonal are equivalent to the original matrix
-      (0..m.rows-1).each do |i|
-        assert_equal(m.at(i,i), md.at(i,i))
+      (0..m.rows - 1).each do |i|
+        assert_equal(m.at(i, i), md.at(i, i))
       end
     end
   end
