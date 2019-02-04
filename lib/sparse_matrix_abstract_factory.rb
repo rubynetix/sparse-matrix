@@ -1,26 +1,19 @@
+require_relative 'sparse_matrix_factory'
+require_relative 'tridiagonal_matrix_factory'
+
 # Abstract factory for sparse matrices
 class AbstractSparseMatrixFactory
-  @@factories = Hash.new
-  @@factories['sparse'] = SparseMatrixFactory
-  @@factories['triangular'] = TriangularMatrixFactory
-  @@factories['diagonal'] = DiagonalMatrixFactory
-  @@factories['tridiagonal'] = TriDiagonalMatrixFactory
-
-  def initialize(*args)
-    raise(ArgumentError) unless args.length > 1
-
-    type = args[0]
-    if @@factories.key? type
-      @@factories.fetch(type).new args[1..-1]
-    else
-      raise ArgumentError, "Unknown matrix type #{type}"
-    end
+  def self.build(rows, cols, type, block = Proc.new)
+    factory = get_factory type
+    factory.build rows, cols, block
   end
 
-  def self.rand_matrix(type, rows = 100, cols = rows,
-                       scarcity = 0.4, range = (-1000..1000))
-    if @@factories.key? type
-      @@factories.fetch(type).rand_matrix rows, cols, scarcity, range
+  def self.get_factory(type)
+    case type
+    when 'sparse'
+      SparseMatrixFactory.new
+    when 'tridiagonal'
+      TriDiagonalMatrixFactory.new
     else
       raise ArgumentError, "Unknown matrix type #{type}"
     end
