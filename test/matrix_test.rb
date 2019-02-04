@@ -11,31 +11,27 @@ module MatrixTestUtil
     rand_sparse(rows: size, cols: size, range: range)
   end
 
-  def null_matrix()
-    #TODO: Implementation
+  def null_matrix
+    # TODO: Implementation
   end
 
   def identity_matrix(size: rand(1..1000))
-    #TODO: Implementation
+    # TODO: Implementation
   end
-
 end
 
 class MatrixTest < Test::Unit::TestCase
+  @@MAX_ROWS = 10_000
+  @@MAX_COLS = 10_000
+  @@MIN_VAL = -10_000
+  @@MAX_VAL = 10_000
 
-  @@MAX_ROWS = 10000
-  @@MAX_COLS = 10000
-  @@MIN_VAL = -10000
-  @@MAX_VAL = 10000
+  def setup; end
 
-  def setup
-  end
-
-  def teardown
-  end
+  def teardown; end
 
   def tst_set_zero
-    m = MatrixTestUtil::rand_sparse()
+    m = MatrixTestUtil::rand_sparse
 
     # Preconditions
     # N/A
@@ -53,7 +49,7 @@ class MatrixTest < Test::Unit::TestCase
   end
 
   def tst_set_identity
-    m = MatrixTestUtil::rand_sparse()
+    m = MatrixTestUtil::rand_sparse
 
     # Preconditions
     # N/A
@@ -75,8 +71,8 @@ class MatrixTest < Test::Unit::TestCase
   end
 
   def tst_identity?
-    i = MatrixTestUtil::identity_matrix()
-    m = MatrixTestUtil::rand_square_sparse()
+    i = MatrixTestUtil::identity_matrix
+    m = MatrixTestUtil::rand_square_sparse
 
     # Preconditions
     # N/A
@@ -93,7 +89,7 @@ class MatrixTest < Test::Unit::TestCase
   end
 
   def tst_clone
-    m1 = MatrixTestUtil::rand_sparse()
+    m1 = MatrixTestUtil::rand_sparse
 
     # Preconditions
     # N/A
@@ -111,7 +107,7 @@ class MatrixTest < Test::Unit::TestCase
   end
 
   def tst_sum
-    m = MatrixTestUtil::rand_sparse()
+    m = MatrixTestUtil::rand_sparse
 
     # Preconditions
     # N/A
@@ -123,7 +119,7 @@ class MatrixTest < Test::Unit::TestCase
       it = m.iterator
       expected = 0
 
-      while it.has_next? do
+      while it.has_next?
         el = it.next
         expected += el.val
       end
@@ -133,7 +129,7 @@ class MatrixTest < Test::Unit::TestCase
   end
 
   def tst_add_scalar
-    m1 = MatrixTestUtil::rand_sparse()
+    m1 = MatrixTestUtil::rand_sparse
     num = rand(@@MIN_VAL..@@MAX_VAL)
 
     # Preconditions
@@ -154,7 +150,7 @@ class MatrixTest < Test::Unit::TestCase
   end
 
   def tst_subtract_scalar
-    m1 = MatrixTestUtil::rand_sparse()
+    m1 = MatrixTestUtil::rand_sparse
     num = rand(@@MIN_VAL..@@MAX_VAL)
 
     # Preconditions
@@ -180,7 +176,7 @@ class MatrixTest < Test::Unit::TestCase
     m1 = MatrixTestUtil::rand_sparse(rows: r, cols: c)
     m2 = MatrixTestUtil::rand_sparse(rows: r, cols: c)
 
-    #Preconditions
+    # Preconditions
     begin
       assert_equal(m1.rows, m2.rows)
       assert_equal(m1.cols, m2.cols)
@@ -192,9 +188,7 @@ class MatrixTest < Test::Unit::TestCase
     begin
       assert_equal(m1.sum + m2.sum, m3.sum)
 
-      if m1.traceable?
-        assert_equal(m1.trace + m2.trace, m3.trace)
-      end
+      assert_equal(m1.trace + m2.trace, m3.trace) if m1.traceable?
 
       assert_equal(m1, m3 - m2)
 
@@ -212,7 +206,7 @@ class MatrixTest < Test::Unit::TestCase
     m1 = MatrixTestUtil::rand_sparse(rows: r, cols: c)
     m2 = MatrixTestUtil::rand_sparse(rows: r, cols: c)
 
-    #Preconditions
+    # Preconditions
     begin
       assert_equal(m1.rows, m2.rows)
       assert_equal(m1.cols, m2.cols)
@@ -224,9 +218,7 @@ class MatrixTest < Test::Unit::TestCase
     begin
       assert_equal(m1.sum - m2.sum, m3.sum)
 
-      if m1.traceable?
-        assert_equal(m1.trace - m2.trace, m3.trace)
-      end
+      assert_equal(m1.trace - m2.trace, m3.trace) if m1.traceable?
 
       assert_equal(m1, m3 + m2)
 
@@ -238,10 +230,9 @@ class MatrixTest < Test::Unit::TestCase
     end
   end
 
-
   def tst_null
-    sparse_m = MatrixTestUtil::rand_sparse()
-    null_m = MatrixTestUtil::null_matrix()
+    sparse_m = MatrixTestUtil::rand_sparse
+    null_m = MatrixTestUtil::null_matrix
 
     # Preconditions
     # N/A
@@ -254,11 +245,10 @@ class MatrixTest < Test::Unit::TestCase
       assert_false(non_null)
       assert_true(null)
     end
-
   end
 
-  def tst_invertible?
-    m = MatrixTestUtil::rand_sparse()
+  def tst_invertible
+    m = MatrixTestUtil::rand_sparse
 
     # Preconditions
     # N/A
@@ -272,7 +262,7 @@ class MatrixTest < Test::Unit::TestCase
   end
 
   def tst_inverse
-    m = MatrixTestUtil::rand_square_sparse()
+    m = MatrixTestUtil::rand_square_sparse
 
     # Preconditions
     begin
@@ -304,8 +294,22 @@ class MatrixTest < Test::Unit::TestCase
     end
   end
 
-  def tst_symmetric
+  def tst_square?
     m = MatrixTestUtil::rand_sparse()
+
+    # Preconditions
+    # N/A
+
+    sq = m.square?
+
+    # Postconditions
+    begin
+      assert_equal(m.rows == m.cols, sq)
+    end
+  end
+
+  def tst_symmetric
+    m = MatrixTestUtil::rand_sparse
 
     # Preconditions
     # N/A
@@ -319,7 +323,7 @@ class MatrixTest < Test::Unit::TestCase
   end
 
   def tst_traceable
-    m = MatrixTestUtil::rand_sparse()
+    m = MatrixTestUtil::rand_sparse
 
     # Preconditions
     # N/A
@@ -333,7 +337,7 @@ class MatrixTest < Test::Unit::TestCase
   end
 
   def tst_trace
-    m = MatrixTestUtil::rand_sparse()
+    m = MatrixTestUtil::rand_sparse
 
     # Preconditions
     begin
@@ -357,7 +361,7 @@ class MatrixTest < Test::Unit::TestCase
   end
 
   def tst_cofactor
-    m = MatrixTestUtil::rand_sparse()
+    m = MatrixTestUtil::rand_sparse
 
     # Preconditions
     # N/A
@@ -369,19 +373,19 @@ class MatrixTest < Test::Unit::TestCase
 
     # Postconditions
     begin
-      if m.cols == 1  || m.rows == 1
+      if m.cols == 1 || m.rows == 1
         assert_true(cof.null?)
       else
         cof.cols = m.cols - 1
         cof.rows = m.rows - 1
 
-        #TODO: Check the actual values of the cofactor matrix
-      end    
+        # TODO: Check the actual values of the cofactor matrix
+      end
     end
   end
 
   def tst_adjoint
-    m = MatrixTestUtil::rand_square_sparse()
+    m = MatrixTestUtil::rand_square_sparse
 
     # Preconditions
     begin
@@ -397,8 +401,8 @@ class MatrixTest < Test::Unit::TestCase
     end
   end
 
-  def tst_orthogonal?
-    m = MatrixTestUtil::rand_square_sparse()
+  def tst_orthogonal
+    m = MatrixTestUtil::rand_square_sparse
 
     # Preconditions
     # N/A
