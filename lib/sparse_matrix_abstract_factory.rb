@@ -16,4 +16,13 @@ class AbstractSparseMatrixFactory
       raise ArgumentError, "Unknown matrix type #{type}"
     end
   end
+
+  def self.rand_matrix(type, rows = 100, cols = rows,
+      scarcity = 0.4, range = (-1000..1000))
+    if @@factories.has_key? type
+      @@factories.fetch(type).rand_matrix rows, cols, scarcity, range
+    else
+      raise ArgumentError, "Unknown matrix type #{type}"
+    end
+  end
 end
