@@ -21,9 +21,9 @@ module MatrixTestUtil
     # return a upper triangular matrix with n rows and columns
     # with non-zero values in the range l..h
     m = SparseMatrix.new(n, n)
-    for y in 0...m.rows
-      for x in 0...m.cols
-        if (y > x)
+    (0...m.rows).each do |y|
+      (0...m.cols).each do |x|
+        if y > x
           m.insert(x, y, 0)
         else
           if rand(0..1) == 0
@@ -41,8 +41,8 @@ module MatrixTestUtil
     # return a lower triangular matrix with n rows and columns
     # with non-zero values in the range l..h
     m = SparseMatrix.new(n, n)
-    for y in 0...m.rows
-      for x in 0...m.cols
+    (0...m.rows).each do |y|
+      (0...m.cols).each do |x|
         if x > y
           m.insert(x, y, 0)
         else
@@ -63,9 +63,7 @@ module MatrixTestUtil
     m = SparseMatrix.new(n, n)
     (0..m.rows).each do |y|
       (0..m.cols).each do |x|
-        if not (y > x + 1) and rand(0..1) == 0
-          m.insert(x, y, rand(l...h))
-        end
+        m.insert(x, y, rand(l...h)) if (y <= x + 1) && (rand(0..1) == 0)
       end
     end
     m
@@ -77,16 +75,14 @@ module MatrixTestUtil
     m = SparseMatrix.new(n, n)
     (0..m.rows).each do |y|
       (0..m.cols).each do |x|
-        if not (x > y + 1) and rand(0..1) == 0
-          m.insert(x, y, rand(l...h))
-        end
+        m.insert(x, y, rand(l...h)) if (x <= y + 1) && (rand(0..1) == 0)
       end
     end
     m
   end
 
   def sparse_to_matrix(s)
-    m = Matrix.build(s.rows, s.cols) {|row, col| 0}
+    m = Matrix.build(s.rows, s.cols) { |_row, _col| 0 }
     it = s.iterator
     while s.next?
       e = s.next
@@ -96,9 +92,9 @@ module MatrixTestUtil
   end
 
   def iterate_matrix(m)
-    (0..m.rows-1).each do |i|
-      (0..m.cols-1).each do |j|
-        yield(i, j, m.at(i,j))
+    (0..m.rows - 1).each do |i|
+      (0..m.cols - 1).each do |j|
+        yield(i, j, m.at(i, j))
       end
     end
   end

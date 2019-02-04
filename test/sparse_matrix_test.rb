@@ -3,45 +3,44 @@ require_relative '../lib/sparse_matrix'
 require_relative './matrix_test_util'
 
 class SparseMatrixTest < Test::Unit::TestCase
-
-  MAX_ROWS = 10000
-  MAX_COLS = 10000
-  MIN_VAL = -10000
-  MAX_VAL = 10000
+  MAX_ROWS = 10_000
+  MAX_COLS = 10_000
+  MIN_VAL = -10_000
+  MAX_VAL = 10_000
 
   def assert_invariants(m)
     assert_true(m.rows >= 0)
     assert_true(m.cols >= 0)
     if m.cols > 0
-      assert_true(m.rows > 0, "Invariant assertion. Invalid row count")
+      assert_true(m.rows > 0, 'Invariant assertion. Invalid row count')
     end
     if m.rows > 0
-      assert_true(m.cols > 0, "Invalid assertion. Invalid column count")
+      assert_true(m.cols > 0, 'Invalid assertion. Invalid column count')
     end
     if m.rows == 0
-      assert_true(m.cols == 0, "Invariant assertion. Invalid row count")
+      assert_true(m.cols == 0, 'Invariant assertion. Invalid row count')
     end
     if m.cols == 0
-      assert_true(m.rows == 0, "Invalid assertion. Invalid column count")
+      assert_true(m.rows == 0, 'Invalid assertion. Invalid column count')
     end
   end
 
   def tst_identity
-    TestUtil::rand_range(1, MAX_ROWS, 20).each do |size|
+    TestUtil.rand_range(1, MAX_ROWS, 20).each do |size|
       # Preconditions
       begin
-        assert_true(size > 0, "Identity matrix is nil")
+        assert_true(size > 0, 'Identity matrix is nil')
       end
 
       m = SparseMatrix.identity(size)
 
       # Postconditions
       begin
-        assert_true(m.square?, "Identity matrix is not square")
-        assert_true(m.diagonal?, "Identity matrix is not diagonal")
-        assert_true(m.symmetric?, "Identity mastrix is not symmetric")
-        assert_equal(size, m.sum, "Identity matrix sum is not equivalent to size")
-        (0..size-1).each do |i|
+        assert_true(m.square?, 'Identity matrix is not square')
+        assert_true(m.diagonal?, 'Identity matrix is not diagonal')
+        assert_true(m.symmetric?, 'Identity mastrix is not symmetric')
+        assert_equal(size, m.sum, 'Identity matrix sum is not equivalent to size')
+        (0..size - 1).each do |i|
           assert_equal(1, m.at(i, i), "Value for identity matrix not 1 at row:#{i}, col:#{i}")
         end
       end
@@ -110,7 +109,7 @@ class SparseMatrixTest < Test::Unit::TestCase
 
     # Preconditions
     begin
-      assert_true(square?, "Matrix for determinant test is not square")
+      assert_true(square?, 'Matrix for determinant test is not square')
     end
 
     d = m.det
@@ -129,7 +128,7 @@ class SparseMatrixTest < Test::Unit::TestCase
     c = rand(0..MAX_COLS)
     nr = rand(0..MAX_ROWS)
     nc = rand(0..MAX_COLS)
-    m = MatrixTestUtil::rand_sparse(r, c)
+    m = MatrixTestUtil.rand_sparse(r, c)
     nnzi = m.nnz
 
     # Upsize test
@@ -148,13 +147,13 @@ class SparseMatrixTest < Test::Unit::TestCase
       assert_equal(nc, m.cols, "Resize cols is incorrect. Expected: #{nc}, Actual: #{m.cols}")
 
       # Resize up
-      if nr >= r and nc >= c
+      if (nr >= r) && (nc >= c)
         assert_equal(nnzi, m.nnz, "Number of non-zero elements in resized matrix is incorrect. Expected: #{nnzi}, Actual: #{m.nnz}")
         return
       end
 
       # Resizing down
-      assert_true(nnzi >= m.nnz,"Number of non-zero elements in resized matrix is incorrect. Expected: #{nnzi}, Actual: #{m.nnz}")
+      assert_true(nnzi >= m.nnz, "Number of non-zero elements in resized matrix is incorrect. Expected: #{nnzi}, Actual: #{m.nnz}")
     end
 
     assert_invariants(m)
@@ -174,8 +173,8 @@ class SparseMatrixTest < Test::Unit::TestCase
     begin
       assert_equal(r, m.rows, "Number of rows is invalid. Expected: #{r}, Actual: #{m.rows}")
       assert_equal(c, m.cols, "Number of cols is invalid: Expected: #{c}, Actual: #{m.cols}")
-      assert_true(dr <= r, "Resize down row count is larger than original matrix row count")
-      assert_true(dc <= c, "Resize down column count is larger than original matrix column count")
+      assert_true(dr <= r, 'Resize down row count is larger than original matrix row count')
+      assert_true(dc <= c, 'Resize down column count is larger than original matrix column count')
     end
 
     m.resize(dr, dc)
@@ -184,14 +183,14 @@ class SparseMatrixTest < Test::Unit::TestCase
     begin
       assert_equal(dr, m.rows, "Resize rows is incorrect. Expected: #{dr}, Actual: #{m.rows}")
       assert_equal(dc, m.cols, "Resize cols is incorrect. Expected: #{dc}, Actual: #{m.cols}")
-      assert_equal(0, m.nnz, "Number of non-zero elements is invalid. The only non-zero element should have been pushed out during resize down")
+      assert_equal(0, m.nnz, 'Number of non-zero elements is invalid. The only non-zero element should have been pushed out during resize down')
     end
 
     assert_invariants(m)
   end
 
   def tst_set_zero
-    m = MatrixTestUtil::rand_sparse
+    m = MatrixTestUtil.rand_sparse
 
     # Preconditions
     begin
@@ -212,7 +211,7 @@ class SparseMatrixTest < Test::Unit::TestCase
   end
 
   def tst_set_identity
-    m = MatrixTestUtil::rand_sparse
+    m = MatrixTestUtil.rand_sparse
 
     # Preconditions
     begin
@@ -246,20 +245,20 @@ class SparseMatrixTest < Test::Unit::TestCase
 
     # Preconditions
     begin
-      assert_true(0 <= r && r <= m.rows - 1, "Invalid row: Out of matrix row range")
-      assert_true(0 <= c && c <= m.cols - 1, "Invalid column: Out of matrix column range")
+      assert_true(r >= 0 && r <= m.rows - 1, 'Invalid row: Out of matrix row range')
+      assert_true(c >= 0 && c <= m.cols - 1, 'Invalid column: Out of matrix column range')
     end
 
     # Postconditions
     begin
-      assert_equal(v, m.at(r, c), "Incorrect value at row:#{r}, col:#{c}. Expected: #{v}, Actual:#{m.at(r,c)}")
+      assert_equal(v, m.at(r, c), "Incorrect value at row:#{r}, col:#{c}. Expected: #{v}, Actual:#{m.at(r, c)}")
     end
 
     assert_invariants(m)
   end
 
   def tst_clone
-    m1 = MatrixTestUtil::rand_sparse
+    m1 = MatrixTestUtil.rand_sparse
 
     # Preconditions
     begin
@@ -281,22 +280,21 @@ class SparseMatrixTest < Test::Unit::TestCase
 
   def tst_to_s
     test_ms = [
-        SparseMatrix.new(0, 0),
-        SparseMatrix.create { [[10, 2, 3]] },
-        SparseMatrix.identity(3),
-        SparseMatrix.create { [[100, 0, 0, 0 ], [0, 1, 1, 0], [0, -1, 0, 0]] }
+      SparseMatrix.new(0, 0),
+      SparseMatrix.create { [[10, 2, 3]] },
+      SparseMatrix.identity(3),
+      SparseMatrix.create { [[100, 0, 0, 0], [0, 1, 1, 0], [0, -1, 0, 0]] }
     ]
 
     exps = [
-        "nil\n",    # the null case
-        "10 2 3\n", # vector case
-        "1 0 0\n0 1 0\n0 0 1\n", # matrix case
-        "100  0 0 0\n  0  1 1 0\n  0 -1 0 0\n" # Note the formatting. Values are left-padded to the longest
-    # elements column-wise
+      "nil\n", # the null case
+      "10 2 3\n", # vector case
+      "1 0 0\n0 1 0\n0 0 1\n", # matrix case
+      "100  0 0 0\n  0  1 1 0\n  0 -1 0 0\n" # Note the formatting. Values are left-padded to the longest
+      # elements column-wise
     ]
 
     test_ms.zip(exps).each do |m, e|
-
       # Preconditions
       begin
       end
@@ -305,20 +303,20 @@ class SparseMatrixTest < Test::Unit::TestCase
 
       # Postconditions
       begin
-        assert_equal(e, s, "Incorrect to_s format")
+        assert_equal(e, s, 'Incorrect to_s format')
 
         # More generically
         if m.nil?
-          assert_equal(0, MatrixTestUtil::char_count('\n', s), "Nil Matrix incorrect to_s format")
+          assert_equal(0, MatrixTestUtil.char_count('\n', s), 'Nil Matrix incorrect to_s format')
         else
           # number of \n == rows()
-          assert_equal(m.rows, MatrixTestUtil::char_count('\n', s), "Matrix incorrect to_s format ")
+          assert_equal(m.rows, MatrixTestUtil.char_count('\n', s), 'Matrix incorrect to_s format ')
           t
           # all rows have the same length
           len = nil
           s.each_line('\n') do |l|
             len = l.size if len.nil?
-            assert_equal(len, l.size, "Matrix to_s format, incorrect row length")
+            assert_equal(len, l.size, 'Matrix to_s format, incorrect row length')
           end
         end
       end
@@ -328,7 +326,7 @@ class SparseMatrixTest < Test::Unit::TestCase
   end
 
   def tst_sum
-    m = MatrixTestUtil::rand_sparse
+    m = MatrixTestUtil.rand_sparse
 
     # Preconditions
     begin
@@ -341,7 +339,7 @@ class SparseMatrixTest < Test::Unit::TestCase
       it = m.iterator
       expected = 0
 
-      while it.has_next? do
+      while it.has_next?
         el = it.next
         expected += el.val
       end
@@ -355,8 +353,8 @@ class SparseMatrixTest < Test::Unit::TestCase
   def tst_add_matrix
     r = rand(1..MAX_ROWS)
     c = rand(1..MAX_COLS)
-    m1 = MatrixTestUtil::rand_sparse(rows: r, cols: c)
-    m2 = MatrixTestUtil::rand_sparse(rows: r, cols: c)
+    m1 = MatrixTestUtil.rand_sparse(rows: r, cols: c)
+    m2 = MatrixTestUtil.rand_sparse(rows: r, cols: c)
 
     # Preconditions
     begin
@@ -374,7 +372,7 @@ class SparseMatrixTest < Test::Unit::TestCase
         assert_equal(m1.trace + m2.trace, m3.trace, "Matrix vector addition incorrect. Expected Trace:#{m1.trace + m2.trace}, Actual Trace:#{m3.trace}")
       end
 
-      assert_equal(m1, m3 - m2, "Matrix vector addition incorrect. Expected reversible operation")
+      assert_equal(m1, m3 - m2, 'Matrix vector addition incorrect. Expected reversible operation')
 
       (0..m1.rows).each do |r2|
         (0..m1.cols).each do |c2|
@@ -389,7 +387,7 @@ class SparseMatrixTest < Test::Unit::TestCase
   end
 
   def tst_add_scalar
-    m1 = MatrixTestUtil::rand_sparse()
+    m1 = MatrixTestUtil.rand_sparse
     num = rand(MIN_VAL..MAX_VAL)
 
     # Preconditions
@@ -417,8 +415,8 @@ class SparseMatrixTest < Test::Unit::TestCase
   def tst_subtract_matrix
     r = rand(1..MAX_ROWS)
     c = rand(1..MAX_COLS)
-    m1 = MatrixTestUtil::rand_sparse(rows: r, cols: c)
-    m2 = MatrixTestUtil::rand_sparse(rows: r, cols: c)
+    m1 = MatrixTestUtil.rand_sparse(rows: r, cols: c)
+    m2 = MatrixTestUtil.rand_sparse(rows: r, cols: c)
 
     # Preconditions
     begin
@@ -436,7 +434,7 @@ class SparseMatrixTest < Test::Unit::TestCase
         assert_equal(m1.trace - m2.trace, m3.trace, "Matrix vector subtraction incorrect. Expected Trace:#{m1.trace - m2.trace}, Actual Trace:#{m3.trace}")
       end
 
-      assert_equal(m1, m3 + m2, "Matrix vector subtraction incorrect. Expected reversible operation")
+      assert_equal(m1, m3 + m2, 'Matrix vector subtraction incorrect. Expected reversible operation')
 
       (0..m1.rows).each do |r2|
         (0..m1.cols).each do |c2|
@@ -451,7 +449,7 @@ class SparseMatrixTest < Test::Unit::TestCase
   end
 
   def tst_subtract_scalar
-    m1 = MatrixTestUtil::rand_sparse()
+    m1 = MatrixTestUtil.rand_sparse
     num = rand(MIN_VAL..MAX_VAL)
 
     # Preconditions
@@ -480,8 +478,8 @@ class SparseMatrixTest < Test::Unit::TestCase
   def tst_scalar_mult
     r = rand(0..MAX_ROWS)
     c = rand(1..MAX_COLS)
-    m = MatrixTestUtil::rand_matrix(r, c)
-    MatrixTestUtil::rand_range(1, 1000, 20).each do |mult|
+    m = MatrixTestUtil.rand_matrix(r, c)
+    MatrixTestUtil.rand_range(1, 1000, 20).each do |mult|
       # Preconditions
       begin
       end
@@ -504,8 +502,8 @@ class SparseMatrixTest < Test::Unit::TestCase
   def tst_exponentiation
     r = rand(0..MAX_ROWS)
     c = rand(1..MAX_COLS)
-    m = MatrixTestUtil::rand_matrix(r, c)
-    MatrixTestUtil::rand_range(1, 15, 20).each do |exp|
+    m = MatrixTestUtil.rand_matrix(r, c)
+    MatrixTestUtil.rand_range(1, 15, 20).each do |exp|
       # Preconditions
       begin
       end
@@ -515,8 +513,8 @@ class SparseMatrixTest < Test::Unit::TestCase
       # Postconditions
       begin
         expected = m
-        (0..exp).each do |i|
-          expected = expected.*(m)
+        (0..exp).each do |_i|
+          expected *= m
           assert_equal(expected, new_m, "Incorrect exponentiation. Expected:#{expected}, Actual:#{new_m}")
         end
       end
@@ -533,8 +531,8 @@ class SparseMatrixTest < Test::Unit::TestCase
 
     # Preconditions
     begin
-      assert_true(0 <= r && r <= m.rows - 1, "Invalid row: Out of matrix row range")
-      assert_true(0 <= c && c <= m.cols - 1, "Invalid column: Out of matrix column range")
+      assert_true(r >= 0 && r <= m.rows - 1, 'Invalid row: Out of matrix row range')
+      assert_true(c >= 0 && c <= m.cols - 1, 'Invalid column: Out of matrix column range')
     end
 
     nnz_before = m.nnz
@@ -546,12 +544,12 @@ class SparseMatrixTest < Test::Unit::TestCase
       # Check that the value is set
       assert_equal(v, m.at(r, c), "Invalid insertion, value not set. Expected:#{v}, Actual:#{m.at(r, c)}")
 
-      if (v != 0 and v_before != 0) or (v == 0 and v_before == 0)
-        assert_equal(nnz_before, m.nnz, "Invalid insertion, number of non-zero elements unexpectedly changed.")
-      elsif v != 0 and v_before == 0
-        assert_equal(nnz_before+1, m.nnz, "Invalid insertion, number of non-zero elements is incorrect after replacing zero value with non-zero. Expected:#{nnz_before+1}, Actual:#{m.nnz}")
+      if ((v != 0) && (v_before != 0)) || ((v == 0) && (v_before == 0))
+        assert_equal(nnz_before, m.nnz, 'Invalid insertion, number of non-zero elements unexpectedly changed.')
+      elsif (v != 0) && (v_before == 0)
+        assert_equal(nnz_before + 1, m.nnz, "Invalid insertion, number of non-zero elements is incorrect after replacing zero value with non-zero. Expected:#{nnz_before + 1}, Actual:#{m.nnz}")
       else # v == 0 and v_before != 0
-        assert_equal(nnz_before-1, m.nnz, "Invalid insertion, number of non-zero elements is incorrect after replacing non-zero value with zero. Expected:#{nnz_before-1}, Actual:#{m.nnz}")
+        assert_equal(nnz_before - 1, m.nnz, "Invalid insertion, number of non-zero elements is incorrect after replacing non-zero value with zero. Expected:#{nnz_before - 1}, Actual:#{m.nnz}")
       end
     end
 
@@ -560,20 +558,17 @@ class SparseMatrixTest < Test::Unit::TestCase
 
   # Helper function for test_diagonal?
   def nnz_off_diagonal?(m)
-    (0..m.rows-1).each do |i|
-      (0..m.cols-1).each do |j|
-        if i != j
-          if m.at(i,j) != 0
-            return true
-          end
-        end
+    (0..m.rows - 1).each do |i|
+      (0..m.cols - 1).each do |j|
+        next unless i != j
+        return true if m.at(i, j) != 0
       end
     end
     false
   end
 
   def tst_diagonal?
-    m = MatrixTestUtil::rand_sparse
+    m = MatrixTestUtil.rand_sparse
 
     # Preconditions
     begin
@@ -584,16 +579,16 @@ class SparseMatrixTest < Test::Unit::TestCase
     # Postconditions
     begin
       if is_d
-        assert_true(m.symmetric?, "Diagonal test is incorrect. Result conflicts with symmetric test")
-        assert_true(m.square?, "Diagonal test is incorrect. Matrix is not square")
+        assert_true(m.symmetric?, 'Diagonal test is incorrect. Result conflicts with symmetric test')
+        assert_true(m.square?, 'Diagonal test is incorrect. Matrix is not square')
 
         # For all i,j where i != j -> at(i,j) == 0
-        iterate_matrix(m) {|i, j, v|
+        iterate_matrix(m) do |i, j, v|
           assert_equal(0, v, "Invalid non-zero value in diagonal matrix at: row:#{i}, col:#{j}") unless i == j
-        }
+        end
       else
         # For some i,j where i != j -> at(i,j) != 0
-        assert_true(nnz_off_diagonal?(m), "Invalid non-diagonal matrix. All values off the main diagonal are zero")
+        assert_true(nnz_off_diagonal?(m), 'Invalid non-diagonal matrix. All values off the main diagonal are zero')
       end
     end
 
@@ -601,11 +596,11 @@ class SparseMatrixTest < Test::Unit::TestCase
   end
 
   def tst_diagonal
-    m = MatrixTestUtil::rand_sparse
+    m = MatrixTestUtil.rand_sparse
 
     # Preconditions
     begin
-      assert_true(square?, "Diagonal not defined for non-square matrix")
+      assert_true(square?, 'Diagonal not defined for non-square matrix')
     end
 
     md = m.diagonal
@@ -615,21 +610,21 @@ class SparseMatrixTest < Test::Unit::TestCase
       assert_true(m.diagonal?, "Diagonal conversion invalid. Expected: True, Actual:#{m.diagonal?}")
 
       # All elements on the diagonal are equivalent to the original matrix
-      (0..m.rows-1).each do |i|
-        assert_equal(m.at(i,i), md.at(i,i), "Diagonal elements not-equal to original diagonal")
+      (0..m.rows - 1).each do |i|
+        assert_equal(m.at(i, i), md.at(i, i), 'Diagonal elements not-equal to original diagonal')
       end
     end
 
     assert_invariants(m)
   end
 
-  def tst_lower_triangular?_nonsquare
+  def tst_lower_triangular?(_nonsquare)
     r = 0
     c = 0
     while r != c
       r = rand(0..MAX_ROWS)
       c = rand(0..MAX_COLS)
-      m = MatrixTestUtil::rand_matrix(r, c)
+      m = MatrixTestUtil.rand_matrix(r, c)
     end
 
     # Preconditions
@@ -638,7 +633,7 @@ class SparseMatrixTest < Test::Unit::TestCase
 
     # Postconditions
     begin
-      assert_equal(MatrixTestUtil::sparse_to_matrix(m).lower_triangular?, m.lower_triangular?, "Non-square Matrix lower triangular check is incorrect. Expected:#{MatrixTestUtil::sparse_to_matrix(m).lower_triangular?}, Actual:#{m.lower_triangular?}")
+      assert_equal(MatrixTestUtil.sparse_to_matrix(m).lower_triangular?, m.lower_triangular?, "Non-square Matrix lower triangular check is incorrect. Expected:#{MatrixTestUtil.sparse_to_matrix(m).lower_triangular?}, Actual:#{m.lower_triangular?}")
     end
 
     assert_invariants(m)
@@ -648,8 +643,8 @@ class SparseMatrixTest < Test::Unit::TestCase
     i = 0
     while i < 20
       rc = rand(0..MAX_ROWS)
-      m_tri = MatrixTestUtil::lower_triangular_matrix(rc, 0, 1000)
-      m_random = MatrixTestUtil::rand_matrix(rc, rc)
+      m_tri = MatrixTestUtil.lower_triangular_matrix(rc, 0, 1000)
+      m_random = MatrixTestUtil.rand_matrix(rc, rc)
 
       # Preconditions
       begin
@@ -657,8 +652,8 @@ class SparseMatrixTest < Test::Unit::TestCase
 
       # Postconditions
       begin
-        assert_equal(MatrixTestUtil::sparse_to_matrix(m_tri).lower_triangular?, m_tri.lower_triangular?, "Lower triangular check is incorrect for Square Lower Triangular Matrix. Expected:#{MatrixTestUtil::sparse_to_matrix(m_tri).lower_triangular?}, Actual:#{m_tri.lower_triangular?}")
-        assert_equal(MatrixTestUtil::sparse_to_matrix(m_random).lower_triangular?, m_random.lower_triangular?, "Lower triangular check is incorrect for Random Square Matrix. Expected:#{MatrixTestUtil::sparse_to_matrix(m_random).lower_triangular?}, Actual:#{m_random.lower_triangular?}")
+        assert_equal(MatrixTestUtil.sparse_to_matrix(m_tri).lower_triangular?, m_tri.lower_triangular?, "Lower triangular check is incorrect for Square Lower Triangular Matrix. Expected:#{MatrixTestUtil.sparse_to_matrix(m_tri).lower_triangular?}, Actual:#{m_tri.lower_triangular?}")
+        assert_equal(MatrixTestUtil.sparse_to_matrix(m_random).lower_triangular?, m_random.lower_triangular?, "Lower triangular check is incorrect for Random Square Matrix. Expected:#{MatrixTestUtil.sparse_to_matrix(m_random).lower_triangular?}, Actual:#{m_random.lower_triangular?}")
       end
 
       assert_invariants(m_tri)
@@ -674,7 +669,7 @@ class SparseMatrixTest < Test::Unit::TestCase
     while r != c
       r = rand(0..MAX_ROWS)
       c = rand(0..MAX_COLS)
-      m = MatrixTestUtil::rand_matrix(r, c)
+      m = MatrixTestUtil.rand_matrix(r, c)
     end
 
     # Preconditions
@@ -683,7 +678,7 @@ class SparseMatrixTest < Test::Unit::TestCase
 
     # Postconditions
     begin
-      assert_equal(MatrixTestUtil::sparse_to_matrix(m).upper_triangular?, m.upper_triangular?, "Non-square Matrix upper triangular check is incorrect. Expected:#{MatrixTestUtil::sparse_to_matrix(m).upper_triangular?}, Actual:#{m.upper_triangular?}" )
+      assert_equal(MatrixTestUtil.sparse_to_matrix(m).upper_triangular?, m.upper_triangular?, "Non-square Matrix upper triangular check is incorrect. Expected:#{MatrixTestUtil.sparse_to_matrix(m).upper_triangular?}, Actual:#{m.upper_triangular?}")
     end
 
     assert_invariants(m)
@@ -693,8 +688,8 @@ class SparseMatrixTest < Test::Unit::TestCase
     i = 0
     while i < 20
       rc = rand(0..MAX_ROWS)
-      m_tri = MatrixTestUtil::upper_triangular_matrix(rc, 0, 1000)
-      m_random = MatrixTestUtil::rand_matrix(rc, rc)
+      m_tri = MatrixTestUtil.upper_triangular_matrix(rc, 0, 1000)
+      m_random = MatrixTestUtil.rand_matrix(rc, rc)
 
       # Preconditions
       begin
@@ -702,8 +697,8 @@ class SparseMatrixTest < Test::Unit::TestCase
 
       # Postconditions
       begin
-        assert_equal(MatrixTestUtil::sparse_to_matrix(m_tri).upper_triangular?, m_tri.upper_triangular?, "Upper triangular check is incorrect for Square Upper Triangular Matrix. Expected:#{MatrixTestUtil::sparse_to_matrix(m_tri).upper_triangular?}, Actual:#{m_tri.upper_triangular?}")
-        assert_equal(MatrixTestUtil::sparse_to_matrix(m_random).upper_triangular?, m_random.upper_triangular?, "Upper triangular check is incorrect for Random Square Matrix. Expected:#{MatrixTestUtil::sparse_to_matrix(m_random).upper_triangular?}, Actual:#{m_random.upper_triangular?}")
+        assert_equal(MatrixTestUtil.sparse_to_matrix(m_tri).upper_triangular?, m_tri.upper_triangular?, "Upper triangular check is incorrect for Square Upper Triangular Matrix. Expected:#{MatrixTestUtil.sparse_to_matrix(m_tri).upper_triangular?}, Actual:#{m_tri.upper_triangular?}")
+        assert_equal(MatrixTestUtil.sparse_to_matrix(m_random).upper_triangular?, m_random.upper_triangular?, "Upper triangular check is incorrect for Random Square Matrix. Expected:#{MatrixTestUtil.sparse_to_matrix(m_random).upper_triangular?}, Actual:#{m_random.upper_triangular?}")
       end
 
       assert_invariants(m_tri)
@@ -718,8 +713,8 @@ class SparseMatrixTest < Test::Unit::TestCase
     if !m.square?
       assert_false(m.lower_hessenberg?, "Lower Hessenberg check for Non-square Matrix is incorrect. Expected: False, Actual:#{m.lower_hessenberg?}")
     else
-      for y in 0...m.rows()
-        for x in 0...m.cols()
+      (0...m.rows).each do |y|
+        (0...m.cols).each do |x|
           if x > y + 1
             assert_equal(0, m.at(x, y), "Lower Hessenberg Matrix is not zero at row:#{y} col:#{x}. Value: #{m.at(x, y)}")
           end
@@ -733,9 +728,9 @@ class SparseMatrixTest < Test::Unit::TestCase
     r = 0
     c = 0
     while r != c
-      r = rand(0..10000)
-      c = rand(0..10000)
-      m = MatrixTestUtil::rand_matrix(r, c)
+      r = rand(0..10_000)
+      c = rand(0..10_000)
+      m = MatrixTestUtil.rand_matrix(r, c)
     end
 
     # Preconditions
@@ -755,8 +750,8 @@ class SparseMatrixTest < Test::Unit::TestCase
     i = 0
     while i < 20
       rc = rand(0..MAX_ROWS)
-      m_hess = MatrixTestUtil::lower_hessenberg_matrix(rc, 0, 1000)
-      m_random = MatrixTestUtil::rand_matrix(rc, rc)
+      m_hess = MatrixTestUtil.lower_hessenberg_matrix(rc, 0, 1000)
+      m_random = MatrixTestUtil.rand_matrix(rc, rc)
 
       # Preconditions
       begin
@@ -778,12 +773,12 @@ class SparseMatrixTest < Test::Unit::TestCase
   def check_upper_hessenberg(m)
     # algorithm to test matrix m is upper_hessenberg
     if !m.square?
-      assert(!m.upper_hessenberg?, "Non-square matrix cannot be upper hessenberg")
+      assert(!m.upper_hessenberg?, 'Non-square matrix cannot be upper hessenberg')
     else
-      for y in 0...m.rows
-        for x in 0...m.cols
+      (0...m.rows).each do |y|
+        (0...m.cols).each do |x|
           if y > x + 1
-            assert_equal(0, m.at(x, y), "Nonzero value below tri-diagonal band, cannot be upper hessenberg")
+            assert_equal(0, m.at(x, y), 'Nonzero value below tri-diagonal band, cannot be upper hessenberg')
           end
         end
       end
@@ -797,7 +792,7 @@ class SparseMatrixTest < Test::Unit::TestCase
     while r != c
       r = rand(0..MAX_ROWS)
       c = rand(0..MAX_COLS)
-      m = MatrixTestUtil::rand_matrix(r, c)
+      m = MatrixTestUtil.rand_matrix(r, c)
     end
 
     # Preconditions
@@ -817,8 +812,8 @@ class SparseMatrixTest < Test::Unit::TestCase
     i = 0
     while i < 10
       rc = rand(0..MAX_ROWS)
-      m_hess = MatrixTestUtil::upper_hessenberg_matrix(rc, 0, 1000)
-      m_random = MatrixTestUtil::rand_matrix(rc, rc)
+      m_hess = MatrixTestUtil.upper_hessenberg_matrix(rc, 0, 1000)
+      m_random = MatrixTestUtil.rand_matrix(rc, rc)
 
       # Preconditions
       begin
@@ -844,22 +839,22 @@ class SparseMatrixTest < Test::Unit::TestCase
       r1 = rand(0..MAX_ROWS)
       r2 = rand(0..MAX_ROWS)
     end
-    m = MatrixTestUtil::rand_matrix(r1, rand(0..MAX_ROWS))
+    m = MatrixTestUtil.rand_matrix(r1, rand(0..MAX_ROWS))
     m_same = m.clone
-    m_diff = MatrixTestUtil::rand_matrix(r2, rand(0..MAX_ROWS))
+    m_diff = MatrixTestUtil.rand_matrix(r2, rand(0..MAX_ROWS))
 
     # Preconditions
     begin
-      assert_true(m_same.rows >= 0, "Invalid row count of clone comparison matrix. Row count outside of valid range")
-      assert_true(m_same.cols >= 0, "Invalid column count of clone comparison matrix. Column count outside of valid range")
-      assert_true(m_diff.rows >= 0, "Invalid row count of different comparison matrix. Row count outside of valid range")
-      assert_true(m_diff.cols >= 0, "Invalid column count of different comparison matrix. Column count outside of valid range")
+      assert_true(m_same.rows >= 0, 'Invalid row count of clone comparison matrix. Row count outside of valid range')
+      assert_true(m_same.cols >= 0, 'Invalid column count of clone comparison matrix. Column count outside of valid range')
+      assert_true(m_diff.rows >= 0, 'Invalid row count of different comparison matrix. Row count outside of valid range')
+      assert_true(m_diff.cols >= 0, 'Invalid column count of different comparison matrix. Column count outside of valid range')
     end
 
     # Postconditions
     begin
-      assert_equal(m, m_same, "Equivalent matrices declared different")
-      assert_not_equal(m, m_diff, "Different matrices declared equivalent")
+      assert_equal(m, m_same, 'Equivalent matrices declared different')
+      assert_not_equal(m, m_diff, 'Different matrices declared equivalent')
     end
 
     assert_invariants(m)
@@ -868,7 +863,7 @@ class SparseMatrixTest < Test::Unit::TestCase
   end
 
   def tst_cofactor
-    m = MatrixTestUtil::rand_sparse()
+    m = MatrixTestUtil.rand_sparse
 
     # Preconditions
     begin
@@ -881,13 +876,13 @@ class SparseMatrixTest < Test::Unit::TestCase
 
     # Postconditions
     begin
-      if m.cols == 1  || m.rows == 1
-        assert_true(cof.null?, "Co-factor of vector non-nil")
+      if m.cols == 1 || m.rows == 1
+        assert_true(cof.null?, 'Co-factor of vector non-nil')
       else
         assert_equal(cof.cols, m.cols - 1)
         assert_equal(cof.rows, m.rows - 1)
 
-        #TODO: Check the actual values of the cofactor matrix
+        # TODO: Check the actual values of the cofactor matrix
       end
     end
 
@@ -895,11 +890,11 @@ class SparseMatrixTest < Test::Unit::TestCase
   end
 
   def tst_adjoint
-    m = MatrixTestUtil::rand_square_sparse()
+    m = MatrixTestUtil.rand_square_sparse
 
     # Preconditions
     begin
-      assert_true(m.square?, "Cannot calculate adjoint of non-square matrix")
+      assert_true(m.square?, 'Cannot calculate adjoint of non-square matrix')
     end
 
     adj = m.adjoint
@@ -907,7 +902,7 @@ class SparseMatrixTest < Test::Unit::TestCase
     # Postconditions
     begin
       cof = m.cofactor
-      assert_equal(adj, cof.transpose, "Adjoint not equal to transpose of cofactor matrix")
+      assert_equal(adj, cof.transpose, 'Adjoint not equal to transpose of cofactor matrix')
     end
 
     assert_invariants(m)
@@ -915,8 +910,8 @@ class SparseMatrixTest < Test::Unit::TestCase
   end
 
   def tst_identity?
-    i = MatrixTestUtil::identity_matrix()
-    m = MatrixTestUtil::rand_square_sparse(range: 2...MAX_VAL)
+    i = MatrixTestUtil.identity_matrix
+    m = MatrixTestUtil.rand_square_sparse(range: 2...MAX_VAL)
 
     # Preconditions
     begin
@@ -927,8 +922,8 @@ class SparseMatrixTest < Test::Unit::TestCase
 
     # Posconditions
     begin
-      assert_true(identity, "Identity matrix declared as non-identity matrix")
-      assert_false(non_identity, "Non-identity matrix declared as identity matrix")
+      assert_true(identity, 'Identity matrix declared as non-identity matrix')
+      assert_false(non_identity, 'Non-identity matrix declared as identity matrix')
     end
 
     assert_invariants(i)
@@ -936,7 +931,7 @@ class SparseMatrixTest < Test::Unit::TestCase
   end
 
   def tst_square?
-    m = MatrixTestUtil::rand_sparse()
+    m = MatrixTestUtil.rand_sparse
 
     # Preconditions
     begin
@@ -946,15 +941,15 @@ class SparseMatrixTest < Test::Unit::TestCase
 
     # Postconditions
     begin
-      assert_equal(m.rows == m.cols, sq, "Square/non-square matrix declared as non-square/square")
+      assert_equal(m.rows == m.cols, sq, 'Square/non-square matrix declared as non-square/square')
     end
 
     assert_invariants(m)
   end
 
   def tst_positive?
-    pos_m = MatrixTestUtil::rand_sparse(range: 0..MAX_VAL)
-    neg_m = MatrixTestUtil::rand_sparse(range: MIN_VAL..-1)
+    pos_m = MatrixTestUtil.rand_sparse(range: 0..MAX_VAL)
+    neg_m = MatrixTestUtil.rand_sparse(range: MIN_VAL..-1)
 
     # Preconditions
     begin
@@ -965,8 +960,8 @@ class SparseMatrixTest < Test::Unit::TestCase
 
     # Postconditions
     begin
-      assert_true(pos, "Positive matrix declared non-positive")
-      assert_false(neg, "Non-positive matrix declared as positive")
+      assert_true(pos, 'Positive matrix declared non-positive')
+      assert_false(neg, 'Non-positive matrix declared as positive')
     end
 
     assert_invariants(pos_m)
@@ -974,7 +969,7 @@ class SparseMatrixTest < Test::Unit::TestCase
   end
 
   def tst_invertible?
-    m = MatrixTestUtil::rand_sparse()
+    m = MatrixTestUtil.rand_sparse
 
     # Preconditions
     begin
@@ -984,32 +979,32 @@ class SparseMatrixTest < Test::Unit::TestCase
 
     # Postconditions
     begin
-      assert_equal(m.square? && m.det != 0, inv, "Invertible/singular matrix declared as singular/invertible.")
+      assert_equal(m.square? && m.det != 0, inv, 'Invertible/singular matrix declared as singular/invertible.')
     end
 
     assert_invariants(m)
   end
 
   def tst_inverse
-    m = MatrixTestUtil::rand_square_sparse()
+    m = MatrixTestUtil.rand_square_sparse
 
     # Preconditions
     begin
-      assert_true(m.invertible?, "Cannot calculate inverse of singular matrix")
+      assert_true(m.invertible?, 'Cannot calculate inverse of singular matrix')
     end
 
     inv = m.inverse
 
     # Postconditions
     begin
-      assert_equal(m * inv, SparseMatrix::identity(m.rows), "Matrix times its inverse not equal identity")
+      assert_equal(m * inv, SparseMatrix.identity(m.rows), 'Matrix times its inverse not equal identity')
     end
 
     assert_invariants(m)
   end
 
   def tst_symmetric?
-    m = MatrixTestUtil::rand_sparse()
+    m = MatrixTestUtil.rand_sparse
 
     # Preconditions
     begin
@@ -1019,14 +1014,14 @@ class SparseMatrixTest < Test::Unit::TestCase
 
     # Postconditions
     begin
-      assert_equal(m == m.transpose, sym, "Symmetric matrix not equal to its transpose")
+      assert_equal(m == m.transpose, sym, 'Symmetric matrix not equal to its transpose')
     end
 
     assert_invariants(m)
   end
 
   def tst_traceable?
-    m = MatrixTestUtil::rand_sparse
+    m = MatrixTestUtil.rand_sparse
 
     # Preconditions
     begin
@@ -1036,40 +1031,40 @@ class SparseMatrixTest < Test::Unit::TestCase
 
     # Postconditions
     begin
-      assert_equal(m.square?, tr, "Square/non-square matrix are not-traceable/traceable")
+      assert_equal(m.square?, tr, 'Square/non-square matrix are not-traceable/traceable')
     end
 
     assert_invariants(m)
   end
 
   def tst_trace
-    m = MatrixTestUtil::rand_sparse()
+    m = MatrixTestUtil.rand_sparse
 
     # Preconditions
     begin
-      assert_true(m.traceable?, "Matrix is not traceable")
+      assert_true(m.traceable?, 'Matrix is not traceable')
     end
 
     tr = m.trace
 
     # Postconditions
     begin
-      assert_equal(m.diagonal.trace, tr, "Trace not equal to trace of diagonal matrix")
-      assert_equal(m.diagonal.sum, tr, "Trace not equal to sum of diagonal matrix")
+      assert_equal(m.diagonal.trace, tr, 'Trace not equal to trace of diagonal matrix')
+      assert_equal(m.diagonal.sum, tr, 'Trace not equal to sum of diagonal matrix')
 
       trace = 0
       (0..m.rows).each do |r|
         trace += m.at(r, r)
       end
 
-      assert_equal(trace, tr, "Trace not equal to sum of diagonal elements")
+      assert_equal(trace, tr, 'Trace not equal to sum of diagonal elements')
     end
 
     assert_invariants(m)
   end
 
   def tst_transpose
-    m = MatrixTestUtil::rand_sparse
+    m = MatrixTestUtil.rand_sparse
 
     # Preconditions
     begin
@@ -1079,11 +1074,11 @@ class SparseMatrixTest < Test::Unit::TestCase
 
     # Postconditions
     begin
-      assert_equal(m.rows, mt.cols, "Transpose has a different number of columns")
-      assert_equal(m.cols, mt.rows, "Transpose has different number of rows")
-      assert_equal(m.sum, mt.sum, "Sum of transposes not equal")
-      MatrixTestUtil::iterate_matrix(mt) { |i, j, v| assert_equal(m.at(j, i), v) }
-      assert_equal(mt.transpose, m, "Transpose of transpose not equal to original")
+      assert_equal(m.rows, mt.cols, 'Transpose has a different number of columns')
+      assert_equal(m.cols, mt.rows, 'Transpose has different number of rows')
+      assert_equal(m.sum, mt.sum, 'Sum of transposes not equal')
+      MatrixTestUtil.iterate_matrix(mt) { |i, j, v| assert_equal(m.at(j, i), v) }
+      assert_equal(mt.transpose, m, 'Transpose of transpose not equal to original')
     end
 
     assert_invariants(m)
@@ -1092,14 +1087,13 @@ class SparseMatrixTest < Test::Unit::TestCase
 
   def tst_zero?
     ms = [
-        MatrixTestUtil::rand_sparse,
-        SparseMatrix.new(0),
-        SparseMatrix.identity(3),
-        SparseMatrix.zero((0..100), (0..100))
+      MatrixTestUtil.rand_sparse,
+      SparseMatrix.new(0),
+      SparseMatrix.identity(3),
+      SparseMatrix.zero((0..100), (0..100))
     ]
 
     ms.each do |m|
-
       # Preconditions
       begin
       end
@@ -1109,9 +1103,9 @@ class SparseMatrixTest < Test::Unit::TestCase
       # Postconditions
       begin
         if m.nnz > 0
-          assert_false(is_zero, "Non-zero matrix recognized as zero")
+          assert_false(is_zero, 'Non-zero matrix recognized as zero')
         else
-          assert_true(is_zero, "Zero matrix not recognized as zero")
+          assert_true(is_zero, 'Zero matrix not recognized as zero')
         end
       end
 
@@ -1120,7 +1114,7 @@ class SparseMatrixTest < Test::Unit::TestCase
   end
 
   def tst_rank
-    m = MatrixTestUtil::rand_sparse
+    m = MatrixTestUtil.rand_sparse
 
     # Preconditions
     begin
@@ -1130,17 +1124,17 @@ class SparseMatrixTest < Test::Unit::TestCase
 
     # Postconditions
     begin
-      if m.nil? or m.zero?
-        assert_equal(0, r, "Rank non-zero for zero matrix")
+      if m.nil? || m.zero?
+        assert_equal(0, r, 'Rank non-zero for zero matrix')
         return
       end
 
-      assert_true(r > 0, "Rank non-positive for non-nil matrix") unless m.nil? or m.zero?
-      assert_true(r <= m.rows, "Rank larger than number of rows")
+      assert_true(r > 0, 'Rank non-positive for non-nil matrix') unless m.nil? || m.zero?
+      assert_true(r <= m.rows, 'Rank larger than number of rows')
 
       if m.square?
-        assert_equal(MatrixTestUtil::sparse_to_matrix(m).rank, r, "Rank not equal to Ruby::Matrix rank")
-        assert_equal(r, m.transpose.rank, "Rank not equal to rank of transpose.")
+        assert_equal(MatrixTestUtil.sparse_to_matrix(m).rank, r, 'Rank not equal to Ruby::Matrix rank')
+        assert_equal(r, m.transpose.rank, 'Rank not equal to rank of transpose.')
       end
     end
 
@@ -1148,7 +1142,7 @@ class SparseMatrixTest < Test::Unit::TestCase
   end
 
   def tst_orthogonal?
-    m = MatrixTestUtil::rand_square_sparse()
+    m = MatrixTestUtil.rand_square_sparse
 
     # Preconditions
     begin
@@ -1158,37 +1152,37 @@ class SparseMatrixTest < Test::Unit::TestCase
 
     # Post conditions
     begin
-      assert_true(m.transpose == m.inverse, orth, "Conflict between orthogonal result and transpose/inverse equality")
+      assert_true(m.transpose == m.inverse, orth, 'Conflict between orthogonal result and transpose/inverse equality')
     end
 
     assert_invariants(m)
   end
 
   def tst_tridiagonal
-    TestUtil::rand_range(1, 1000, 20).each do |len|
-      upper_diagonal = Array.new(len-1)
-      upper_diagonal.insert(TestUtil::rand_range(1, 1000, len-1))
-      lower_diagonal = Array.new(len-1)
-      lower_diagonal.insert(TestUtil::rand_range(1, 1000, len-1))
+    TestUtil.rand_range(1, 1000, 20).each do |len|
+      upper_diagonal = Array.new(len - 1)
+      upper_diagonal.insert(TestUtil.rand_range(1, 1000, len - 1))
+      lower_diagonal = Array.new(len - 1)
+      lower_diagonal.insert(TestUtil.rand_range(1, 1000, len - 1))
       diagonal = Array.new(len)
-      diagonal.insert(TestUtil::rand_range(1, 1000, len))
+      diagonal.insert(TestUtil.rand_range(1, 1000, len))
       diagonals = Array.[](upper_diagonal, diagonal, lower_diagonal)
 
       # Preconditions
       begin
-        assert_equal(diagonals[1].length, (diagonals[0].length + 1), "Upper/main diagonal band lengths differ by more than one")
-        assert_equal(diagonals[1].length, (diagonals[2].length + 1), "Lower/main diagonal band lengths differ by more than one")
+        assert_equal(diagonals[1].length, (diagonals[0].length + 1), 'Upper/main diagonal band lengths differ by more than one')
+        assert_equal(diagonals[1].length, (diagonals[2].length + 1), 'Lower/main diagonal band lengths differ by more than one')
       end
 
       m = SparseMatrix.tridagonal(diagonals)
 
       # Postconditions
       begin
-        assert_true(m.square?, "Tri-diagonal matrix must be square.")
-        for y in range 0...len
-          for x in range 0...len
+        assert_true(m.square?, 'Tri-diagonal matrix must be square.')
+        range 0...len.each do |y|
+          range 0...len.each do |x|
             unless x == y || x == y - 1 || x == y + 1
-              assert_equal(m.at(x, y), 0, "Tri-diagonal matrix cannot have non-zero elements outside of band.")
+              assert_equal(m.at(x, y), 0, 'Tri-diagonal matrix cannot have non-zero elements outside of band.')
             end
           end
         end
