@@ -558,7 +558,7 @@ class SparseMatrixTest < Test::Unit::TestCase
 
     # Preconditions
     begin
-      assert_true(square?)
+      assert_true(square?, "Diagonal not defined for non-square matrix")
     end
 
     md = m.diagonal
@@ -569,7 +569,7 @@ class SparseMatrixTest < Test::Unit::TestCase
 
       # All elements on the diagonal are equivalent to the original matrix
       (0..m.rows-1).each do |i|
-        assert_equal(m.at(i,i), md.at(i,i))
+        assert_equal(m.at(i,i), md.at(i,i), "Diagonal elements not-equal to original diagonal")
       end
     end
   end
@@ -785,8 +785,8 @@ class SparseMatrixTest < Test::Unit::TestCase
 
     # Postconditions
     begin
-      assert_true(m == m_same)
-      assert_true(m != m_diff)
+      assert_equal(m, m_same)
+      assert_not_equal(m, m_diff)
     end
   end
 
@@ -820,7 +820,7 @@ class SparseMatrixTest < Test::Unit::TestCase
 
     # Preconditions
     begin
-      assert_true(m.square?)
+      assert_true(m.square?, "Cannot calculate adjoint of non-square matrix")
     end
 
     adj = m.adjoint
@@ -828,7 +828,7 @@ class SparseMatrixTest < Test::Unit::TestCase
     # Postconditions
     begin
       cof = m.cofactor
-      assert_equal(adj, cof.transpose)
+      assert_equal(adj, cof.transpose, "Adjoint not equal to transpose of cofactor matrix")
     end
   end
 
@@ -862,7 +862,7 @@ class SparseMatrixTest < Test::Unit::TestCase
 
     # Postconditions
     begin
-      assert_equal(m.rows == m.cols, sq)
+      assert_equal(m.rows == m.cols, sq, "Square/non-square matrix declared as non-square/square")
     end
   end
 
@@ -879,8 +879,8 @@ class SparseMatrixTest < Test::Unit::TestCase
 
     # Postconditions
     begin
-      assert_true(pos)
-      assert_false(neg)
+      assert_true(pos, "Positive matrix declared non-positive")
+      assert_false(neg, "Non-positive matrix declared as positive")
     end
   end
 
@@ -895,7 +895,7 @@ class SparseMatrixTest < Test::Unit::TestCase
 
     # Postconditions
     begin
-      assert_equal(m.square? && m.det != 0, inv)
+      assert_equal(m.square? && m.det != 0, inv, "Invertible/singular matrix declared as singular/invertible.")
     end
   end
 
@@ -904,14 +904,14 @@ class SparseMatrixTest < Test::Unit::TestCase
 
     # Preconditions
     begin
-      assert_true(m.invertible?)
+      assert_true(m.invertible?, "Cannot calculate inverse of singular matrix")
     end
 
     inv = m.inverse
 
     # Postconditions
     begin
-      assert_equal(m * inv, SparseMatrix::identity(m.rows))
+      assert_equal(m * inv, SparseMatrix::identity(m.rows), "Matrix times its inverse not equal identity")
     end
   end
 
@@ -926,7 +926,7 @@ class SparseMatrixTest < Test::Unit::TestCase
 
     # Postconditions
     begin
-      assert_equal(m == m.transpose, sym)
+      assert_equal(m == m.transpose, sym, "Symmetric matrix not equal to its transpose")
     end
   end
 
@@ -941,7 +941,7 @@ class SparseMatrixTest < Test::Unit::TestCase
 
     # Postconditions
     begin
-      assert_equal(m.square?, tr)
+      assert_equal(m.square?, tr, "Square/non-square matrix are not-traceable/traceable")
     end
   end
 
@@ -950,22 +950,22 @@ class SparseMatrixTest < Test::Unit::TestCase
 
     # Preconditions
     begin
-      assert_true(m.traceable?)
+      assert_true(m.traceable?, "Matrix is not traceable")
     end
 
     tr = m.trace
 
     # Postconditions
     begin
-      assert_equal(m.diagonal.trace, tr)
-      assert_equal(m.diagonal.sum, tr)
+      assert_equal(m.diagonal.trace, tr, "Trace not equal to trace of diagonal matrix")
+      assert_equal(m.diagonal.sum, tr, "Trace not equal to sum of diagonal matrix")
 
       trace = 0
       (0..m.rows).each do |r|
         trace += m.at(r, r)
       end
 
-      assert_equal(trace, tr)
+      assert_equal(trace, tr, "Trace not equal to sum of diagonal elements")
     end
   end
 
@@ -980,11 +980,11 @@ class SparseMatrixTest < Test::Unit::TestCase
 
     # Postconditions
     begin
-      assert_equal(m.rows, mt.cols)
-      assert_equal(m.cols, mt.rows)
-      assert_equal(m.sum, mt.sum)
+      assert_equal(m.rows, mt.cols, "Transpose has a different number of columns")
+      assert_equal(m.cols, mt.rows, "Transpose has different number of rows")
+      assert_equal(m.sum, mt.sum, "Sum of transposes not equal")
       MatrixTestUtil::iterate_matrix(mt) { |i, j, v| assert_equal(m.at(j, i), v) }
-      assert_true(mt.transpose == m)
+      assert_equal(mt.transpose, m, "Transpose of transpose not equal to original")
     end
   end
 
@@ -1007,9 +1007,9 @@ class SparseMatrixTest < Test::Unit::TestCase
       # Postconditions
       begin
         if m.nnz > 0
-          assert_false(is_zero)
+          assert_false(is_zero, "Non-zero matrix recognized as zero")
         else
-          assert_true(is_zero)
+          assert_true(is_zero, "Zero matrix not recognized as zero")
         end
       end
     end
@@ -1029,16 +1029,16 @@ class SparseMatrixTest < Test::Unit::TestCase
     # Postconditions
     begin
       if m.nil? or m.zero?
-        assert_equal(0, r)
+        assert_equal(0, r, "Rank non-zero for zero matrix")
         return
       end
 
-      assert_true(r > 0) unless m.nil? or m.zero?
-      assert_true(r <= m.rows)
+      assert_true(r > 0, "Rank non-positive for non-nil matrix") unless m.nil? or m.zero?
+      assert_true(r <= m.rows, "Rank larger than number of rows")
 
       if m.square?
-        assert_equal(MatrixTestUtil::sparse_to_matrix(m).rank, r)
-        assert_equal(r, m.transpose.rank)
+        assert_equal(MatrixTestUtil::sparse_to_matrix(m).rank, r, "Rank not equal to Ruby::Matrix rank")
+        assert_equal(r, m.transpose.rank, "Rank not equal to rank of transpose.")
       end
     end
   end
@@ -1070,8 +1070,8 @@ class SparseMatrixTest < Test::Unit::TestCase
 
       # Preconditions
       begin
-        assert(diagonals[1].length == (diagonals[0].length + 1))
-        assert(diagonals[1].length == (diagonals[2].length + 1))
+        assert_equal(diagonals[1].length, (diagonals[0].length + 1))
+        assert_equal(diagonals[1].length, (diagonals[2].length + 1))
       end
 
       m = SparseMatrix.tridagonal(diagonals)
