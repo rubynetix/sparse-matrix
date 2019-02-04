@@ -9,6 +9,23 @@ class SparseMatrixTest < Test::Unit::TestCase
   MIN_VAL = -10000
   MAX_VAL = 10000
 
+  def assert_invariants(m)
+    assert_true(m.rows >= 0)
+    assert_true(m.cols >= 0)
+    if m.cols > 0
+      assert_true(m.rows > 0)
+    end
+    if m.rows > 0
+      assert_true(m.cols > 0)
+    end
+    if m.rows == 0
+      assert_true(m.cols == 0)
+    end
+    if m.cols == 0
+      assert_true(m.rows == 0)
+    end
+  end
+
   def tst_identity
     TestUtil::rand_range(1, MAX_ROWS, 20).each do |size|
       # Preconditions
