@@ -721,7 +721,11 @@ class SparseMatrixTest < Test::Unit::TestCase
       for y in 0...m.rows()
         for x in 0...m.cols()
           if x > y + 1
+<<<<<<< HEAD
             assert_equal(0, m.at(x, y), "Lower Hessenberg Matrix is not zero at row:#{y} col:#{x}. Value: #{m.at(x, y)}")
+=======
+            assert_equal(0, m.at(x, y), "Lower Hessenverg Matrix is not zero at row:#{y} col:#{x}. Value: #{m.at(x, y)}")
+>>>>>>> cecc16ea2a0b7ceeb699791c72e68c8628434500
           end
         end
       end
