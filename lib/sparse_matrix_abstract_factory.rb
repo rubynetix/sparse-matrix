@@ -10,7 +10,7 @@ class AbstractSparseMatrixFactory
     raise(ArgumentError) unless args.length > 1
 
     type = args[0]
-    if @@factories.has_key? type
+    if @@factories.key? type
       @@factories.fetch(type).new args[1..-1]
     else
       raise ArgumentError, "Unknown matrix type #{type}"
@@ -18,8 +18,8 @@ class AbstractSparseMatrixFactory
   end
 
   def self.rand_matrix(type, rows = 100, cols = rows,
-      scarcity = 0.4, range = (-1000..1000))
-    if @@factories.has_key? type
+                       scarcity = 0.4, range = (-1000..1000))
+    if @@factories.key? type
       @@factories.fetch(type).rand_matrix rows, cols, scarcity, range
     else
       raise ArgumentError, "Unknown matrix type #{type}"
