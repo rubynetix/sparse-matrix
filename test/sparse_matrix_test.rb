@@ -1,117 +1,6 @@
 require 'test/unit'
 require_relative '../lib/sparse_matrix'
-
-module MatrixTestUtil
-  def rand_range(l, h, size)
-    i = 0
-    a = []
-    while i < size
-      a.push(rand(l..h))
-      i += 1
-    end
-    a
-  end
-
-  def rand_sparse(rows: rand(1..1000), cols: rand(1..1000), range: (-1000..1000))
-    # TODO: Implementation
-  end
-
-  def rand_square_sparse(size: 1000, range: -1000..1000)
-    rand_sparse(rows: size, cols: size, range: range)
-  end
-
-  def upper_triangular_matrix(n, l, h)
-    # return a upper triangular matrix with n rows and columns
-    # with non-zero values in the range l..h
-    m = SparseMatrix.new(n, n)
-    for y in 0...m.rows
-      for x in 0...m.cols
-        if (y > x)
-          m.insert(x, y, 0)
-        else
-          if rand(0..1) == 0
-            m.insert(x, y, 0)
-          else
-            m.insert(x, y, rand(l...h))
-          end
-        end
-      end
-    end
-    m
-  end
-
-  def lower_triangular_matrix(n, l, h)
-    # return a lower triangular matrix with n rows and columns
-    # with non-zero values in the range l..h
-    m = SparseMatrix.new(n, n)
-    for y in 0...m.rows
-      for x in 0...m.cols
-        if x > y
-          m.insert(x, y, 0)
-        else
-          if rand(0..1) == 0
-            m.insert(x, y, 0)
-          else
-            m.insert(x, y, rand(l...h))
-          end
-        end
-      end
-    end
-    m
-  end
-
-  def upper_hessenberg_matrix(n, l, h)
-    # return a upper hessenberg matrix with n rows and columns
-    # with non-zero values in the range l..h
-    m = SparseMatrix.new(n, n)
-    (0..m.rows).each do |y|
-      (0..m.cols).each do |x|
-        if not (y > x + 1) and rand(0..1) == 0
-            m.insert(x, y, rand(l...h))
-        end
-      end
-    end
-    m
-  end
-
-  def lower_hessenberg_matrix(n, l, h)
-    # return a lower hessenberg matrix with n rows and columns
-    # with non-zero values in the range l..h
-    m = SparseMatrix.new(n, n)
-    (0..m.rows).each do |y|
-      (0..m.cols).each do |x|
-        if not (x > y + 1) and rand(0..1) == 0
-            m.insert(x, y, rand(l...h))
-        end
-      end
-    end
-    m
-  end
-
-  def sparse_to_matrix(s)
-    m = Matrix.build(s.rows, s.cols) {|row, col| 0}
-    it = s.iterator
-    while s.next?
-      e = s.next
-      m[e.row][e.col] = e.val
-    end
-    m
-  end
-
-  def iterate_matrix(m)
-    (0..m.rows-1).each do |i|
-      (0..m.cols-1).each do |j|
-          yield(i, j, m.at(i,j))
-        end
-      end
-  end
-
-  def char_count(c, s)
-    cnt = 0
-    s.each_char { |chr| cnt += 1 if c == chr }
-    cnt
-  end
-end
+require_relative './matrix_test_util'
 
 class SparseMatrixTest < Test::Unit::TestCase
 
@@ -119,6 +8,23 @@ class SparseMatrixTest < Test::Unit::TestCase
   MAX_COLS = 10000
   MIN_VAL = -10000
   MAX_VAL = 10000
+
+  def assert_invariants(m)
+    assert_true(m.rows >= 0)
+    assert_true(m.cols >= 0)
+    if m.cols > 0
+      assert_true(m.rows > 0)
+    end
+    if m.rows > 0
+      assert_true(m.cols > 0)
+    end
+    if m.rows == 0
+      assert_true(m.cols == 0)
+    end
+    if m.cols == 0
+      assert_true(m.rows == 0)
+    end
+  end
 
   def tst_identity
     TestUtil::rand_range(1, MAX_ROWS, 20).each do |size|
@@ -1146,7 +1052,7 @@ class SparseMatrixTest < Test::Unit::TestCase
 
     orth = m.orthogonal?
 
-    # Posconditions
+    # Post conditions
     begin
       assert_true(m.transpose == m.inverse, orth)
     end
