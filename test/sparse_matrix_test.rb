@@ -17,7 +17,7 @@ module TestUtil
   end
 
   def sparse_to_matrix(s)
-    m = Matrix.build(s.rows, s.cols) { |row, col| 0 }
+    m = Matrix.build(s.rows, s.cols) { |_row, _col| 0 }
     it = s.iterator
     while s.next?
       e = s.next
@@ -250,7 +250,7 @@ class SparseMatrixTest < Test::Unit::TestCase
       # Check that the value is set
       assert_equal(v, m.at(r, c))
 
-      if ((v != 0) && (v_before != 0)) || ((v == 0) && (v_before == 0))  # TODO: note ruby objects have val.nil? and val.zero? methods
+      if ((v != 0) && (v_before != 0)) || ((v == 0) && (v_before == 0)) # TODO: note ruby objects have val.nil? and val.zero? methods
         assert_equal(nnz_before, m.nnz)
       elsif (v != 0) && (v_before == 0)
         assert_equal(nnz_before + 1, m.nnz)
@@ -320,22 +320,21 @@ class SparseMatrixTest < Test::Unit::TestCase
 
   def tst_to_s
     test_ms = [
-        SparseMatrix.new(0, 0),
-        SparseMatrix.create { [[10, 2, 3]] },
-        SparseMatrix.identity(3),
-        SparseMatrix.create { [[100, 0, 0, 0 ], [0, 1, 1, 0], [0, -1, 0, 0]] }
+      SparseMatrix.new(0, 0),
+      SparseMatrix.create { [[10, 2, 3]] },
+      SparseMatrix.identity(3),
+      SparseMatrix.create { [[100, 0, 0, 0], [0, 1, 1, 0], [0, -1, 0, 0]] }
     ]
 
     exps = [
-        "nil\n",    # the null case
-        "10 2 3\n", # vector case
-        "1 0 0\n0 1 0\n0 0 1\n", # matrix case
-        "100  0 0 0\n  0  1 1 0\n  0 -1 0 0\n" # Note the formatting. Values are left-padded to the longest
-                                               # elements column-wise
+      "nil\n", # the null case
+      "10 2 3\n", # vector case
+      "1 0 0\n0 1 0\n0 0 1\n", # matrix case
+      "100  0 0 0\n  0  1 1 0\n  0 -1 0 0\n" # Note the formatting. Values are left-padded to the longest
+      # elements column-wise
     ]
 
     test_ms.zip(exps).each do |m, e|
-
       # Preconditions
       begin
       end
@@ -348,11 +347,11 @@ class SparseMatrixTest < Test::Unit::TestCase
 
         # More generically
         if m.nil?
-          assert_equal(0, TestUtil::char_count('\n', s))
+          assert_equal(0, TestUtil.char_count('\n', s))
         else
           # number of \n == rows()
-          assert_equal(m.rows, TestUtil::char_count('\n', s))
-t
+          assert_equal(m.rows, TestUtil.char_count('\n', s))
+          t
           # all rows have the same length
           len = nil
           s.each_line('\n') do |l|
@@ -365,7 +364,7 @@ t
   end
 
   def tst_transpose
-    m = TestUtil::rand_matrix
+    m = TestUtil.rand_matrix
 
     # Preconditions
     begin
@@ -378,21 +377,20 @@ t
       assert_equal(m.rows, mt.cols)
       assert_equal(m.cols, mt.rows)
       assert_equal(m.sum, mt.sum)
-      TestUtil::iterate_matrix(mt) { |i, j, v| assert_equal(m.at(j, i), v) }
+      TestUtil.iterate_matrix(mt) { |i, j, v| assert_equal(m.at(j, i), v) }
       assert_true(mt.transpose == m)
     end
   end
 
   def tst_zero?
     ms = [
-        TestUtil::rand_matrix,
-        SparseMatrix.new(0),
-        SparseMatrix.identity(3),
-        SparseMatrix.zero((0..100), (0..100))
+      TestUtil.rand_matrix,
+      SparseMatrix.new(0),
+      SparseMatrix.identity(3),
+      SparseMatrix.zero((0..100), (0..100))
     ]
 
     ms.each do |m|
-
       # Preconditions
       begin
       end
@@ -413,7 +411,7 @@ t
   def tst_rank
     assert_equal(0, SparseMatrix.zero(0..100, 0..100).rank)
 
-    m = TestUtil::rand_matrix
+    m = TestUtil.rand_matrix
 
     # Preconditions
     begin
@@ -423,16 +421,16 @@ t
 
     # Postconditions
     begin
-      if m.nil? or m.zero?
+      if m.nil? || m.zero?
         assert_equal(0, r)
         return
       end
 
-      assert_true(r > 0) unless m.nil? or m.zero?
+      assert_true(r > 0) unless m.nil? || m.zero?
       assert_true(r <= m.rows)
 
       if m.square?
-        assert_equal(TestUtil::sparse_to_matrix(m).rank, r)
+        assert_equal(TestUtil.sparse_to_matrix(m).rank, r)
         assert_equal(r, m.transpose.rank)
       end
     end
