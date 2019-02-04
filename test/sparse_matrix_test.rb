@@ -9,16 +9,15 @@ module TestUtil
     a
   end
 
-  def rand_matrix(rows = 100, cols = rows, range = (-1000..1000)); end
-  
-  def self.rand_matrix(rows, cols, scarcity, max_val)
+  def self.rand_matrix(rows = 100, cols = rows,
+                       scarcity = 0.4, range = (-1000..1000))
     arr = Array.new(rows, Array.new(cols, 0))
-    arr.map! {|row| row.map {rand < scarcity ? rand(max_val) : 0}}
+    arr.map! { |row| row.map { rand < scarcity ? rand(range) : 0 } }
     print arr, "\n"
   end
 
   def sparse_to_matrix(s)
-    m = Matrix.build(s.rows, s.cols) {|row, col| 0}
+    m = Matrix.build(s.rows, s.cols) { |row, col| 0 }
     it = s.iterator
     while s.next?
       e = s.next
@@ -28,16 +27,15 @@ module TestUtil
   end
 
   def iterate_matrix(m)
-    (0..m.rows-1).each do |i|
-      (0..m.cols-1).each do |j|
-          yield(i, j, m.at(i,j))
-        end
+    (0..m.rows - 1).each do |i|
+      (0..m.cols - 1).each do |j|
+        yield(i, j, m.at(i, j))
       end
+    end
   end
 end
 
 class SparseMatrixTest < Test::Unit::TestCase
-
   def setup; end
 
   def teardown; end
@@ -59,7 +57,7 @@ class SparseMatrixTest < Test::Unit::TestCase
         assert_true(m.diagonal?)
         assert_true(m.symmetric?)
         assert_equal(size, m.sum)
-        (0..size-1).each do |i|
+        (0..size - 1).each do |i|
           assert_equal(1, m.at(i, i))
         end
       end
@@ -227,21 +225,21 @@ class SparseMatrixTest < Test::Unit::TestCase
       # Check that the value is set
       assert_equal(v, m.at(r, c))
 
-      if ((v != 0) && (v_before != 0)) || ((v == 0) && (v_before == 0))
+      if ((v != 0) && (v_before != 0)) || ((v == 0) && (v_before == 0))  # TODO: note ruby objects have val.nil? and val.zero? methods
         assert_equal(nnz_before, m.nnz)
       elsif (v != 0) && (v_before == 0)
-        assert_equal(nnz_before+1, m.nnz)
+        assert_equal(nnz_before + 1, m.nnz)
       else # v == 0 and v_before != 0
-        assert_equal(nnz_before-1, m.nnz)
+        assert_equal(nnz_before - 1, m.nnz)
       end
     end
   end
 
   def nnz_off_diagonal?(m)
-    (0..m.rows-1).each do |i|
-      (0..m.cols-1).each do |j|
+    (0..m.rows - 1).each do |i|
+      (0..m.cols - 1).each do |j|
         next unless i != j
-        return true if m.at(i,j) != 0
+        return true if m.at(i, j) != 0
       end
     end
     false
@@ -269,9 +267,9 @@ class SparseMatrixTest < Test::Unit::TestCase
       else
         # For some i,j where i != j -> at(i,j) != 0
         assert_true(nnz_off_diagonal?(m))
-        end
       end
     end
+  end
 
   def tst_diagonal
     m = TestUtil.rand_matrix
@@ -288,8 +286,8 @@ class SparseMatrixTest < Test::Unit::TestCase
       assert_true(m.diagonal?)
 
       # All elements on the diagonal are equivalent to the original matrix
-      (0..m.rows-1).each do |i|
-        assert_equal(m.at(i,i), md.at(i,i))
+      (0..m.rows - 1).each do |i|
+        assert_equal(m.at(i, i), md.at(i, i))
       end
     end
   end
