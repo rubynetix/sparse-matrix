@@ -11,6 +11,9 @@ module TestUtil
     a
   end
 
+  def rand_matrix(rows = 100, cols = rows, range = (-1000..1000))
+  end
+
   def sparse_to_matrix(s)
     m = Matrix.build(s.rows, s.cols) {|row, col| 0}
     it = s.iterator
@@ -19,6 +22,14 @@ module TestUtil
       m[e.row][e.col] = e.val
     end
     m
+  end
+
+  def iterate_matrix(m)
+    (0..m.rows-1).each do |i|
+      (0..m.cols-1).each do |j|
+          yield(i, j, m.at(i,j))
+        end
+      end
   end
 end
 
@@ -195,4 +206,95 @@ class SparseMatrixTest < Test::Unit::TestCase
     end
   end
 
+  def tst_insert
+    v = rand(-1000..1000)
+    m = SparseMatrix.new(100, 100)
+    r = rand(0..99)
+    c = rand(0.99)
+
+    # Preconditions
+    begin
+      assert_true(0 <= r && r <= m.rows - 1)
+      assert_true(0 <= c && c <= m.cols - 1)
+    end
+
+    nnz_before = m.nnz
+    v_before = v.at(r, c)
+    m.insert(r, c, v)
+
+    # Postconditions
+    begin
+      # Check that the value is set
+      assert_equal(v, m.at(r, c))
+
+      if (v != 0 and v_before != 0) or (v == 0 and v_before == 0)
+        assert_equal(nnz_before, m.nnz)
+      elsif v != 0 and v_before == 0
+        assert_equal(nnz_before+1, m.nnz)
+      else # v == 0 and v_before != 0
+        assert_equal(nnz_before-1, m.nnz)
+      end
+    end
+  end
+
+  def nnz_off_diagonal?(m)
+    (0..m.rows-1).each do |i|
+      (0..m.cols-1).each do |j|
+        if i != j
+          if m.at(i,j) != 0
+            return true
+          end
+        end
+      end
+    end
+    false
+  end
+
+  def tst_diagonal?
+    m = TestUtil::rand_matrix
+
+    # Preconditions
+    begin
+    end
+
+    is_d = m.diagonal?
+
+    # Postconditions
+    begin
+      if is_d
+        assert_true(m.symmetric?)
+        assert_true(m.square?)
+
+        # For all i,j where i != j -> at(i,j) == 0
+        iterate_matrix(m) {|i, j, v|
+          assert_equal(0, v) unless i == j
+        }
+      else
+        # For some i,j where i != j -> at(i,j) != 0
+        assert_true(nnz_off_diagonal?(m))
+        end
+      end
+    end
+  end
+
+  def tst_diagonal
+    m = TestUtil::rand_matrix
+
+    # Preconditions
+    begin
+      assert_true(square?)
+    end
+
+    md = m.diagonal
+
+    # Postconditions
+    begin
+      assert_true(m.diagonal?)
+
+      # All elements on the diagonal are equivalent to the original matrix
+      (0..m.rows-1).each do |i|
+        assert_equal(m.at(i,i), md.at(i,i))
+      end
+    end
+  end
 end
