@@ -115,6 +115,24 @@ class SparseMatrixTest < Test::Unit::TestCase
   def test_nothing
   end
 
+  def assert_invariants(m)
+    assert(m.rows() >= 0)
+    assert(m.cols() >= 0)
+    if m.cols() > 0
+      assert(m.rows() > 0)
+    end
+    if m.rows() > 0
+      assert(m.cols() > 0)
+    end
+    if m.rows() == 0
+      assert(m.cols() == 0)
+    end
+    if m.cols() == 0
+      assert(m.rows() == 0)
+    end
+  end
+
+
   def tst_scalar_mult
     r = rand(0..10000)
     c = rand(1..10000)
@@ -134,6 +152,7 @@ class SparseMatrixTest < Test::Unit::TestCase
             assert_equal(m.at(i, j) * mult, new_m.at(i, j))
           end
         end
+        assert_invariants(new_m)
       end
     end
   end
@@ -157,6 +176,7 @@ class SparseMatrixTest < Test::Unit::TestCase
           expected = expected.*(m)
         assert_equal(expected, new_m)
         end
+        assert_invariants(new_m)
       end
     end
   end
@@ -175,6 +195,7 @@ class SparseMatrixTest < Test::Unit::TestCase
     # Postconditions
     begin
       assert_equal(TestUtil::sparse_to_matrix(m).lower_triangular?, m.lower_triangular?)
+      assert_invariants(m)
     end
   end
 
@@ -191,6 +212,8 @@ class SparseMatrixTest < Test::Unit::TestCase
       begin
         assert_equal(TestUtil::sparse_to_matrix(m_tri).lower_triangular?, m_tri.lower_triangular?)
         assert_equal(TestUtil::sparse_to_matrix(m_random).lower_triangular?, m_random.lower_triangular?)
+        assert_invariants(m_tri)
+        assert_invariants(m_random)
       end
       i += 1
     end
@@ -210,6 +233,7 @@ class SparseMatrixTest < Test::Unit::TestCase
     # Postconditions
     begin
       assert_equal(TestUtil::sparse_to_matrix(m).upper_triangular?, m.upper_triangular?)
+      assert_invariants(m)
     end
   end
 
@@ -226,6 +250,8 @@ class SparseMatrixTest < Test::Unit::TestCase
       begin
         assert_equal(TestUtil::sparse_to_matrix(m_tri).upper_triangular?, m_tri.upper_triangular?)
         assert_equal(TestUtil::sparse_to_matrix(m_random).upper_triangular?, m_random.upper_triangular?)
+        assert_invariants(m_tri)
+        assert_invariants(m_random)
       end
       i += 1
     end
@@ -260,6 +286,7 @@ class SparseMatrixTest < Test::Unit::TestCase
       # Postconditions
     begin
       check_lower_hessenberg(m)
+      assert_invariants(m)
     end
   end
 
@@ -276,6 +303,8 @@ class SparseMatrixTest < Test::Unit::TestCase
       begin
         check_lower_hessenberg(m_hess)
         check_lower_hessenberg(m_random)
+        assert_invariants(m_hess)
+        assert_invariants(m_random)
       end
       i += 1
     end
@@ -310,6 +339,7 @@ class SparseMatrixTest < Test::Unit::TestCase
       # Postconditions
     begin
       check_upper_hessenberg(m)
+      assert_invariants(m)
     end
   end
 
@@ -326,6 +356,8 @@ class SparseMatrixTest < Test::Unit::TestCase
       begin
         check_upper_hessenberg(m_hess)
         check_upper_hessenberg(m_random)
+        assert_invariants(m_hess)
+        assert_invariants(m_random)
       end
       i += 1
     end
@@ -354,6 +386,7 @@ class SparseMatrixTest < Test::Unit::TestCase
     begin
       assert(m.==(m_same))
       assert(!m.==(m_diff))
+      assert_invariants(m)
     end
   end
 
@@ -385,6 +418,7 @@ class SparseMatrixTest < Test::Unit::TestCase
             end
           end
         end
+        assert_invariants(m)
       end
     end
   end
