@@ -137,8 +137,7 @@ class SparseMatrixTest < Test::Unit::TestCase
   end
 
   def tst_det_triangular
-    s = rand(1..1000)
-    m = SparseMatrix.new(s)
+    m = TestUtil.upper_triangular_matrix 25, 3, 100
 
     # Preconditions
     begin
