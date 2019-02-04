@@ -338,4 +338,36 @@ class SparseMatrixTest < Test::Unit::TestCase
       assert(m.!=(m_diff))
     end
   end
+
+  def tst_tridiagonal
+    TestUtil::rand_range(1, 1000, 20).each do |len|
+      upper_diagonal = Array.new(len-1)
+      upper_diagonal.insert(TestUtil::rand_range(1, 1000, len-1))
+      lower_diagonal = Array.new(len-1)
+      lower_diagonal.insert(TestUtil::rand_range(1, 1000, len-1))
+      diagonal = Array.new(len)
+      diagonal.insert(TestUtil::rand_range(1, 1000, len))
+      diagonals = Array.[](upper_diagonal, diagonal, lower_diagonal)
+
+      # Preconditions
+      begin
+        assert(diagonals[1].length == (diagonals[0].length + 1))
+        assert(diagonals[1].length == (diagonals[2].length + 1))
+      end
+
+      m = SparseMatrix.tridagonal(diagonals)
+
+      # Postconditions
+      begin
+        assert(m.square?())
+        for y in range 0...len
+          for x in range 0...len
+            if !(x == y || x == y-1 || x == y+1)
+              assert(m.at(x,y) == 0)
+            end
+          end
+        end
+      end
+    end
+  end
 end
