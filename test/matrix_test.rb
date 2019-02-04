@@ -10,6 +10,15 @@ module MatrixTestUtil
   def rand_square_sparse(size: 1000, range: -1000..1000)
     rand_sparse(rows: size, cols: size, range: range)
   end
+
+  def null_matrix()
+    #TODO: Implementation
+  end
+
+  def identity_matrix(size: rand(1..1000))
+    #TODO: Implementation
+  end
+
 end
 
 class MatrixTest < Test::Unit::TestCase
@@ -63,6 +72,24 @@ class MatrixTest < Test::Unit::TestCase
         end
       end
     end
+  end
+
+  def tst_identity?
+    i = MatrixTestUtil::identity_matrix()
+    m = MatrixTestUtil::rand_square_sparse()
+
+    # Preconditions
+    # N/A
+
+    identity = i.identity?
+    non_identity = m.identity?
+
+    # Posconditions
+    begin
+      assert_true(identity)
+      assert_false(non_identity)
+    end
+
   end
 
   def tst_clone
@@ -211,6 +238,25 @@ class MatrixTest < Test::Unit::TestCase
     end
   end
 
+
+  def tst_null
+    sparse_m = MatrixTestUtil::rand_sparse()
+    null_m = MatrixTestUtil::null_matrix()
+
+    # Preconditions
+    # N/A
+
+    non_null = sparse_m.null?
+    null = null_m.null?
+
+    # Postconditions
+    begin
+      assert_false(non_null)
+      assert_true(null)
+    end
+
+  end
+
   def tst_invertible
     m = MatrixTestUtil::rand_sparse()
 
@@ -322,6 +368,62 @@ class MatrixTest < Test::Unit::TestCase
       end
 
       assert_equal(trace, tr)
+    end
+  end
+
+  def tst_cofactor
+    m = MatrixTestUtil::rand_sparse()
+
+    # Preconditions
+    # N/A
+
+    cof_row = rand(0..m.rows)
+    cof_col = rand(0..m.cols)
+
+    cof = m.cofactor(cof_row, cof_col)
+
+    # Postconditions
+    begin
+      if m.cols == 1  || m.rows == 1
+        assert_true(cof.null?)
+      else
+        cof.cols = m.cols - 1
+        cof.rows = m.rows - 1
+
+        #TODO: Check the actual values of the cofactor matrix
+      end    
+    end
+  end
+
+  def tst_adjoint
+    m = MatrixTestUtil::rand_square_sparse()
+
+    # Preconditions
+    begin
+      assert_true(m.square?)
+    end
+
+    adj = m.adjoint
+
+    # Postconditions
+    begin
+      cof = m.cofactor
+      assert_equal(adj, cof.transpose)
+    end
+  
+  end
+
+  def tst_orthogonal
+    m = MatrixTestUtil::rand_square_sparse()
+
+    # Preconditions
+    # N/A
+
+    orth = m.orthogonal?
+
+    # Posconditions
+    begin
+      assert_true(m.transpose == m.inverse, orth)
     end
   end
 end
