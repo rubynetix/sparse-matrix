@@ -28,10 +28,6 @@ class SparseMatrix
     raise "Not implemented"
   end
 
-  def det
-    raise "Not implemented"
-  end
-
   def resize(rows, cols)
     raise "Not implemented"
   end
@@ -86,22 +82,6 @@ class SparseMatrix
   end
 
   def tridiagonal
-    raise "Not implemented"
-  end
-
-  def cofactor(row, col)
-    raise "Not implemented"
-  end
-
-  def adjoint
-    raise "Not implemented"
-  end
-
-  def inverse
-    raise "Not implemented"
-  end
-
-  def rank
     raise "Not implemented"
   end
 
