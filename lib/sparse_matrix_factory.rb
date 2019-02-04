@@ -1,4 +1,4 @@
-# Compressed Sparse Row (CSR) sparse matrix
+# Compressed Sparse Row (CSR) sparse matrix factory
 class SparseMatrixFactory
 
   def initialize(*args)

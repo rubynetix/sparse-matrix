@@ -1,5 +1,5 @@
-#Diagonal Matrix
-class DiagonalMatrixFactory
+# Triangular sparse matrix
+class TriangularMatrixFactory
 
   def initialize(*args)
 
@@ -32,4 +32,8 @@ class DiagonalMatrixFactory
   def at(row, col)
     raise "Not implemented"
   end
+end
+
+class TriangularMatrix < SparseMatrix
+
 end
