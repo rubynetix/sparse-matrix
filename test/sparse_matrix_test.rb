@@ -13,7 +13,7 @@ module TestUtil
                        scarcity = 0.4, range = (-1000..1000))
     arr = Array.new(rows, Array.new(cols, 0))
     arr.map! { |row| row.map { rand < scarcity ? rand(range) : 0 } }
-    print arr, "\n"
+    arr
   end
 
   def sparse_to_matrix(s)
