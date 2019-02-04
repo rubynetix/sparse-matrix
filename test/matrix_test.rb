@@ -257,7 +257,7 @@ class MatrixTest < Test::Unit::TestCase
 
   end
 
-  def tst_invertible
+  def tst_invertible?
     m = MatrixTestUtil::rand_sparse()
 
     # Preconditions
@@ -276,7 +276,7 @@ class MatrixTest < Test::Unit::TestCase
 
     # Preconditions
     begin
-      m.invertible?
+      assert_true(m.invertible?)
     end
 
     inv = m.inverse
@@ -301,21 +301,6 @@ class MatrixTest < Test::Unit::TestCase
     begin
       assert_true(pos)
       assert_false(neg)
-    end
-  end
-
-
-  def tst_square
-    m = MatrixTestUtil::rand_sparse()
-
-    # Preconditions
-    # N/A
-
-    sq = m.square?
-
-    # Postconditions
-    begin
-      assert_equal(m.rows == m.cols, sq)
     end
   end
 
@@ -352,7 +337,7 @@ class MatrixTest < Test::Unit::TestCase
 
     # Preconditions
     begin
-      m.traceable?
+      assert_true(m.traceable?)
     end
 
     tr = m.trace
@@ -410,10 +395,9 @@ class MatrixTest < Test::Unit::TestCase
       cof = m.cofactor
       assert_equal(adj, cof.transpose)
     end
-  
   end
 
-  def tst_orthogonal
+  def tst_orthogonal?
     m = MatrixTestUtil::rand_square_sparse()
 
     # Preconditions

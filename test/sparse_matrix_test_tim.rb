@@ -25,8 +25,8 @@ module TestUtil
     # return a upper triangular matrix with n rows and columns
     # with non-zero values in the range l..h
     m = SparseMatrix.new(n, n)
-    for y in 0...m.rows()
-      for x in 0...m.cols()
+    for y in 0...m.rows
+      for x in 0...m.cols
         if (y > x)
           m.insert(x, y, 0)
         else
@@ -169,7 +169,9 @@ class SparseMatrixTest < Test::Unit::TestCase
       m = TestUtil::rand_matrix(r, c)
     end
 
-    # No Preconditions
+    # Preconditions
+    begin
+    end
 
     # Postconditions
     begin
@@ -184,7 +186,9 @@ class SparseMatrixTest < Test::Unit::TestCase
       m_tri = TestUtil::lower_triangular_matrix(rc, 0, 1000)
       m_random = TestUtil::rand_matrix(rc, rc)
 
-      # No Preconditions
+      # Preconditions
+      begin
+      end
 
       # Postconditions
       begin
@@ -204,7 +208,9 @@ class SparseMatrixTest < Test::Unit::TestCase
       m = TestUtil::rand_matrix(r, c)
     end
 
-    # No Preconditions
+    ## Preconditions
+    begin
+    end
 
     # Postconditions
     begin
@@ -219,7 +225,9 @@ class SparseMatrixTest < Test::Unit::TestCase
       m_tri = TestUtil::upper_triangular_matrix(rc, 0, 1000)
       m_random = TestUtil::rand_matrix(rc, rc)
 
-      # No Preconditions
+      # Preconditions
+      begin
+      end
 
       # Postconditions
       begin
@@ -254,9 +262,12 @@ class SparseMatrixTest < Test::Unit::TestCase
       c = rand(0..10000)
       m = TestUtil::rand_matrix(r, c)
     end
-      # No Preconditions
 
-      # Postconditions
+    # Preconditions
+    begin
+    end
+
+    # Postconditions
     begin
       check_lower_hessenberg(m)
     end
@@ -269,7 +280,10 @@ class SparseMatrixTest < Test::Unit::TestCase
       rc = rand(0..10000)
       m_hess = TestUtil::lower_hessenberg_matrix(rc, 0, 1000)
       m_random = TestUtil::rand_matrix(rc, rc)
-      # No Preconditions
+
+      # Preconditions
+      begin
+      end
 
       # Postconditions
       begin
@@ -285,8 +299,8 @@ class SparseMatrixTest < Test::Unit::TestCase
     if !m.square?
       assert(!m.upper_hessenberg?)
     else
-      for y in 0...m.rows()
-        for x in 0...m.cols()
+      for y in 0...m.rows
+        for x in 0...m.cols
           if y > x + 1
             assert_equal(0, m.at(x, y))
           end
@@ -304,9 +318,12 @@ class SparseMatrixTest < Test::Unit::TestCase
       c = rand(0..10000)
       m = TestUtil::rand_matrix(r, c)
     end
-      # No Preconditions
 
-      # Postconditions
+    # Preconditions
+    begin
+    end
+
+    # Postconditions
     begin
       check_upper_hessenberg(m)
     end
@@ -319,7 +336,10 @@ class SparseMatrixTest < Test::Unit::TestCase
       rc = rand(0..10000)
       m_hess = TestUtil::upper_hessenberg_matrix(rc, 0, 1000)
       m_random = TestUtil::rand_matrix(rc, rc)
-      # No Preconditions
+
+      # Preconditions
+      begin
+      end
 
       # Postconditions
       begin
