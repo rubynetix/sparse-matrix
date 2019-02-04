@@ -131,8 +131,7 @@ class SparseMatrixTest < Test::Unit::TestCase
       assert(m.rows() == 0)
     end
   end
-
-
+  
   def tst_scalar_mult
     r = rand(0..10000)
     c = rand(1..10000)

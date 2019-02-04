@@ -1,11 +1,19 @@
 class SparseMatrix
 
-  def self.zero(rows, cols)
+  def initialize(rows, cols = rows)
     raise "Not implemented"
   end
 
-  def self.identity(rows, cols)
+  class << self
+    def zero(rows, cols)
       raise "Not implemented"
+    end
+
+    def identity(n)
+      raise "Not implemented"
+    end
+
+    alias :I :identity
   end
 
   def rows
@@ -13,6 +21,10 @@ class SparseMatrix
   end
 
   def cols
+    raise "Not implemented"
+  end
+
+  def nnz
     raise "Not implemented"
   end
 
@@ -54,6 +66,7 @@ class SparseMatrix
 
   def **(o)
     raise "Not implemented"
+
   end
 
   def ==(o)
@@ -96,15 +109,15 @@ class SparseMatrix
     raise "Not implemented"
   end
 
-  def rref
-    raise "Not implemented"
-  end
-
   def trace
     raise "Not implemented"
   end
 
-  def null?
+  def nil?
+    raise "Not implemented"
+  end
+
+  def zero?
     raise "Not implemented"
   end
 
@@ -156,7 +169,9 @@ class SparseMatrix
     raise "Not implemented"
   end
 
-private
+alias_method :t, :transpose
+alias_method :tr, :trace
+
   def plus_matrix(o)
     raise "Not implemented"
   end
@@ -170,6 +185,10 @@ private
   end
 
   def mul_scalar(x)
+    raise "Not implemented"
+  end
+
+  def rref
     raise "Not implemented"
   end
 end
