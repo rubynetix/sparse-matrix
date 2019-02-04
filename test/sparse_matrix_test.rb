@@ -250,9 +250,9 @@ class SparseMatrixTest < Test::Unit::TestCase
       # Check that the value is set
       assert_equal(v, m.at(r, c))
 
-      if ((v != 0) && (v_before != 0)) || ((v == 0) && (v_before == 0)) # TODO: note ruby objects have val.nil? and val.zero? methods
+      if ((v != 0) && (v_before != 0)) || (v.zero? && v_before.zero?) # TODO: note ruby objects have val.nil? and val.zero? methods
         assert_equal(nnz_before, m.nnz)
-      elsif (v != 0) && (v_before == 0)
+      elsif (v != 0) && v_before.zero?
         assert_equal(nnz_before + 1, m.nnz)
       else # v == 0 and v_before != 0
         assert_equal(nnz_before - 1, m.nnz)
