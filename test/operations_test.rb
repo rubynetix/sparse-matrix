@@ -12,12 +12,12 @@ module TestUtil
   def self.rand_matrix(rows = 100, cols = rows,
       scarcity = 0.4, range = (-1000..1000))
     arr = Array.new(rows, Array.new(cols, 0))
-    arr.map! { |row| row.map { rand < scarcity ? rand(range) : 0 } }
+    arr.map! {|row| row.map {rand < scarcity ? rand(range) : 0}}
     arr
   end
 
   def sparse_to_matrix(s)
-    m = Matrix.build(s.rows, s.cols) { |_row, _col| 0 }
+    m = Matrix.build(s.rows, s.cols) {|_row, _col| 0}
     it = s.iterator
     while s.next?
       e = s.next
@@ -36,23 +36,40 @@ module TestUtil
 
   def char_count(c, s)
     cnt = 0
-    s.each_char { |chr| cnt += 1 if c == chr }
+    s.each_char {|chr| cnt += 1 if c == chr}
     cnt
   end
 end
 
 class MatrixOperationsTest < Test::Unit::TestCase
 
-  def setup; end
+  def setup;
+  end
 
-  def teardown; end
+  def teardown;
+  end
 
-  def tst_plus_num; end
-  def tst_plus_mat; end
-  def tst_sub_num; end
-  def tst_sub_mat; end
-  def tst_mult_num; end
-  def tst_mult_mat; end
-  def tst_exponential; end
-  def tst_equals; end
+  def tst_plus_num;
+  end
+
+  def tst_plus_mat;
+  end
+
+  def tst_sub_num;
+  end
+
+  def tst_sub_mat;
+  end
+
+  def tst_mult_num;
+  end
+
+  def tst_mult_mat;
+  end
+
+  def tst_exponential;
+  end
+
+  def tst_equals;
+  end
 end
