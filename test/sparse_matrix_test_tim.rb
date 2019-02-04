@@ -378,8 +378,8 @@ class SparseMatrixTest < Test::Unit::TestCase
       # Postconditions
       begin
         assert(m.square?())
-        for y in range 0..len
-          for x in range 0..len
+        for y in range 0...len
+          for x in range 0...len
             if !(x == y || x == y-1 || x == y+1)
               assert(m.at(x,y) == 0)
             end
