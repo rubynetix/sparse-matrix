@@ -638,7 +638,7 @@ class SparseMatrixTest < Test::Unit::TestCase
 
     # Postconditions
     begin
-      assert_equal(MatrixTestUtil::sparse_to_matrix(m).lower_triangular?, m.lower_triangular?)
+      assert_equal(MatrixTestUtil::sparse_to_matrix(m).lower_triangular?, m.lower_triangular?, "Non-square Matrix lower triangular check is incorrect. Expected:#{MatrixTestUtil::sparse_to_matrix(m).lower_triangular?}, Actual:#{m.lower_triangular?}")
     end
 
     assert_invariants(m)
@@ -657,8 +657,8 @@ class SparseMatrixTest < Test::Unit::TestCase
 
       # Postconditions
       begin
-        assert_equal(MatrixTestUtil::sparse_to_matrix(m_tri).lower_triangular?, m_tri.lower_triangular?)
-        assert_equal(MatrixTestUtil::sparse_to_matrix(m_random).lower_triangular?, m_random.lower_triangular?)
+        assert_equal(MatrixTestUtil::sparse_to_matrix(m_tri).lower_triangular?, m_tri.lower_triangular?, "Lower triangular check is incorrect for Square Lower Triangular Matrix. Expected:#{MatrixTestUtil::sparse_to_matrix(m_tri).lower_triangular?}, Actual:#{m_tri.lower_triangular?}")
+        assert_equal(MatrixTestUtil::sparse_to_matrix(m_random).lower_triangular?, m_random.lower_triangular?, "Lower triangular check is incorrect for Random Square Matrix. Expected:#{MatrixTestUtil::sparse_to_matrix(m_random).lower_triangular?}, Actual:#{m_random.lower_triangular?}")
       end
 
       assert_invariants(m_tri)
@@ -683,7 +683,7 @@ class SparseMatrixTest < Test::Unit::TestCase
 
     # Postconditions
     begin
-      assert_equal(MatrixTestUtil::sparse_to_matrix(m).upper_triangular?, m.upper_triangular?)
+      assert_equal(MatrixTestUtil::sparse_to_matrix(m).upper_triangular?, m.upper_triangular?, "Non-square Matrix upper triangular check is incorrect. Expected:#{MatrixTestUtil::sparse_to_matrix(m).upper_triangular?}, Actual:#{m.upper_triangular?}" )
     end
 
     assert_invariants(m)
@@ -702,8 +702,8 @@ class SparseMatrixTest < Test::Unit::TestCase
 
       # Postconditions
       begin
-        assert_equal(MatrixTestUtil::sparse_to_matrix(m_tri).upper_triangular?, m_tri.upper_triangular?)
-        assert_equal(MatrixTestUtil::sparse_to_matrix(m_random).upper_triangular?, m_random.upper_triangular?)
+        assert_equal(MatrixTestUtil::sparse_to_matrix(m_tri).upper_triangular?, m_tri.upper_triangular?, "Upper triangular check is incorrect for Square Upper Triangular Matrix. Expected:#{MatrixTestUtil::sparse_to_matrix(m_tri).upper_triangular?}, Actual:#{m_tri.upper_triangular?}")
+        assert_equal(MatrixTestUtil::sparse_to_matrix(m_random).upper_triangular?, m_random.upper_triangular?, "Upper triangular check is incorrect for Random Square Matrix. Expected:#{MatrixTestUtil::sparse_to_matrix(m_random).upper_triangular?}, Actual:#{m_random.upper_triangular?}")
       end
 
       assert_invariants(m_tri)
