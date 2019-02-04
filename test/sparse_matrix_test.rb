@@ -709,12 +709,12 @@ class SparseMatrixTest < Test::Unit::TestCase
   def check_upper_hessenberg(m)
     # algorithm to test matrix m is upper_hessenberg
     if !m.square?
-      assert(!m.upper_hessenberg?)
+      assert(!m.upper_hessenberg?, "Non-square matrix cannot be upper hessenberg")
     else
       for y in 0...m.rows
         for x in 0...m.cols
           if y > x + 1
-            assert_equal(0, m.at(x, y))
+            assert_equal(0, m.at(x, y), "Nonzero value below tri-diagonal band, cannot be upper hessenberg")
           end
         end
       end
@@ -783,8 +783,8 @@ class SparseMatrixTest < Test::Unit::TestCase
 
     # Postconditions
     begin
-      assert_equal(m, m_same)
-      assert_not_equal(m, m_diff)
+      assert_equal(m, m_same, "Equivalent matrices declared different")
+      assert_not_equal(m, m_diff, "Different matrices declared equivalent")
     end
   end
 
@@ -803,7 +803,7 @@ class SparseMatrixTest < Test::Unit::TestCase
     # Postconditions
     begin
       if m.cols == 1  || m.rows == 1
-        assert_true(cof.null?)
+        assert_true(cof.null?, "Co-factor of vector non-nil")
       else
         cof.cols = m.cols - 1
         cof.rows = m.rows - 1
@@ -832,7 +832,7 @@ class SparseMatrixTest < Test::Unit::TestCase
 
   def tst_identity?
     i = MatrixTestUtil::identity_matrix()
-    m = MatrixTestUtil::rand_square_sparse()
+    m = MatrixTestUtil::rand_square_sparse(range: 2...MAX_VAL)
 
     # Preconditions
     begin
@@ -843,8 +843,8 @@ class SparseMatrixTest < Test::Unit::TestCase
 
     # Posconditions
     begin
-      assert_true(identity)
-      assert_false(non_identity)
+      assert_true(identity, "Identity matrix declared as non-identity matrix")
+      assert_false(non_identity, "Non-identity matrix declared as identity matrix")
     end
 
   end
@@ -1068,19 +1068,19 @@ class SparseMatrixTest < Test::Unit::TestCase
 
       # Preconditions
       begin
-        assert_equal(diagonals[1].length, (diagonals[0].length + 1))
-        assert_equal(diagonals[1].length, (diagonals[2].length + 1))
+        assert_equal(diagonals[1].length, (diagonals[0].length + 1), "Upper/main diagonal band lengths differ by more than one")
+        assert_equal(diagonals[1].length, (diagonals[2].length + 1), "Lower/main diagonal band lengths differ by more than one")
       end
 
       m = SparseMatrix.tridagonal(diagonals)
 
       # Postconditions
       begin
-        assert(m.square?())
+        assert(m.square?(), "Tri-diagonal matrix must be square.")
         for y in range 0...len
           for x in range 0...len
             if !(x == y || x == y-1 || x == y+1)
-              assert(m.at(x,y) == 0)
+              assert_equal(m.at(x,y), 0, "Tri-diagonal matrix cannot have non-zero elements outside of band.")
             end
           end
         end
