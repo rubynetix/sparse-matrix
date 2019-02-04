@@ -2,12 +2,12 @@
 #
 #     This can instantiate matrices in several ways:
 #         SparseMatrixFactory.new(M)
-#             with a dense matrix or rank-2 ndarray M
+#             with a dense matrix M
 #         SparseMatrixFactory.new(S)
-#             with another sparse matrix S (equivalent to S.tocsr())
+#             with another sparse matrix S
 #         SparseMatrixFactory.new(rows, cols)
 #             to construct an empty matrix with shape (rows, cols)
-#         SparseMatrixFactory.new((data, indices, indptr), [shape=(rows, cols)])
+#         SparseMatrixFactory.build((data, indices, indptr), [shape=(rows, cols)])
 #             is the standard CSR representation where the column indices for
 #             row i are stored in +indices[indptr[i]:indptr[i+1]]+ and their
 #             corresponding values are stored in +data[indptr[i]:indptr[i+1]]+.

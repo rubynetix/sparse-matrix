@@ -1,16 +1,16 @@
 # Compressed Sparse Row Matrix
-class SparseMatrix < AbstractSparseMatrix
+class SparseMatrix
   attr_reader(:data, :indices, :indptr)
   attr_reader(:rows, :cols, :nnz)
 
   def initialize(rows, cols = rows)
     raise TypeError unless rows > 0 && cols > 0
-    data = []
-    indices = []
-    indptr = []
-    rows = rows
-    cols = cols
-    raise "Not implemented"
+    @data = []
+    @indices = []
+    @indptr = []
+    @rows = rows
+    @cols = cols
+    raise NotImplementedError
   end
 
   class << self
@@ -35,6 +35,10 @@ class SparseMatrix < AbstractSparseMatrix
 
   def nnz
     raise "Not implemented"
+  end
+
+  def det
+    raise 'Not implemented'
   end
 
   def resize(rows, cols)
@@ -91,6 +95,22 @@ class SparseMatrix < AbstractSparseMatrix
   end
 
   def tridiagonal
+    raise "Not implemented"
+  end
+
+  def cofactor(row, col)
+    raise "Not implemented"
+  end
+
+  def adjoint
+    raise "Not implemented"
+  end
+
+  def inverse
+    raise "Not implemented"
+  end
+
+  def rank
     raise "Not implemented"
   end
 
