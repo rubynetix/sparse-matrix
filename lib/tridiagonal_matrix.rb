@@ -1,2 +1,2 @@
-class TriDiagonalMatrix
+class TriDiagonalMatrix < SparseMatrix
 end
