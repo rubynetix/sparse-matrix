@@ -30,19 +30,19 @@ class SparseMatrixTest < Test::Unit::TestCase
     TestUtil::rand_range(1, MAX_ROWS, 20).each do |size|
       # Preconditions
       begin
-        assert_true(size > 0)
+        assert_true(size > 0, "Identity matrix is nil")
       end
 
       m = SparseMatrix.identity(size)
 
       # Postconditions
       begin
-        assert_true(m.square?)
-        assert_true(m.diagonal?)
-        assert_true(m.symmetric?)
-        assert_equal(size, m.sum)
+        assert_true(m.square?, "Identity matrix is not square")
+        assert_true(m.diagonal?, "Identity matrix is not diagonal")
+        assert_true(m.symmetric?, "Identity mastrix is not symmetric")
+        assert_equal(size, m.sum, "Identity matrix sum is not equivalent to size")
         (0..size-1).each do |i|
-          assert_equal(1, m.at(i, i))
+          assert_equal(1, m.at(i, i), "Value for identity matrix not 1 at row:#{i}, col:#{i}")
         end
       end
     end
@@ -55,12 +55,12 @@ class SparseMatrixTest < Test::Unit::TestCase
 
     # Preconditions
     begin
-      assert_true(n >= 0)
+      assert_true(n >= 0, "Number of non-zero elements is invalid: #{n}")
     end
 
     # Postconditions
     begin
-      assert_equal(n, m.nnz)
+      assert_equal(n, m.nnz, "Number of non-zero elements in the matrix is incorrect. Expected: #{n}, Actual: #{m.nnz}")
     end
   end
 
@@ -71,12 +71,12 @@ class SparseMatrixTest < Test::Unit::TestCase
 
     # Preconditions
     begin
-      assert_true(r >= 0)
+      assert_true(r >= 0, "Number of rows is invalid: #{r}")
     end
 
     # Postconditions
     begin
-      assert_equal(r, m.rows)
+      assert_equal(r, m.rows, "Number of matrix rows is incorrect. Expected: #{r}, Actual: #{m.rows}")
     end
   end
 
@@ -87,12 +87,12 @@ class SparseMatrixTest < Test::Unit::TestCase
 
     # Preconditions
     begin
-      assert_true(c >= 0)
+      assert_true(c >= 0, "Number of cols is invalid: #{c}")
     end
 
     # Postconditions
     begin
-      assert_equal(c, m.cols)
+      assert_equal(c, m.cols, "Number of matrix columns is incorrect. Expected: #{c}, Actual: #{m.cols}")
     end
   end
 
@@ -102,15 +102,15 @@ class SparseMatrixTest < Test::Unit::TestCase
 
     # Preconditions
     begin
-      assert_true(square?)
+      assert_true(square?, "Matrix for determinant test is not square")
     end
 
     d = m.det
 
     # Postconditions
     begin
-      assert_equal(d, sparse_to_matrix(m).det)
-      assert_equal(d, m.t.det)
+      assert_equal(d, sparse_to_matrix(m).det, "Determinant is incorrect. Expected: #{sparse_to_matrix(m).det}, Actual: #{d}")
+      assert_equal(d, m.t.det, "Determinant is incorrect. Expected: #{m.t.det}, Actual: #{d}")
     end
   end
 
@@ -126,25 +126,25 @@ class SparseMatrixTest < Test::Unit::TestCase
 
     # Preconditions
     begin
-      assert_equal(r, m.rows)
-      assert_equal(c, m.cols)
+      assert_equal(r, m.rows, "Number of rows is invalid. Expected: #{r}, Actual: #{m.rows}")
+      assert_equal(c, m.cols, "Number of cols is invalid: Expected: #{c}, Actual: #{m.cols}")
     end
 
     m.resize(nr, nc)
 
     # Postconditions
     begin
-      assert_equal(nr, m.rows)
-      assert_equal(nc, m.cols)
+      assert_equal(nr, m.rows, "Resize rows is incorrect. Expected: #{nr}, Actual: #{m.rows}")
+      assert_equal(nc, m.cols, "Resize cols is incorrect. Expected: #{nc}, Actual: #{m.cols}")
 
       # Resize up
       if nr >= r and nc >= c
-        assert_equal(nnzi, m.nnz)
+        assert_equal(nnzi, m.nnz, "Number of non-zero elements in resized matrix is incorrect. Expected: #{nnzi}, Actual: #{m.nnz}")
         return
       end
 
       # Resizing down
-      assert_true(nnzi >= m.nnz)
+      assert_true(nnzi >= m.nnz,"Number of non-zero elements in resized matrix is incorrect. Expected: #{nnzi}, Actual: #{m.nnz}")
     end
   end
 
@@ -160,19 +160,19 @@ class SparseMatrixTest < Test::Unit::TestCase
 
     # Preconditions
     begin
-      assert_equal(r, m.rows)
-      assert_equal(c, m.cols)
-      assert_true(dr <= r)
-      assert_true(dc <= c)
+      assert_equal(r, m.rows, "Number of rows is invalid. Expected: #{r}, Actual: #{m.rows}")
+      assert_equal(c, m.cols, "Number of cols is invalid: Expected: #{c}, Actual: #{m.cols}")
+      assert_true(dr <= r, "Resize down row count is larger than original matrix row count")
+      assert_true(dc <= c, "Resize down column count is larger than original matrix column count")
     end
 
     m.resize(dr, dc)
 
     # Postconditions
     begin
-      assert_equal(dr, m.rows)
-      assert_equal(dc, m.cols)
-      assert_equal(0, m.nnz)
+      assert_equal(dr, m.rows, "Resize rows is incorrect. Expected: #{dr}, Actual: #{m.rows}")
+      assert_equal(dc, m.cols, "Resize cols is incorrect. Expected: #{dc}, Actual: #{m.cols}")
+      assert_equal(0, m.nnz, "Number of non-zero elements is invalid. The only non-zero element should have been pushed out during resize down")
     end
   end
 
@@ -189,7 +189,7 @@ class SparseMatrixTest < Test::Unit::TestCase
     begin
       (0..m.rows).each do |r|
         (0..m.cols).each do |c|
-          assert_equal(0, m.at(r, c))
+          assert_equal(0, m.at(r, c), "Matrix is not zero at row:#{r} col:#{c}. Value: #{m.at(r, c)}")
         end
       end
     end
@@ -209,9 +209,9 @@ class SparseMatrixTest < Test::Unit::TestCase
       (0..m.rows).each do |r|
         (0..m.cols).each do |c|
           if r == c
-            assert_equal(1, m.at(r, c))
+            assert_equal(1, m.at(r, c), "Value for set_identity matrix not 1 at row:#{r}, col:#{c}")
           else
-            assert_equal(0, m.at(r, c))
+            assert_equal(0, m.at(r, c), "Value for set_identity matrix not 0 at row:#{r}, col:#{c}")
           end
         end
       end
@@ -228,13 +228,13 @@ class SparseMatrixTest < Test::Unit::TestCase
 
     # Preconditions
     begin
-      assert_true(0 <= r && r <= m.rows - 1)
-      assert_true(0 <= c && c <= m.cols - 1)
+      assert_true(0 <= r && r <= m.rows - 1, "Invalid row: Out of matrix row range")
+      assert_true(0 <= c && c <= m.cols - 1, "Invalid column: Out of matrix column range")
     end
 
     # Postconditions
     begin
-      assert_equal(v, m.at(r, c))
+      assert_equal(v, m.at(r, c), "Incorrect value at row:#{r}, col:#{c}. Expected: #{v}, Actual:#{m.at(r,c)}")
     end
   end
 
@@ -251,7 +251,7 @@ class SparseMatrixTest < Test::Unit::TestCase
     begin
       (0..m1.rows).each do |r|
         (0..m1.cols).each do |c|
-          assert_equal(m1.at(r, c), m2.at(r, c))
+          assert_equal(m1.at(r, c), m2.at(r, c), "Invalid value in clone matrix. Expected:#{m1.at(r, c)}, Actual:#{m2.at(r, c)}")
         end
       end
     end
@@ -287,16 +287,16 @@ class SparseMatrixTest < Test::Unit::TestCase
 
         # More generically
         if m.nil?
-          assert_equal(0, MatrixTestUtil::char_count('\n', s))
+          assert_equal(0, MatrixTestUtil::char_count('\n', s), "Nil Matrix incorrect to_s format")
         else
           # number of \n == rows()
-          assert_equal(m.rows, MatrixTestUtil::char_count('\n', s))
+          assert_equal(m.rows, MatrixTestUtil::char_count('\n', s), "Matrix incorrect to_s format ")
           t
           # all rows have the same length
           len = nil
           s.each_line('\n') do |l|
             len = l.size if len.nil?
-            assert_equal(len, l.size)
+            assert_equal(len, l.size, "Matrix to_s format, incorrect row length")
           end
         end
       end
@@ -322,7 +322,7 @@ class SparseMatrixTest < Test::Unit::TestCase
         expected += el.val
       end
 
-      assert_equal(expected, sum)
+      assert_equal(expected, sum, "Incorrect matrix sum. Expected:#{expected}, Actual: #{sum}")
     end
   end
 
@@ -334,25 +334,25 @@ class SparseMatrixTest < Test::Unit::TestCase
 
     #Preconditions
     begin
-      assert_equal(m1.rows, m2.rows)
-      assert_equal(m1.cols, m2.cols)
+      assert_equal(m1.rows, m2.rows, "Incompatable matrix row count, vector addition not possible. Matrix 1 Row Count:#{m1.rows}, Matrix 2 Row Count:#{m2.rows}")
+      assert_equal(m1.cols, m2.cols, "Incompatable matrix column count, vector addition not possible. Matrix 1 Col Count:#{m1.cols}, Matrix 2 Col Count:#{m2.cols}")
     end
 
     m3 = m1 + m2
 
     # Postconditions
     begin
-      assert_equal(m1.sum + m2.sum, m3.sum)
+      assert_equal(m1.sum + m2.sum, m3.sum, "Matrix vector addition incorrect. Expected Sum:#{m1.sum + m2.sum}, Actual Sum:#{m3.sum}")
 
       if m1.traceable?
-        assert_equal(m1.trace + m2.trace, m3.trace)
+        assert_equal(m1.trace + m2.trace, m3.trace, "Matrix vector addition incorrect. Expected Trace:#{m1.trace + m2.trace}, Actual Trace:#{m3.trace}")
       end
 
-      assert_equal(m1, m3 - m2)
+      assert_equal(m1, m3 - m2, "Matrix vector addition incorrect. Expected reversible operation")
 
       (0..m1.rows).each do |r2|
         (0..m1.cols).each do |c2|
-          assert_equal(m1.at(r2, c2) + m2.at(r2, c2), m3.at(r2, c2))
+          assert_equal(m1.at(r2, c2) + m2.at(r2, c2), m3.at(r2, c2), "Incorrect vector addition at row:#{r2}, col:#{c2}. Expected:#{m1.at(r2, c2) + m2.at(r2, c2)}, Actual:#{m3.at(r2, c2)}")
         end
       end
     end
@@ -370,11 +370,11 @@ class SparseMatrixTest < Test::Unit::TestCase
 
     # Postconditions
     begin
-      assert_equal(m1.sum + num * m1.nnz, m2.sum)
+      assert_equal(m1.sum + num * m1.nnz, m2.sum, "Matrix scalar addition incorrect. Expected Sum:#{m1.sum + num * m1.nnz}, Actual Sum:#{m2.sum}")
 
       (0..m1.rows).each do |r|
         (0..m1.cols).each do |c|
-          assert_equal(m1.at(r, c) + num, m2.at(r, c))
+          assert_equal(m1.at(r, c) + num, m2.at(r, c), "Incorrect scalar addition at row:#{r2}, col:#{c2}. Expected:#{m1.at(r, c) + num}, Actual:#{m2.at(r, c)}")
         end
       end
     end
@@ -388,25 +388,25 @@ class SparseMatrixTest < Test::Unit::TestCase
 
     #Preconditions
     begin
-      assert_equal(m1.rows, m2.rows)
-      assert_equal(m1.cols, m2.cols)
+      assert_equal(m1.rows, m2.rows, "Incompatable matrix row count, vector subtraction not possible. Matrix 1 Row Count:#{m1.rows}, Matrix 2 Row Count:#{m2.rows}")
+      assert_equal(m1.cols, m2.cols, "Incompatable matrix column count, vector subtraction not possible. Matrix 1 Col Count:#{m1.cols}, Matrix 2 Col Count:#{m2.cols}")
     end
 
     m3 = m1 - m2
 
     # Postcondition
     begin
-      assert_equal(m1.sum - m2.sum, m3.sum)
+      assert_equal(m1.sum - m2.sum, m3.sum, "Matrix vector subtraction incorrect. Expected Sum:#{m1.sum - m2.sum}, Actual Sum:#{m3.sum}")
 
       if m1.traceable?
-        assert_equal(m1.trace - m2.trace, m3.trace)
+        assert_equal(m1.trace - m2.trace, m3.trace, "Matrix vector subtraction incorrect. Expected Trace:#{m1.trace - m2.trace}, Actual Trace:#{m3.trace}")
       end
 
-      assert_equal(m1, m3 + m2)
+      assert_equal(m1, m3 + m2, "Matrix vector subtraction incorrect. Expected reversible operation")
 
       (0..m1.rows).each do |r2|
         (0..m1.cols).each do |c2|
-          assert_equal(m1.at(r2, c2) - m2.at(r2, c2), m3.at(r2, c2))
+          assert_equal(m1.at(r2, c2) - m2.at(r2, c2), m3.at(r2, c2), "Incorrect vector subtraction at row:#{r2}, col:#{c2}. Expected:#{m1.at(r2, c2) - m2.at(r2, c2)}, Actual:#{m3.at(r2, c2)}")
         end
       end
     end
@@ -424,11 +424,11 @@ class SparseMatrixTest < Test::Unit::TestCase
 
     # Postconditions
     begin
-      assert_equal(m1.sum - num * m1.nnz, m2.sum)
+      assert_equal(m1.sum - num * m1.nnz, m2.sum, "Matrix scalar subtraction incorrect. Expected Sum:#{m1.sum - num * m1.nnz}, Actual Sum:#{m2.sum}")
 
       (0..m1.rows).each do |r|
         (0..m1.cols).each do |c|
-          assert_equal(m1.at(r, c) - num, m2.at(r, c))
+          assert_equal(m1.at(r, c) - num, m2.at(r, c), "Incorrect scalar subraction at row:#{r}, col:#{c}. Expected:#{m1.at(r, c) - num}, Actual:#{m2.at(r, c)}")
         end
       end
     end
@@ -443,7 +443,6 @@ class SparseMatrixTest < Test::Unit::TestCase
     MatrixTestUtil::rand_range(1, 1000, 20).each do |mult|
       # Preconditions
       begin
-
       end
 
       new_m = m.*(mult)
@@ -452,7 +451,7 @@ class SparseMatrixTest < Test::Unit::TestCase
       begin
         (0..r).each do |i|
           (0..c).each do |j|
-            assert_equal(m.at(i, j) * mult, new_m.at(i, j))
+            assert_equal(m.at(i, j) * mult, new_m.at(i, j), "Incorrect scalar multiplication at row:#{i}, col:#{j}. Expected:#{m.at(i, j) * mult}, Actual:#{new_m.at(i, j)}")
           end
         end
       end
@@ -466,7 +465,6 @@ class SparseMatrixTest < Test::Unit::TestCase
     MatrixTestUtil::rand_range(1, 15, 20).each do |exp|
       # Preconditions
       begin
-
       end
 
       new_m = m.**(exp)
@@ -476,7 +474,7 @@ class SparseMatrixTest < Test::Unit::TestCase
         expected = m
         (0..exp).each do |i|
           expected = expected.*(m)
-          assert_equal(expected, new_m)
+          assert_equal(expected, new_m, "Incorrect exponentiation. Expected:#{expected}, Actual:#{new_m}")
         end
       end
     end
@@ -490,8 +488,8 @@ class SparseMatrixTest < Test::Unit::TestCase
 
     # Preconditions
     begin
-      assert_true(0 <= r && r <= m.rows - 1)
-      assert_true(0 <= c && c <= m.cols - 1)
+      assert_true(0 <= r && r <= m.rows - 1, "Invalid row: Out of matrix row range")
+      assert_true(0 <= c && c <= m.cols - 1, "Invalid column: Out of matrix column range")
     end
 
     nnz_before = m.nnz
@@ -501,14 +499,14 @@ class SparseMatrixTest < Test::Unit::TestCase
     # Postconditions
     begin
       # Check that the value is set
-      assert_equal(v, m.at(r, c))
+      assert_equal(v, m.at(r, c), "Invalid insertion, value not set. Expected:#{v}, Actual:#{m.at(r, c)}")
 
       if (v != 0 and v_before != 0) or (v == 0 and v_before == 0)
-        assert_equal(nnz_before, m.nnz)
+        assert_equal(nnz_before, m.nnz, "Invalid insertion, number of non-zero elements unexpectedly changed.")
       elsif v != 0 and v_before == 0
-        assert_equal(nnz_before+1, m.nnz)
+        assert_equal(nnz_before+1, m.nnz, "Invalid insertion, number of non-zero elements is incorrect after replacing zero value with non-zero. Expected:#{nnz_before+1}, Actual:#{m.nnz}")
       else # v == 0 and v_before != 0
-        assert_equal(nnz_before-1, m.nnz)
+        assert_equal(nnz_before-1, m.nnz, "Invalid insertion, number of non-zero elements is incorrect after replacing non-zero value with zero. Expected:#{nnz_before-1}, Actual:#{m.nnz}")
       end
     end
   end
@@ -539,16 +537,16 @@ class SparseMatrixTest < Test::Unit::TestCase
     # Postconditions
     begin
       if is_d
-        assert_true(m.symmetric?)
-        assert_true(m.square?)
+        assert_true(m.symmetric?, "Diagonal test is incorrect. Result conflicts with symmetric test")
+        assert_true(m.square?, "Diagonal test is incorrect. Matrix is not square")
 
         # For all i,j where i != j -> at(i,j) == 0
         iterate_matrix(m) {|i, j, v|
-          assert_equal(0, v) unless i == j
+          assert_equal(0, v, "Invalid non-zero value in diagonal matrix at: row:#{i}, col:#{j}") unless i == j
         }
       else
         # For some i,j where i != j -> at(i,j) != 0
-        assert_true(nnz_off_diagonal?(m))
+        assert_true(nnz_off_diagonal?(m), "Invalid non-diagonal matrix. All values off the main diagonal are zero")
       end
     end
   end
@@ -660,7 +658,7 @@ class SparseMatrixTest < Test::Unit::TestCase
       for y in 0...m.rows()
         for x in 0...m.cols()
           if x > y + 1
-            assert_equal(0, m.at(x, y))
+            assert_equal(0, m.at(x, y), "Lower Hessenverg Matrix is not zero at row:#{y} col:#{x}. Value: #{m.at(x, y)}")
           end
         end
       end
