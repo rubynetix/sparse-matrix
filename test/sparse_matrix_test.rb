@@ -13,16 +13,16 @@ class SparseMatrixTest < Test::Unit::TestCase
     assert_true(m.rows >= 0)
     assert_true(m.cols >= 0)
     if m.cols > 0
-      assert_true(m.rows > 0)
+      assert_true(m.rows > 0, "Invariant assertion. Invalid row count")
     end
     if m.rows > 0
-      assert_true(m.cols > 0)
+      assert_true(m.cols > 0, "Invalid assertion. Invalid column count")
     end
     if m.rows == 0
-      assert_true(m.cols == 0)
+      assert_true(m.cols == 0, "Invariant assertion. Invalid row count")
     end
     if m.cols == 0
-      assert_true(m.rows == 0)
+      assert_true(m.rows == 0, "Invalid assertion. Invalid column count")
     end
   end
 
@@ -305,7 +305,7 @@ class SparseMatrixTest < Test::Unit::TestCase
 
       # Postconditions
       begin
-        assert_equal(e, s)
+        assert_equal(e, s, "Incorrect to_s format")
 
         # More generically
         if m.nil?
@@ -612,7 +612,7 @@ class SparseMatrixTest < Test::Unit::TestCase
 
     # Postconditions
     begin
-      assert_true(m.diagonal?)
+      assert_true(m.diagonal?, "Diagonal conversion invalid. Expected: True, Actual:#{m.diagonal?}")
 
       # All elements on the diagonal are equivalent to the original matrix
       (0..m.rows-1).each do |i|
@@ -716,12 +716,12 @@ class SparseMatrixTest < Test::Unit::TestCase
   def check_lower_hessenberg(m)
     # algorithm to test if matrix m is lower_hessenberg
     if !m.square?
-      assert(!m.lower_hessenberg?)
+      assert_false(m.lower_hessenberg?, "Lower Hessenberg check for Non-square Matrix is incorrect. Expected: False, Actual:#{m.lower_hessenberg?}")
     else
       for y in 0...m.rows()
         for x in 0...m.cols()
           if x > y + 1
-            assert_equal(0, m.at(x, y), "Lower Hessenverg Matrix is not zero at row:#{y} col:#{x}. Value: #{m.at(x, y)}")
+            assert_equal(0, m.at(x, y), "Lower Hessenberg Matrix is not zero at row:#{y} col:#{x}. Value: #{m.at(x, y)}")
           end
         end
       end
@@ -850,10 +850,10 @@ class SparseMatrixTest < Test::Unit::TestCase
 
     # Preconditions
     begin
-      assert_true(m_same.rows >= 0)
-      assert_true(m_same.cols >= 0)
-      assert_true(m_diff.rows >= 0)
-      assert_true(m_diff.cols >= 0)
+      assert_true(m_same.rows >= 0, "Invalid row count of clone comparison matrix. Row count outside of valid range")
+      assert_true(m_same.cols >= 0, "Invalid column count of clone comparison matrix. Column count outside of valid range")
+      assert_true(m_diff.rows >= 0, "Invalid row count of different comparison matrix. Row count outside of valid range")
+      assert_true(m_diff.cols >= 0, "Invalid column count of different comparison matrix. Column count outside of valid range")
     end
 
     # Postconditions
@@ -1120,8 +1120,6 @@ class SparseMatrixTest < Test::Unit::TestCase
   end
 
   def tst_rank
-    assert_equal(0, SparseMatrix.zero(0..100, 0..100).rank)
-
     m = MatrixTestUtil::rand_sparse
 
     # Preconditions
@@ -1160,7 +1158,7 @@ class SparseMatrixTest < Test::Unit::TestCase
 
     # Post conditions
     begin
-      assert_true(m.transpose == m.inverse, orth)
+      assert_true(m.transpose == m.inverse, orth, "Conflict between orthogonal result and transpose/inverse equality")
     end
 
     assert_invariants(m)
