@@ -73,7 +73,10 @@ class SparseMatrixTest < Test::Unit::TestCase
   def tst_nnz
     n = rand(0..20)
     m = SparseMatrix.new(n, n)
-    # TODO: insert n random elements into m
+    x = (0...m.cols).to_a.shuffle.take(n)
+    y = (0...m.rows).to_a.shuffle.take(n)
+    (0...n).each do |i|
+      m.insert(x[i], y[i], rand(1..1000))
 
     # Preconditions
     begin
