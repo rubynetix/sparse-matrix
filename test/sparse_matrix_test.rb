@@ -77,7 +77,7 @@ class SparseMatrixTest < Test::Unit::TestCase
     y = (0...m.rows).to_a.shuffle.take(n)
     (0...n).each do |i|
       m.insert(x[i], y[i], rand(1..1000))
-
+    end
     # Preconditions
     begin
       assert_true(n >= 0)
