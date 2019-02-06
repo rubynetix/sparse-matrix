@@ -174,8 +174,8 @@ alias_method :tr, :trace
   # Utility functions
   def map
     m = self.copy
-    (0...m.rows).each do |x|
-      (0...m.cols).each do |y|
+    (0...m.rows-1).each do |x|
+      (0...m.cols-1).each do |y|
         current = m.at(x, y)
         new_val = yield(current, x, y)
         m.insert(x, y, new_val) if new_val != current
@@ -186,7 +186,7 @@ alias_method :tr, :trace
 
   def map_diagonal
     m = self.copy
-    (0...m.rows).each do |x|
+    (0...m.rows-1).each do |x|
       current = m.at(x, x)
       new_val = yield(current, x)
       m.insert(x, x, new_val) if new_val != current
