@@ -1,7 +1,7 @@
 # Compressed Sparse Row Matrix
 class SparseMatrix
-  attr_reader(:data, :indices, :indptr)
-  attr_reader(:rows, :cols, :nnz)
+
+  attr_reader(:rows, :cols)
 
   def initialize(rows, cols = rows)
     raise TypeError unless rows > 0 && cols > 0
@@ -10,7 +10,7 @@ class SparseMatrix
     @indptr = []
     @rows = rows
     @cols = cols
-    raise NotImplementedError
+    @cord_map = Hash.new
   end
 
   class << self
@@ -23,14 +23,6 @@ class SparseMatrix
     end
 
     alias :I :identity
-  end
-
-  def rows
-    raise "Not implemented"
-  end
-
-  def cols
-    raise "Not implemented"
   end
 
   def nnz
@@ -54,11 +46,17 @@ class SparseMatrix
   end
 
   def at(row, col)
-    raise "Not implemented"
+    @cord_map[[row, col]].nil? ? 0 : @cord_map[[row, col]]
   end
 
   def sum
-    raise "Not implemented"
+    count = 0
+    (0..@rows - 1).each do |r|
+      (0..@cols-1).each do |c|
+        count += at(r, c)
+      end
+    end
+    count
   end
 
   def +(o)
@@ -87,7 +85,12 @@ class SparseMatrix
   end
 
   def insert(row, col, val)
-    raise "Not implemented"
+    unless @cord_map[[row, col]].nil?
+      @cord_map[[row, col]] = val
+    end
+
+    @rows = [@rows, row].max
+    @cols = [@cols, col].max
   end
 
   def diagonal

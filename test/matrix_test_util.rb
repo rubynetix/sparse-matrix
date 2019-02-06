@@ -10,7 +10,17 @@ module MatrixTestUtil
   end
 
   def rand_sparse(rows: rand(1..1000), cols: rand(1..1000), range: (-1000..1000))
-    # TODO: Implementation
+    m = SparseMatrix.new(rows, cols)
+    nnz = rand(1..(rows*cols)/2.floor)
+
+    while nnz > 0 do
+      r, c = rand(0..rows-1), rand(0..cols-1)
+      if m.at(r, c) == 0
+        m.insert(r, c, rand(range))
+        nnz -= 1
+      end
+    end
+    m
   end
 
   def rand_square_sparse(size: 1000, range: -1000..1000)
