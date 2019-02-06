@@ -1,7 +1,6 @@
 # Compressed Sparse Row Matrix
 class SparseMatrix
-  attr_reader(:data, :indices, :indptr)
-  attr_reader(:rows, :cols, :nnz)
+  attr_reader(:rows, :cols)
 
   def initialize(rows, cols = rows)
     raise TypeError unless rows > 0 && cols > 0
@@ -10,31 +9,22 @@ class SparseMatrix
     @indptr = []
     @rows = rows
     @cols = cols
-    raise NotImplementedError
   end
 
   class << self
-    def zero(rows, cols)
-      raise "Not implemented"
+    def zero(rows, cols = rows)
+      SparseMatrix.new(rows, cols)
     end
 
     def identity(n)
-      raise "Not implemented"
+      SparseMatrix.new(n).map_diagonal { 1 }
     end
 
     alias :I :identity
   end
 
-  def rows
-    raise "Not implemented"
-  end
-
-  def cols
-    raise "Not implemented"
-  end
-
   def nnz
-    raise "Not implemented"
+    data.size
   end
 
   def det
@@ -181,6 +171,30 @@ class SparseMatrix
 alias_method :t, :transpose
 alias_method :tr, :trace
 
+  # Utility functions
+  def map
+    m = self.copy
+    (0...m.rows-1).each do |x|
+      (0...m.cols-1).each do |y|
+        current = m.at(x, y)
+        new_val = yield(current, x, y)
+        m.insert(x, y, new_val) if new_val != current
+      end
+    end
+    m
+  end
+
+  def map_diagonal
+    m = self.copy
+    (0...m.rows-1).each do |x|
+      current = m.at(x, x)
+      new_val = yield(current, x)
+      m.insert(x, x, new_val) if new_val != current
+    end
+    m
+  end
+
+private
   def plus_matrix(o)
     raise "Not implemented"
   end
