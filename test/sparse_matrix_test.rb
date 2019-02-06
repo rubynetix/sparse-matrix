@@ -28,7 +28,7 @@ class SparseMatrixTest < Test::Unit::TestCase
   end
 
   def tst_identity
-    TestUtil.rand_range(1, MAX_ROWS, 20).each do |size|
+    rand_range(1, MAX_ROWS, 20).each do |size|
       # Preconditions
       begin
         assert_true(size > 0, 'Identity matrix is nil')
@@ -72,7 +72,7 @@ class SparseMatrixTest < Test::Unit::TestCase
     assert_invariants(m)
   end
 
-  def tst_rows
+  def test_rows
     r = rand(0..MAX_ROWS)
     c = rand(1..MAX_COLS)
     m = SparseMatrix.new(r, c)
@@ -90,7 +90,7 @@ class SparseMatrixTest < Test::Unit::TestCase
     assert_invariants(m)
   end
 
-  def tst_cols
+  def test_cols
     r = rand(1..MAX_ROWS)
     c = rand(0..MAX_COLS)
     m = SparseMatrix.new(r, c)
@@ -133,7 +133,7 @@ class SparseMatrixTest < Test::Unit::TestCase
     c = rand(0..MAX_COLS)
     nr = rand(0..MAX_ROWS)
     nc = rand(0..MAX_COLS)
-    m = MatrixTestUtil.rand_sparse(r, c)
+    m = rand_sparse(r, c)
     nnzi = m.nnz
 
     # Upsize test
@@ -195,7 +195,7 @@ class SparseMatrixTest < Test::Unit::TestCase
   end
 
   def tst_set_zero
-    m = MatrixTestUtil.rand_sparse
+    m = rand_sparse
 
     # Preconditions
     begin
@@ -216,7 +216,7 @@ class SparseMatrixTest < Test::Unit::TestCase
   end
 
   def tst_set_identity
-    m = MatrixTestUtil.rand_sparse
+    m = rand_sparse
 
     # Preconditions
     begin
@@ -263,7 +263,7 @@ class SparseMatrixTest < Test::Unit::TestCase
   end
 
   def tst_clone
-    m1 = MatrixTestUtil.rand_sparse
+    m1 = rand_sparse
 
     # Preconditions
     begin
@@ -312,10 +312,10 @@ class SparseMatrixTest < Test::Unit::TestCase
 
         # More generically
         if m.nil?
-          assert_equal(0, MatrixTestUtil.char_count('\n', s), 'Nil Matrix incorrect to_s format')
+          assert_equal(0, char_count('\n', s), 'Nil Matrix incorrect to_s format')
         else
           # number of \n == rows()
-          assert_equal(m.rows, MatrixTestUtil.char_count('\n', s), 'Matrix incorrect to_s format ')
+          assert_equal(m.rows, char_count('\n', s), 'Matrix incorrect to_s format ')
           t
           # all rows have the same length
           len = nil
@@ -358,8 +358,8 @@ class SparseMatrixTest < Test::Unit::TestCase
   def tst_add_matrix
     r = rand(1..MAX_ROWS)
     c = rand(1..MAX_COLS)
-    m1 = MatrixTestUtil.rand_sparse(rows: r, cols: c)
-    m2 = MatrixTestUtil.rand_sparse(rows: r, cols: c)
+    m1 = rand_sparse(rows: r, cols: c)
+    m2 = rand_sparse(rows: r, cols: c)
 
     # Preconditions
     begin
@@ -392,7 +392,7 @@ class SparseMatrixTest < Test::Unit::TestCase
   end
 
   def tst_add_scalar
-    m1 = MatrixTestUtil.rand_sparse
+    m1 = rand_sparse
     num = rand(MIN_VAL..MAX_VAL)
 
     # Preconditions
@@ -420,8 +420,8 @@ class SparseMatrixTest < Test::Unit::TestCase
   def tst_subtract_matrix
     r = rand(1..MAX_ROWS)
     c = rand(1..MAX_COLS)
-    m1 = MatrixTestUtil.rand_sparse(rows: r, cols: c)
-    m2 = MatrixTestUtil.rand_sparse(rows: r, cols: c)
+    m1 = rand_sparse(rows: r, cols: c)
+    m2 = rand_sparse(rows: r, cols: c)
 
     # Preconditions
     begin
@@ -454,7 +454,7 @@ class SparseMatrixTest < Test::Unit::TestCase
   end
 
   def tst_subtract_scalar
-    m1 = MatrixTestUtil.rand_sparse
+    m1 = rand_sparse
     num = rand(MIN_VAL..MAX_VAL)
 
     # Preconditions
@@ -483,8 +483,8 @@ class SparseMatrixTest < Test::Unit::TestCase
   def tst_scalar_mult
     r = rand(0..MAX_ROWS)
     c = rand(1..MAX_COLS)
-    m = MatrixTestUtil.rand_matrix(r, c)
-    MatrixTestUtil.rand_range(1, 1000, 20).each do |mult|
+    m = rand_matrix(r, c)
+    rand_range(1, 1000, 20).each do |mult|
       # Preconditions
       begin
       end
@@ -507,8 +507,8 @@ class SparseMatrixTest < Test::Unit::TestCase
   def tst_exponentiation
     r = rand(0..MAX_ROWS)
     c = rand(1..MAX_COLS)
-    m = MatrixTestUtil.rand_matrix(r, c)
-    MatrixTestUtil.rand_range(1, 15, 20).each do |exp|
+    m = rand_matrix(r, c)
+    rand_range(1, 15, 20).each do |exp|
       # Preconditions
       begin
       end
@@ -573,7 +573,7 @@ class SparseMatrixTest < Test::Unit::TestCase
   end
 
   def tst_diagonal?
-    m = MatrixTestUtil.rand_sparse
+    m = rand_sparse
 
     # Preconditions
     begin
@@ -601,7 +601,7 @@ class SparseMatrixTest < Test::Unit::TestCase
   end
 
   def tst_diagonal
-    m = MatrixTestUtil.rand_sparse
+    m = rand_sparse
 
     # Preconditions
     begin
@@ -629,7 +629,7 @@ class SparseMatrixTest < Test::Unit::TestCase
     while r != c
       r = rand(0..MAX_ROWS)
       c = rand(0..MAX_COLS)
-      m = MatrixTestUtil.rand_matrix(r, c)
+      m = rand_matrix(r, c)
     end
 
     # Preconditions
@@ -638,7 +638,7 @@ class SparseMatrixTest < Test::Unit::TestCase
 
     # Postconditions
     begin
-      assert_equal(MatrixTestUtil.sparse_to_matrix(m).lower_triangular?, m.lower_triangular?, "Non-square Matrix lower triangular check is incorrect. Expected:#{MatrixTestUtil.sparse_to_matrix(m).lower_triangular?}, Actual:#{m.lower_triangular?}")
+      assert_equal(sparse_to_matrix(m).lower_triangular?, m.lower_triangular?, "Non-square Matrix lower triangular check is incorrect. Expected:#{sparse_to_matrix(m).lower_triangular?}, Actual:#{m.lower_triangular?}")
     end
 
     assert_invariants(m)
@@ -648,8 +648,8 @@ class SparseMatrixTest < Test::Unit::TestCase
     i = 0
     while i < 20
       rc = rand(0..MAX_ROWS)
-      m_tri = MatrixTestUtil.lower_triangular_matrix(rc, 0, 1000)
-      m_random = MatrixTestUtil.rand_matrix(rc, rc)
+      m_tri = lower_triangular_matrix(rc, 0, 1000)
+      m_random = rand_matrix(rc, rc)
 
       # Preconditions
       begin
@@ -657,8 +657,8 @@ class SparseMatrixTest < Test::Unit::TestCase
 
       # Postconditions
       begin
-        assert_equal(MatrixTestUtil.sparse_to_matrix(m_tri).lower_triangular?, m_tri.lower_triangular?, "Lower triangular check is incorrect for Square Lower Triangular Matrix. Expected:#{MatrixTestUtil.sparse_to_matrix(m_tri).lower_triangular?}, Actual:#{m_tri.lower_triangular?}")
-        assert_equal(MatrixTestUtil.sparse_to_matrix(m_random).lower_triangular?, m_random.lower_triangular?, "Lower triangular check is incorrect for Random Square Matrix. Expected:#{MatrixTestUtil.sparse_to_matrix(m_random).lower_triangular?}, Actual:#{m_random.lower_triangular?}")
+        assert_equal(sparse_to_matrix(m_tri).lower_triangular?, m_tri.lower_triangular?, "Lower triangular check is incorrect for Square Lower Triangular Matrix. Expected:#{sparse_to_matrix(m_tri).lower_triangular?}, Actual:#{m_tri.lower_triangular?}")
+        assert_equal(sparse_to_matrix(m_random).lower_triangular?, m_random.lower_triangular?, "Lower triangular check is incorrect for Random Square Matrix. Expected:#{sparse_to_matrix(m_random).lower_triangular?}, Actual:#{m_random.lower_triangular?}")
       end
 
       assert_invariants(m_tri)
@@ -674,7 +674,7 @@ class SparseMatrixTest < Test::Unit::TestCase
     while r != c
       r = rand(0..MAX_ROWS)
       c = rand(0..MAX_COLS)
-      m = MatrixTestUtil.rand_matrix(r, c)
+      m = rand_matrix(r, c)
     end
 
     # Preconditions
@@ -683,7 +683,7 @@ class SparseMatrixTest < Test::Unit::TestCase
 
     # Postconditions
     begin
-      assert_equal(MatrixTestUtil.sparse_to_matrix(m).upper_triangular?, m.upper_triangular?, "Non-square Matrix upper triangular check is incorrect. Expected:#{MatrixTestUtil.sparse_to_matrix(m).upper_triangular?}, Actual:#{m.upper_triangular?}")
+      assert_equal(sparse_to_matrix(m).upper_triangular?, m.upper_triangular?, "Non-square Matrix upper triangular check is incorrect. Expected:#{sparse_to_matrix(m).upper_triangular?}, Actual:#{m.upper_triangular?}")
     end
 
     assert_invariants(m)
@@ -693,8 +693,8 @@ class SparseMatrixTest < Test::Unit::TestCase
     i = 0
     while i < 20
       rc = rand(0..MAX_ROWS)
-      m_tri = MatrixTestUtil.upper_triangular_matrix(rc, 0, 1000)
-      m_random = MatrixTestUtil.rand_matrix(rc, rc)
+      m_tri = upper_triangular_matrix(rc, 0, 1000)
+      m_random = rand_matrix(rc, rc)
 
       # Preconditions
       begin
@@ -702,8 +702,8 @@ class SparseMatrixTest < Test::Unit::TestCase
 
       # Postconditions
       begin
-        assert_equal(MatrixTestUtil.sparse_to_matrix(m_tri).upper_triangular?, m_tri.upper_triangular?, "Upper triangular check is incorrect for Square Upper Triangular Matrix. Expected:#{MatrixTestUtil.sparse_to_matrix(m_tri).upper_triangular?}, Actual:#{m_tri.upper_triangular?}")
-        assert_equal(MatrixTestUtil.sparse_to_matrix(m_random).upper_triangular?, m_random.upper_triangular?, "Upper triangular check is incorrect for Random Square Matrix. Expected:#{MatrixTestUtil.sparse_to_matrix(m_random).upper_triangular?}, Actual:#{m_random.upper_triangular?}")
+        assert_equal(sparse_to_matrix(m_tri).upper_triangular?, m_tri.upper_triangular?, "Upper triangular check is incorrect for Square Upper Triangular Matrix. Expected:#{sparse_to_matrix(m_tri).upper_triangular?}, Actual:#{m_tri.upper_triangular?}")
+        assert_equal(sparse_to_matrix(m_random).upper_triangular?, m_random.upper_triangular?, "Upper triangular check is incorrect for Random Square Matrix. Expected:#{sparse_to_matrix(m_random).upper_triangular?}, Actual:#{m_random.upper_triangular?}")
       end
 
       assert_invariants(m_tri)
@@ -735,7 +735,7 @@ class SparseMatrixTest < Test::Unit::TestCase
     while r != c
       r = rand(0..10_000)
       c = rand(0..10_000)
-      m = MatrixTestUtil.rand_matrix(r, c)
+      m = rand_matrix(r, c)
     end
 
     # Preconditions
@@ -755,8 +755,8 @@ class SparseMatrixTest < Test::Unit::TestCase
     i = 0
     while i < 20
       rc = rand(0..MAX_ROWS)
-      m_hess = MatrixTestUtil.lower_hessenberg_matrix(rc, 0, 1000)
-      m_random = MatrixTestUtil.rand_matrix(rc, rc)
+      m_hess = lower_hessenberg_matrix(rc, 0, 1000)
+      m_random = rand_matrix(rc, rc)
 
       # Preconditions
       begin
@@ -797,7 +797,7 @@ class SparseMatrixTest < Test::Unit::TestCase
     while r != c
       r = rand(0..MAX_ROWS)
       c = rand(0..MAX_COLS)
-      m = MatrixTestUtil.rand_matrix(r, c)
+      m = rand_matrix(r, c)
     end
 
     # Preconditions
@@ -817,8 +817,8 @@ class SparseMatrixTest < Test::Unit::TestCase
     i = 0
     while i < 10
       rc = rand(0..MAX_ROWS)
-      m_hess = MatrixTestUtil.upper_hessenberg_matrix(rc, 0, 1000)
-      m_random = MatrixTestUtil.rand_matrix(rc, rc)
+      m_hess = upper_hessenberg_matrix(rc, 0, 1000)
+      m_random = rand_matrix(rc, rc)
 
       # Preconditions
       begin
@@ -844,9 +844,9 @@ class SparseMatrixTest < Test::Unit::TestCase
       r1 = rand(0..MAX_ROWS)
       r2 = rand(0..MAX_ROWS)
     end
-    m = MatrixTestUtil.rand_matrix(r1, rand(0..MAX_ROWS))
+    m = rand_matrix(r1, rand(0..MAX_ROWS))
     m_same = m.clone
-    m_diff = MatrixTestUtil.rand_matrix(r2, rand(0..MAX_ROWS))
+    m_diff = rand_matrix(r2, rand(0..MAX_ROWS))
 
     # Preconditions
     begin
@@ -868,7 +868,7 @@ class SparseMatrixTest < Test::Unit::TestCase
   end
 
   def tst_cofactor
-    m = MatrixTestUtil.rand_sparse
+    m = rand_sparse
 
     # Preconditions
     begin
@@ -895,7 +895,7 @@ class SparseMatrixTest < Test::Unit::TestCase
   end
 
   def tst_adjoint
-    m = MatrixTestUtil.rand_square_sparse
+    m = rand_square_sparse
 
     # Preconditions
     begin
@@ -915,8 +915,8 @@ class SparseMatrixTest < Test::Unit::TestCase
   end
 
   def tst_identity?
-    i = MatrixTestUtil.identity_matrix
-    m = MatrixTestUtil.rand_square_sparse(range: 2...MAX_VAL)
+    i = identity_matrix
+    m = rand_square_sparse(range: 2...MAX_VAL)
 
     # Preconditions
     begin
@@ -936,7 +936,7 @@ class SparseMatrixTest < Test::Unit::TestCase
   end
 
   def tst_square?
-    m = MatrixTestUtil.rand_sparse
+    m = rand_sparse
 
     # Preconditions
     begin
@@ -953,8 +953,8 @@ class SparseMatrixTest < Test::Unit::TestCase
   end
 
   def tst_positive?
-    pos_m = MatrixTestUtil.rand_sparse(range: 0..MAX_VAL)
-    neg_m = MatrixTestUtil.rand_sparse(range: MIN_VAL..-1)
+    pos_m = rand_sparse(range: 0..MAX_VAL)
+    neg_m = rand_sparse(range: MIN_VAL..-1)
 
     # Preconditions
     begin
@@ -974,7 +974,7 @@ class SparseMatrixTest < Test::Unit::TestCase
   end
 
   def tst_invertible?
-    m = MatrixTestUtil.rand_sparse
+    m = rand_sparse
 
     # Preconditions
     begin
@@ -991,7 +991,7 @@ class SparseMatrixTest < Test::Unit::TestCase
   end
 
   def tst_inverse
-    m = MatrixTestUtil.rand_square_sparse
+    m = rand_square_sparse
 
     # Preconditions
     begin
@@ -1009,7 +1009,7 @@ class SparseMatrixTest < Test::Unit::TestCase
   end
 
   def tst_symmetric?
-    m = MatrixTestUtil.rand_sparse
+    m = rand_sparse
 
     # Preconditions
     begin
@@ -1026,7 +1026,7 @@ class SparseMatrixTest < Test::Unit::TestCase
   end
 
   def tst_traceable?
-    m = MatrixTestUtil.rand_sparse
+    m = rand_sparse
 
     # Preconditions
     begin
@@ -1043,7 +1043,7 @@ class SparseMatrixTest < Test::Unit::TestCase
   end
 
   def tst_trace
-    m = MatrixTestUtil.rand_sparse
+    m = rand_sparse
 
     # Preconditions
     begin
@@ -1069,7 +1069,7 @@ class SparseMatrixTest < Test::Unit::TestCase
   end
 
   def tst_transpose
-    m = MatrixTestUtil.rand_sparse
+    m = rand_sparse
 
     # Preconditions
     begin
@@ -1082,7 +1082,7 @@ class SparseMatrixTest < Test::Unit::TestCase
       assert_equal(m.rows, mt.cols, 'Transpose has a different number of columns')
       assert_equal(m.cols, mt.rows, 'Transpose has different number of rows')
       assert_equal(m.sum, mt.sum, 'Sum of transposes not equal')
-      MatrixTestUtil.iterate_matrix(mt) { |i, j, v| assert_equal(m.at(j, i), v) }
+      iterate_matrix(mt) { |i, j, v| assert_equal(m.at(j, i), v) }
       assert_equal(mt.transpose, m, 'Transpose of transpose not equal to original')
     end
 
@@ -1092,7 +1092,7 @@ class SparseMatrixTest < Test::Unit::TestCase
 
   def tst_zero?
     ms = [
-      MatrixTestUtil.rand_sparse,
+      rand_sparse,
       SparseMatrix.new(0),
       SparseMatrix.identity(3),
       SparseMatrix.zero((0..100), (0..100))
@@ -1119,7 +1119,7 @@ class SparseMatrixTest < Test::Unit::TestCase
   end
 
   def tst_rank
-    m = MatrixTestUtil.rand_sparse
+    m = rand_sparse
 
     # Preconditions
     begin
@@ -1138,7 +1138,7 @@ class SparseMatrixTest < Test::Unit::TestCase
       assert_true(r <= m.rows, 'Rank larger than number of rows')
 
       if m.square?
-        assert_equal(MatrixTestUtil.sparse_to_matrix(m).rank, r, 'Rank not equal to Ruby::Matrix rank')
+        assert_equal(sparse_to_matrix(m).rank, r, 'Rank not equal to Ruby::Matrix rank')
         assert_equal(r, m.transpose.rank, 'Rank not equal to rank of transpose.')
       end
     end
@@ -1147,7 +1147,7 @@ class SparseMatrixTest < Test::Unit::TestCase
   end
 
   def tst_orthogonal?
-    m = MatrixTestUtil.rand_square_sparse
+    m = rand_square_sparse
 
     # Preconditions
     begin
