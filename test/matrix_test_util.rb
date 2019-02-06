@@ -9,7 +9,7 @@ module MatrixTestUtil
     a
   end
 
-  def rand_sparse(rows: rand(1..1000), cols: rand(1..1000), range: (-1000..1000))
+  def rand_sparse(rows = rand(1..1000), cols = rand(1..1000), range = (-1000..1000))
     # TODO: Implementation
   end
 
