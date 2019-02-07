@@ -57,7 +57,7 @@ class SparseMatrixTest < Test::Unit::TestCase
     x = (0...m.cols).to_a.shuffle.take(n)
     y = (0...m.rows).to_a.shuffle.take(n)
     (0...n).each do |i|
-      m.insert(x[i], y[i], rand(1..1000))
+      m.put(x[i], y[i], rand(1..1000))
     end
     # Preconditions
     begin
@@ -172,7 +172,7 @@ class SparseMatrixTest < Test::Unit::TestCase
     dr = r - 1
     dc = c - 1
     m = SparseMatrix.new(r, c)
-    m.insert(r, c, 1)
+    m.put(r, c, 1)
 
     # Preconditions
     begin
@@ -240,13 +240,13 @@ class SparseMatrixTest < Test::Unit::TestCase
     assert_invariants(m)
   end
 
-  def tst_at
+  def test_at
     v = rand(MIN_VAL..MAX_VAL)
     m = SparseMatrix.new(100, 100)
     r = rand(0..99)
-    c = rand(0.99)
+    c = rand(0..99)
 
-    m.insert(r, c, v)
+    m.put(r, c, v)
 
     # Preconditions
     begin
@@ -527,7 +527,7 @@ class SparseMatrixTest < Test::Unit::TestCase
     end
   end
 
-  def tst_insert
+  def test_put
     v = rand(MIN_VAL..MAX_VAL)
     m = SparseMatrix.new(100, 100)
     r = rand(0..99)
@@ -540,8 +540,8 @@ class SparseMatrixTest < Test::Unit::TestCase
     end
 
     nnz_before = m.nnz
-    v_before = v.at(r, c)
-    m.insert(r, c, v)
+    v_before = m.at(r, c)
+    m.put(r, c, v)
 
     # Postconditions
     begin
@@ -1165,11 +1165,11 @@ class SparseMatrixTest < Test::Unit::TestCase
   def tst_tridiagonal
     TestUtil.rand_range(1, 1000, 20).each do |len|
       upper_diagonal = Array.new(len - 1)
-      upper_diagonal.insert(TestUtil.rand_range(1, 1000, len - 1))
+      upper_diagonal.put(TestUtil.rand_range(1, 1000, len - 1))
       lower_diagonal = Array.new(len - 1)
-      lower_diagonal.insert(TestUtil.rand_range(1, 1000, len - 1))
+      lower_diagonal.put(TestUtil.rand_range(1, 1000, len - 1))
       diagonal = Array.new(len)
-      diagonal.insert(TestUtil.rand_range(1, 1000, len))
+      diagonal.put(TestUtil.rand_range(1, 1000, len))
       diagonals = Array.[](upper_diagonal, diagonal, lower_diagonal)
 
       # Preconditions

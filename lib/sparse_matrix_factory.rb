@@ -9,7 +9,7 @@ class SparseMatrixFactory
 
     (0..rows-1).each do |r|
       (0..cols-1).each do |c|
-        m.insert(r, c, block.call(r, c))
+        m.put(r, c, block.call(r, c))
       end
     end
   end
