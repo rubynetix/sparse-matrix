@@ -1,4 +1,5 @@
 # Exceptions needed for Sparse matrix functions
 module MatrixExceptions
-  class DimensionMismatchException < RangeError; end
+  class DimensionMismatchException < RuntimeError; end
+  class EmptyMatrixException < RuntimeError; end
 end

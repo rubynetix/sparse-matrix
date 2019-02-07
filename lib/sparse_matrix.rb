@@ -6,6 +6,7 @@ class SparseMatrix
 
   def initialize(rows, cols = rows)
     raise TypeError unless rows > 0 && cols > 0
+
     @data = []
     @row_vector = Array.new(rows + 1, 0)
     @col_vector = []
@@ -34,12 +35,31 @@ class SparseMatrix
       raise MatrixExceptions::DimensionMismatchException, \
             'Matrix must be square'
     end
+    unless @data.!empty?
+      raise MatrixExceptions::EmptyMatrixException, \
+            'Cannot calculate determinate for an empty matrix'
+    end
 
-    raise 'Not implemented'
+    case @rows
+      # Small matrices use Laplacian expansion by minors.
+    when 0
+      +1
+    when 1
+      @data[0]
+    when 2
+      raise NotImplementedError
+    when 3
+      raise NotImplementedError
+    when 4
+      raise NotImplementedError
+    else
+      # Bigger matrices use Gauss-Bareiss algorithm O(n)
+      determinant_bareiss
+    end
   end
 
   def resize(rows, cols)
-    raise "Not implemented"
+    raise NotImplementedError, 'Not implemented'
   end
 
   def set_zero
@@ -281,5 +301,9 @@ private
     (row+1..@rows).each do |r|
       @row_vector[r] -= 1
     end
+  end
+
+  def determinant_bareiss
+    raise NotImplementedError
   end
 end
