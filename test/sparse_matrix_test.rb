@@ -342,7 +342,12 @@ class SparseMatrixTest < Test::Unit::TestCase
     # Postconditions
     begin
       expected = 0
-      m.map_nz{|el| expected += el}
+      (0..m.rows-1).each do |r|
+        (0..m.cols-1).each do |c|
+          expected += m.at(r, c)
+        end
+      end
+
       assert_equal(expected, sum, "Incorrect matrix sum. Expected:#{expected}, Actual: #{sum}")
     end
 

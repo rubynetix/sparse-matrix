@@ -49,13 +49,9 @@ class SparseMatrix
   end
 
   def sum
-    count = 0
-    (0..@rows - 1).each do |r|
-      (0..@cols-1).each do |c|
-        count += at(r, c)
-      end
-    end
-    count
+    total = 0
+    map_nz{|val| total += val}
+    total
   end
 
   def +(o)
