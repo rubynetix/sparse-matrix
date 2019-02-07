@@ -84,7 +84,7 @@ class SparseMatrix
   end
 
   def insert(row, col, val)
-    unless @cord_map[[row, col]].nil?
+    if @cord_map[[row, col]].nil?
       @cord_map[[row, col]] = val
     end
 
@@ -204,6 +204,16 @@ alias_method :tr, :trace
       m.insert(x, x, new_val) if new_val != current
     end
     m
+  end
+
+  def map_nz
+    (0..@rows-1).each do |r|
+      (0..@cols-1).each do |c|
+        unless at(r, c) == 0
+          yield(at(r,c))
+        end
+      end
+    end
   end
 
 private

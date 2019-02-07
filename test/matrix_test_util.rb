@@ -9,7 +9,7 @@ module MatrixTestUtil
     a
   end
 
-  def rand_sparse(rows: rand(1..1000), cols: rand(1..1000), range: (-1000..1000))
+  def rand_sparse(rows: rand(1..100), cols: rand(1..100), range: (-100..100))
     m = SparseMatrix.new(rows, cols)
     nnz = rand(1..(rows*cols)/2.floor)
 
@@ -23,7 +23,7 @@ module MatrixTestUtil
     m
   end
 
-  def rand_square_sparse(size: 1000, range: -1000..1000)
+  def rand_square_sparse(size: 100, range: -100..100)
     rand_sparse(rows: size, cols: size, range: range)
   end
 
