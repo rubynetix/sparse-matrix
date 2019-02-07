@@ -47,6 +47,10 @@ class SparseMatrix
       end
       m
     end
+    unless @data.!empty?
+      raise MatrixExceptions::EmptyMatrixException, \
+            'Cannot calculate determinate for an empty matrix'
+    end
 
     alias I identity
   end
@@ -409,5 +413,9 @@ private
     (row + 1..@rows).each do |r|
       @row_vector[r] -= 1
     end
+  end
+
+  def determinant_bareiss
+    raise NotImplementedError
   end
 end
