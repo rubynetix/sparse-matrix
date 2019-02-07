@@ -5,8 +5,8 @@ class SparseMatrix
   def initialize(rows, cols = rows)
     raise TypeError unless rows > 0 && cols > 0
     @data = []
-    @indices = []
-    @indptr = []
+    @row_vector = Array.new(rows + 1, 0)
+    @col_vector = []
     @rows = rows
     @cols = cols
   end
@@ -24,7 +24,7 @@ class SparseMatrix
   end
 
   def nnz
-    data.size
+    @data.size
   end
 
   def det
@@ -44,7 +44,11 @@ class SparseMatrix
   end
 
   def at(row, col)
-    raise "Not implemented"
+    _, val = get_index(row, col)
+    unless val.nil?
+      return val
+    end
+    0
   end
 
   def sum
@@ -76,8 +80,23 @@ class SparseMatrix
     raise "Not implemented"
   end
 
-  def insert(row, col, val)
-    raise "Not implemented"
+  def put(row, col, val)
+    index, old_val = get_index(row, col)
+
+    unless old_val.nil?
+      # Updating an element
+      if val == 0
+        delete(row, index)
+      else
+        @data[index] = val
+      end
+      return
+    end
+
+    unless val == 0
+      # Inserting a new element
+      insert(row, col, index, val)
+    end
   end
 
   def diagonal
@@ -178,7 +197,7 @@ alias_method :tr, :trace
       (0...m.cols-1).each do |y|
         current = m.at(x, y)
         new_val = yield(current, x, y)
-        m.insert(x, y, new_val) if new_val != current
+        m.put(x, y, new_val) if new_val != current
       end
     end
     m
@@ -189,7 +208,7 @@ alias_method :tr, :trace
     (0...m.rows-1).each do |x|
       current = m.at(x, x)
       new_val = yield(current, x)
-      m.insert(x, x, new_val) if new_val != current
+      m.put(x, x, new_val) if new_val != current
     end
     m
   end
@@ -213,5 +232,35 @@ private
 
   def rref
     raise "Not implemented"
+  end
+
+  # Returns the index of the
+  def get_index(row, col)
+    row_start, row_end = @row_vector[row], @row_vector[row + 1]
+    index = row_start
+
+    while index < row_end and col <= @col_vector[index]
+      if @col_vector[index] == col
+        return [index, @data[index]]
+      end
+      index += 1
+    end
+    [index, nil]
+  end
+
+  def insert(row, col, index, val)
+    @data.insert(index, val)
+    @col_vector.insert(index, col)
+    (row+1..@rows).each do |r|
+      @row_vector[r] += 1
+    end
+  end
+
+  def delete(row, index)
+    @data.delete_at(index)
+    @col_vector.delete_at(index)
+    (row+1..@rows).each do |r|
+      @row_vector[r] -= 1
+    end
   end
 end

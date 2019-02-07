@@ -24,12 +24,12 @@ module MatrixTestUtil
     (0...m.rows).each do |y|
       (0...m.cols).each do |x|
         if y > x
-          m.insert(x, y, 0)
+          m.put(x, y, 0)
         else
           if rand(0..1) == 0
-            m.insert(x, y, 0)
+            m.put(x, y, 0)
           else
-            m.insert(x, y, rand(l...h))
+            m.put(x, y, rand(l...h))
           end
         end
       end
@@ -44,12 +44,12 @@ module MatrixTestUtil
     (0...m.rows).each do |y|
       (0...m.cols).each do |x|
         if x > y
-          m.insert(x, y, 0)
+          m.put(x, y, 0)
         else
           if rand(0..1) == 0
-            m.insert(x, y, 0)
+            m.put(x, y, 0)
           else
-            m.insert(x, y, rand(l...h))
+            m.put(x, y, rand(l...h))
           end
         end
       end
@@ -63,7 +63,7 @@ module MatrixTestUtil
     m = SparseMatrix.new(n, n)
     (0..m.rows).each do |y|
       (0..m.cols).each do |x|
-        m.insert(x, y, rand(l...h)) if (y <= x + 1) && (rand(0..1) == 0)
+        m.put(x, y, rand(l...h)) if (y <= x + 1) && (rand(0..1) == 0)
       end
     end
     m
@@ -75,7 +75,7 @@ module MatrixTestUtil
     m = SparseMatrix.new(n, n)
     (0..m.rows).each do |y|
       (0..m.cols).each do |x|
-        m.insert(x, y, rand(l...h)) if (x <= y + 1) && (rand(0..1) == 0)
+        m.put(x, y, rand(l...h)) if (x <= y + 1) && (rand(0..1) == 0)
       end
     end
     m
