@@ -9,6 +9,7 @@ class SparseMatrix
     @indptr = []
     @rows = rows
     @cols = cols
+    @cord_map = Hash.new
   end
 
   class << self
@@ -44,11 +45,13 @@ class SparseMatrix
   end
 
   def at(row, col)
-    raise "Not implemented"
+    @cord_map[[row, col]].nil? ? 0 : @cord_map[[row, col]]
   end
 
   def sum
-    raise "Not implemented"
+    total = 0
+    map_nz{|val| total += val}
+    total
   end
 
   def +(o)
@@ -77,7 +80,12 @@ class SparseMatrix
   end
 
   def insert(row, col, val)
-    raise "Not implemented"
+    if @cord_map[[row, col]].nil?
+      @cord_map[[row, col]] = val
+    end
+
+    @rows = [@rows, row].max
+    @cols = [@cols, col].max
   end
 
   def diagonal
@@ -192,6 +200,16 @@ alias_method :tr, :trace
       m.insert(x, x, new_val) if new_val != current
     end
     m
+  end
+
+  def map_nz
+    (0..@rows-1).each do |r|
+      (0..@cols-1).each do |c|
+        unless at(r, c) == 0
+          yield(at(r,c))
+        end
+      end
+    end
   end
 
 private

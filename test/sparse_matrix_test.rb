@@ -330,7 +330,7 @@ class SparseMatrixTest < Test::Unit::TestCase
     end
   end
 
-  def tst_sum
+  def test_sum
     m = rand_sparse
 
     # Preconditions
@@ -341,12 +341,11 @@ class SparseMatrixTest < Test::Unit::TestCase
 
     # Postconditions
     begin
-      it = m.iterator
       expected = 0
-
-      while it.has_next?
-        el = it.next
-        expected += el.val
+      (0..m.rows-1).each do |r|
+        (0..m.cols-1).each do |c|
+          expected += m.at(r, c)
+        end
       end
 
       assert_equal(expected, sum, "Incorrect matrix sum. Expected:#{expected}, Actual: #{sum}")
