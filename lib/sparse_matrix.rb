@@ -52,7 +52,9 @@ class SparseMatrix
   end
 
   def sum
-    raise "Not implemented"
+    total = 0
+    map_nz{|val| total += val}
+    total
   end
 
   def +(o)
@@ -211,6 +213,16 @@ alias_method :tr, :trace
       m.put(x, x, new_val) if new_val != current
     end
     m
+  end
+
+  def map_nz
+    (0..@rows-1).each do |r|
+      (0..@cols-1).each do |c|
+        unless at(r, c) == 0
+          yield(at(r,c))
+        end
+      end
+    end
   end
 
 private
