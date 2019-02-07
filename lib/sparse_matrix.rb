@@ -1,3 +1,5 @@
+require_relative 'matrix_exceptions'
+
 # Compressed Sparse Row Matrix
 class SparseMatrix
   attr_reader(:rows, :cols)
@@ -28,6 +30,11 @@ class SparseMatrix
   end
 
   def det
+    unless square?
+      raise MatrixExceptions::DimensionMismatchException, \
+            'Matrix must be square'
+    end
+
     raise 'Not implemented'
   end
 
