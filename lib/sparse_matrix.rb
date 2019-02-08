@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 require_relative 'csr_iterator'
+require_relative 'matrix_solver'
 
 # Compressed Sparse Row Matrix
 class SparseMatrix
@@ -79,15 +80,15 @@ class SparseMatrix
   end
 
   def +(o)
-    raise 'Not implemented'
+    o.is_a?(SparseMatrix) ? plus_matrix(o) : plus_scalar(o)
   end
 
   def -(o)
-    raise 'Not implemented'
+    o.is_a?(SparseMatrix) ? plus_matrix(-o) : plus_scalar(-o)
   end
 
   def *(o)
-    raise 'Not implemented'
+    o.is_a?(SparseMatrix) ? mul_matrix(o) : mul_matrix(o)
   end
 
   def **(o)
@@ -218,7 +219,7 @@ class SparseMatrix
 
   # Utility functions
   def map
-    m = dup
+    m = clone
     (0...m.rows).each do |x|
       (0...m.cols).each do |y|
         current = m.at(x, y)
@@ -286,16 +287,16 @@ private
     raise 'Not implemented'
   end
 
-  def plus_scalar(o)
-    raise 'Not implemented'
+  def plus_scalar(x)
+    map {|val, _, _| val + x }
   end
 
   def mul_matrix(x)
-    raise 'Not implemented'
+    MatrixSolver.mult_matrix(self, x, SparseMatrix.zero(cols, x.rows))
   end
 
   def mul_scalar(x)
-    raise 'Not implemented'
+    map {|val, _, _| val * x }
   end
 
   def rref
