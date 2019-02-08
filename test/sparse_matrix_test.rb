@@ -262,25 +262,25 @@ class SparseMatrixTest < Test::Unit::TestCase
     assert_invariants(m)
   end
 
-  def tst_clone
+  def test_clone
     m1 = rand_sparse
 
     # Preconditions
     begin
     end
 
-    m1.freeze
     m2 = m1.clone
+
+    r = rand(0...m1.rows)
+    c = rand(0...m2.rows)
+
+    # We want to assert that we are working on different copies
+    m2.put(r, c, m2.at(r, c) + 1)
 
     # Postconditions
     begin
       assert_not_equal(m1.object_id, m2.object_id, "Object ids are equal after clone")
-      assert_true(m2.frozen?, "Clone unfroze object")
-      (0...m1.rows).each do |r|
-        (0...m1.cols).each do |c|
-          assert_equal(m1.at(r, c), m2.at(r, c), "Invalid value in clone matrix. Expected:#{m1.at(r, c)}, Actual:#{m2.at(r, c)}")
-        end
-      end
+      assert_equal(m1.sum + 1, m2.sum, "Clone did not create deep copy")
     end
 
     assert_invariants(m1)
@@ -532,10 +532,10 @@ class SparseMatrixTest < Test::Unit::TestCase
   end
 
   def test_put
+    m = rand_sparse
     v = rand(MIN_VAL..MAX_VAL)
-    m = SparseMatrix.new(100, 100)
-    r = rand(0..99)
-    c = rand(0.99)
+    r = rand(0...m.rows)
+    c = rand(0...m.cols)
 
     # Preconditions
     begin

@@ -15,6 +15,13 @@ class SparseMatrix
     @cols = cols
   end
 
+  def initialize_clone(other)
+    super
+    @data = other.instance_variable_get(:@data).clone
+    @row_vector = other.instance_variable_get(:@row_vector).clone
+    @col_vector = other.instance_variable_get(:@col_vector).clone
+  end
+
   class << self
     def zero(rows, cols = rows)
       SparseMatrix.new(rows, cols)
@@ -69,13 +76,6 @@ class SparseMatrix
       # Inserting a new element
       insert(row, col, index, val)
     end
-  end
-
-  def copy
-    c = SparseMatrix.new(rows, cols)
-    c.data = @data
-    c.row_vector = @row_vector
-    c.col_vector = @col_vector
   end
 
   def +(o)
@@ -226,7 +226,7 @@ class SparseMatrix
 
   # Utility functions
   def map
-    m = dup
+    m = clone
     (0...m.rows).each do |x|
       (0...m.cols).each do |y|
         current = m.at(x, y)
@@ -238,7 +238,7 @@ class SparseMatrix
   end
 
   def map_diagonal
-    m = dup
+    m = clone
     (0...m.rows).each do |x|
       current = m.at(x, x)
       new_val = yield(current, x)
@@ -248,7 +248,7 @@ class SparseMatrix
   end
 
   def map_nz
-    m = dup
+    m = clone
     (0...m.rows).each do |r|
       (0...m.cols).each do |c|
         yield(m.at(r, c)) unless m.at(r, c).zero?
@@ -310,15 +310,17 @@ private
     raise 'Not implemented'
   end
 
-  # Returns the index of the
+  # Returns the [index, val] corresponding to
+  # an element in the matrix at position row, col
+  # If a value does not exist at that location, the val returned is nil
+  # and the index indicates the insertion location
   def get_index(row, col)
     row_start = @row_vector[row]
     row_end = @row_vector[row + 1]
     index = row_start
 
-    while (index < row_end) && (col <= @col_vector[index])
+    while (index < row_end) and (index < nnz) and (col >= @col_vector[index])
       return [index, @data[index]] if @col_vector[index] == col
-
       index += 1
     end
     [index, nil]
