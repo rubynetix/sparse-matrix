@@ -589,8 +589,8 @@ class SparseMatrixTest < Test::Unit::TestCase
     false
   end
 
-  def tst_diagonal?
-    m = rand_sparse
+  def test_diagonal?
+    m = rand_square_sparse
 
     # Preconditions
     begin
@@ -617,30 +617,28 @@ class SparseMatrixTest < Test::Unit::TestCase
     assert_invariants(m)
   end
 
-  def tst_diagonal
-    m = rand_sparse
+  def test_diagonal
+    m = rand_square_sparse
 
     # Preconditions
     begin
-      assert_true(square?, 'Diagonal not defined for non-square matrix')
+      assert_true(m.square?, 'Diagonal not defined for non-square matrix')
     end
 
     md = m.diagonal
 
     # Postconditions
     begin
-      assert_true(m.diagonal?, "Diagonal conversion invalid. Expected: True, Actual:#{m.diagonal?}")
-
       # All elements on the diagonal are equivalent to the original matrix
       (0..m.rows - 1).each do |i|
-        assert_equal(m.at(i, i), md.at(i, i), 'Diagonal elements not-equal to original diagonal')
+        assert_equal(m.at(i, i), md[i], 'Diagonal elements not-equal to original diagonal')
       end
     end
 
     assert_invariants(m)
   end
 
-  def tst_lower_triangular?(_nonsquare)
+  def test_lower_triangular?(_nonsquare)
     r = 0
     c = 0
     while r != c
@@ -666,7 +664,7 @@ class SparseMatrixTest < Test::Unit::TestCase
     while i < 20
       rc = rand(0..MAX_ROWS)
       m_tri = lower_triangular_matrix(rc, 0, 1000)
-      m_random = rand_matrix(rc, rc)
+      m_random = rand_square_sparse
 
       # Preconditions
       begin
@@ -1059,8 +1057,8 @@ class SparseMatrixTest < Test::Unit::TestCase
     assert_invariants(m)
   end
 
-  def tst_trace
-    m = rand_sparse
+  def test_trace
+    m = rand_square_sparse
 
     # Preconditions
     begin
@@ -1071,11 +1069,10 @@ class SparseMatrixTest < Test::Unit::TestCase
 
     # Postconditions
     begin
-      assert_equal(m.diagonal.trace, tr, 'Trace not equal to trace of diagonal matrix')
       assert_equal(m.diagonal.sum, tr, 'Trace not equal to sum of diagonal matrix')
 
       trace = 0
-      (0..m.rows).each do |r|
+      (0..m.rows-1).each do |r|
         trace += m.at(r, r)
       end
 

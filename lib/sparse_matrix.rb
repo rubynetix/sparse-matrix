@@ -123,7 +123,19 @@ class SparseMatrix
   end
 
   def diagonal
-    raise 'Not implemented'
+    if !square?
+      raise NonSquareException, "Can not get diagonal of non-square matrix."
+    else
+      diag = Array.new(@rows, 0)
+      iter = iterator
+      while iter.has_next?
+        item = iter.next
+        if item[0] == item[1]
+          diag[item[0]] = item[2]
+        end
+      end
+      return diag
+    end
   end
 
   def tridiagonal
@@ -153,7 +165,8 @@ class SparseMatrix
   end
 
   def trace
-    raise 'Not implemented'
+    raise 'NonTraceableException' unless traceable?
+    diagonal.sum(init=0)
   end
 
   def nil?
@@ -197,7 +210,7 @@ class SparseMatrix
   end
 
   def traceable?
-    raise 'Not implemented'
+    square?
   end
 
   def orthogonal?
@@ -205,12 +218,36 @@ class SparseMatrix
   end
 
   def diagonal?
-    # TODO: Implement
+    iter = iterator
+    if square?
+      while iter.has_next?
+        item = iter.next
+        if item[0] != item[1] && item[2] != 0
+          return false
+        end
+      end
+    else
+      return false
+    end
     true
   end
 
+  ##
+  # Returns true if all the entries above the main diagonal are zero.
+  # Returns false otherwise.
   def lower_triangular?
-    raise 'Not implemented'
+    if square?
+      iter = iterator
+      while iter.has_next?
+        item = iter.next
+        if item[1] > item[0] && item[2] != 0
+          return false
+        end
+      end
+    else
+      return false
+    end
+    true
   end
 
   def upper_triangular?
