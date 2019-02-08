@@ -136,6 +136,8 @@ class SparseMatrix
   end
 
   def inverse
+    raise 'NotInvertibleException' unless invertible?
+
     raise 'Not implemented'
   end
 
@@ -168,11 +170,17 @@ class SparseMatrix
   end
 
   def positive?
-    raise 'Not implemented'
+    (0..@rows-1).each do |r|
+      (0..@cols-1).each do |c|
+        return FALSE if at(r, c).negative?
+      end
+    end
+
+    TRUE
   end
 
   def invertible?
-    raise 'Not implemented'
+    det != 0
   end
 
   def symmetric?
