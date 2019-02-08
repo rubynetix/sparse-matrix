@@ -159,6 +159,8 @@ class SparseMatrix
     total
   end
 
+  ##
+  # Returns an array containing the values along the main diagonal of the matrix
   def diagonal
     if !square?
       raise NonSquareException, "Can not get diagonal of non-square matrix."
@@ -254,6 +256,8 @@ class SparseMatrix
     raise 'Not implemented'
   end
 
+  ##
+  # Returns true if the matrix only contains non-zero values on the main diagonal
   def diagonal?
     iter = iterator
     if square?
