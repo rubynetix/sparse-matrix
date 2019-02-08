@@ -42,7 +42,7 @@ class SparseMatrix
             'Cannot calculate determinate for an empty matrix'
     end
 
-    case @rows
+    case @rows  # TODO: note "I would much rather not have this switch-case (only bareiss); only kept at it's used in Matrix.rb"
       # Small matrices use Laplacian expansion by minors.
     when 0
       +1
@@ -55,7 +55,7 @@ class SparseMatrix
     when 4
       determinant_4x4
     else
-      # Bigger matrices use Gauss-Bareiss algorithm O(n)
+      # Bigger matrices use Gauss-Bareiss algorithm O(n^3)
       determinant_bareiss
     end
   end
@@ -302,13 +302,13 @@ class SparseMatrix
     end
   end
 
-  def determinant_3x3
+  def determinant_3x3 # TODO: note "I would much rather not have this function; only kept at it's used in Matrix.rb"
     +at(0, 0) * at(1, 1) * at(2, 2) - at(0, 0) * at(1, 2) * at(2, 1) \
           - at(0, 1) * at(1, 0) * at(2, 2) + at(0, 1) * at(1, 2) * at(2, 0) \
           + at(0, 2) * at(1, 0) * at(2, 1) - at(0, 2) * at(1, 1) * at(2, 0)
   end
 
-  def determinant_4x4
+  def determinant_4x4 # TODO: note "I would much rather not have this function; only kept at it's used in Matrix.rb"
     +at(0, 0) * at(1, 1) * at(2, 2) * at(3, 3) \
           - at(0, 0) * at(1, 1) * at(2, 3) * at(3, 2) \
           - at(0, 0) * at(1, 2) * at(2, 1) * at(3, 3) \
