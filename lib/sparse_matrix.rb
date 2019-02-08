@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+require_relative 'csr_iterator'
 
 # Compressed Sparse Row Matrix
 class SparseMatrix
@@ -80,7 +81,14 @@ class SparseMatrix
   end
 
   def to_s
-    raise 'Not implemented'
+    s = ""
+    (0..@rows-1).each do |r|
+      (0..@cols-1).each do |c|
+        s += "#{at(r, c)} "
+      end
+      s += "\n"
+    end
+    s
   end
 
   def put(row, col, val)
@@ -188,6 +196,10 @@ class SparseMatrix
 
   def upper_hessenberg?
     raise 'Not implemented'
+  end
+
+  def iterator
+    CSRIterator.new(@row_vector, @col_vector, @data)
   end
 
   alias t transpose
