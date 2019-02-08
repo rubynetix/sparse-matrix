@@ -4,7 +4,7 @@ class SparseMatrix
   attr_reader(:rows, :cols, :nnz)
 
   def initialize(rows, cols = rows)
-    raise TypeError unless rows > 0 && cols > 0
+    raise TypeError unless rows >= 0 && cols >= 0
     @data = []
     @indices = []
     @indptr = []
@@ -83,7 +83,14 @@ class SparseMatrix
   end
 
   def to_s
-    raise "Not implemented"
+    if @rows == 0 && @cols == 0
+      "nil\n"
+    else
+      # "#{self.class}[" + @rows.collect{|row|
+      #   "[" + row.collect{|e| e.to_s}.join(", ") + "]"
+      # }.join(", ")+"]"
+      raise "Not implemented"
+    end
   end
 
   def insert(row, col, val)
@@ -181,6 +188,40 @@ class SparseMatrix
 alias_method :t, :transpose
 alias_method :tr, :trace
 
+  # Utility functions
+  def map
+    m = self.copy
+    (0...m.rows-1).each do |x|
+      (0...m.cols-1).each do |y|
+        current = m.at(x, y)
+        new_val = yield(current, x, y)
+        m.put(x, y, new_val) if new_val != current
+      end
+    end
+    m
+  end
+
+  def map_diagonal
+    m = self.copy
+    (0...m.rows-1).each do |x|
+      current = m.at(x, x)
+      new_val = yield(current, x)
+      m.put(x, x, new_val) if new_val != current
+    end
+    m
+  end
+
+  def map_nz
+    (0..@rows-1).each do |r|
+      (0..@cols-1).each do |c|
+        unless at(r, c) == 0
+          yield(at(r,c))
+        end
+      end
+    end
+  end
+
+private
   def plus_matrix(o)
     raise "Not implemented"
   end

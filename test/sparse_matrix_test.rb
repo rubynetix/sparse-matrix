@@ -281,7 +281,7 @@ class SparseMatrixTest < Test::Unit::TestCase
     assert_invariants(m)
   end
 
-  def tst_to_s
+  def test_to_s
     test_ms = [
       SparseMatrix.new(0, 0),
       SparseMatrix.create { [[10, 2, 3]] },
