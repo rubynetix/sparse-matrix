@@ -5,8 +5,8 @@ require_relative './matrix_test_util'
 class SparseMatrixTest < Test::Unit::TestCase
   include MatrixTestUtil
 
-  MAX_ROWS = 10_000
-  MAX_COLS = 10_000
+  MAX_ROWS = 1000
+  MAX_COLS = 1000
   MIN_VAL = -10_000
   MAX_VAL = 10_000
 
@@ -27,8 +27,8 @@ class SparseMatrixTest < Test::Unit::TestCase
     end
   end
 
-  def tst_identity
-    rand_range(1, MAX_ROWS, 20).each do |size|
+  def test_identity
+    rand_range(1, MAX_ROWS, 5).each do |size|
       # Preconditions
       begin
         assert_true(size > 0, 'Identity matrix is nil')
@@ -51,7 +51,7 @@ class SparseMatrixTest < Test::Unit::TestCase
     end
   end
 
-  def tst_nnz
+  def test_nnz
     n = rand(0..20)
     m = SparseMatrix.new(n, n)
     x = (0...m.cols).to_a.shuffle.take(n)
@@ -194,7 +194,7 @@ class SparseMatrixTest < Test::Unit::TestCase
     assert_invariants(m)
   end
 
-  def tst_set_zero
+  def test_set_zero
     m = rand_sparse
 
     # Preconditions
@@ -205,8 +205,8 @@ class SparseMatrixTest < Test::Unit::TestCase
 
     # Postconditions
     begin
-      (0..m.rows).each do |r|
-        (0..m.cols).each do |c|
+      (0...m.rows).each do |r|
+        (0...m.cols).each do |c|
           assert_equal(0, m.at(r, c), "Matrix is not zero at row:#{r} col:#{c}. Value: #{m.at(r, c)}")
         end
       end
@@ -269,18 +269,22 @@ class SparseMatrixTest < Test::Unit::TestCase
     begin
     end
 
+    m1.freeze
     m2 = m1.clone
 
     # Postconditions
     begin
-      (0..m1.rows).each do |r|
-        (0..m1.cols).each do |c|
+      assert_not_equal(m1.object_id, m2.object_id, "Object ids are equal after clone")
+      assert_true(m2.frozen?, "Clone unfroze object")
+      (0...m1.rows).each do |r|
+        (0...m1.cols).each do |c|
           assert_equal(m1.at(r, c), m2.at(r, c), "Invalid value in clone matrix. Expected:#{m1.at(r, c)}, Actual:#{m2.at(r, c)}")
         end
       end
     end
 
-    assert_invariants(m)
+    assert_invariants(m1)
+    assert_invariants(m2)
   end
 
   def tst_to_s
