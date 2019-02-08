@@ -300,7 +300,7 @@ private
   end
 
   def mul_matrix(x)
-    MatrixSolver.mult_matrix(self, x, SparseMatrix.zero(cols, x.rows))
+    MatrixSolver.matrix_mult(self, x, SparseMatrix.zero(rows, x.cols))
   end
 
   def mul_scalar(x)

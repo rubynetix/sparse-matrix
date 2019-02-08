@@ -8,14 +8,14 @@ class MatrixSolver
       res
     end
 
-    def mult_matrix(m1, m2, res)
-      (0..m1.rows).each do |r|
-        (0..m2.cols).each do |c|
+    def matrix_mult(m1, m2, res)
+      (0...m1.rows).each do |r|
+        (0...m2.cols).each do |c|
           dot_prod = 0
-          (0..m1.rows).each do |i|
-            dot_prod += m1.at(r, c) * m2.at(c, r)
+          (0...m1.cols).each do |i|
+            dot_prod += m1.at(r, i) * m2.at(i, c)
           end
-          res.insert(r, c, dot_prod)
+          res.put(r, c, dot_prod)
         end
       end
       res

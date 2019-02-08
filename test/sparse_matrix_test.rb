@@ -493,8 +493,8 @@ class SparseMatrixTest < Test::Unit::TestCase
 
     # Postconditions
     begin
-      assert_equal(m1.cols, m3.rows)
-      assert_equal(m2.rows, m3.cols)
+      assert_equal(m1.rows, m3.rows)
+      assert_equal(m2.cols, m3.cols)
     end
   end
 
