@@ -448,31 +448,51 @@ private
           + at(0, 3) * at(1, 2) * at(2, 1) * at(3, 0)
   end
 
-  # TODO: understand? otherwise won't use
+  # TODO: swap rows - matrix.rb function
   def determinant_bareiss
-    raise NotImplementedError
+    # raise NotImplementedError
+    m = copy
     no_pivot = proc { return 0 }
     sign = +1
     pivot = 1
     @rows.times do |k|
       previous_pivot = pivot
-      if (pivot = at(k, k)).zero?
+      if (pivot = m.at(k, k)).zero?
         switch = (k + 1...@rows).find(no_pivot) do |row|
-          at(row, k) != 0
+          m.at(row, k) != 0
         end
+        # Swap two rows
         a[switch], a[k] = a[k], a[switch]
-        pivot = at(k, k)
+        pivot = m.at(k, k)
         sign = -sign
       end
       (k + 1).upto(@rows - 1) do |i|
-        ai = a[i]
         (k + 1).upto(@rows - 1) do |j|
-          ai[j] = (pivot * at(i, j) - at(i, k) * at(k, j)) / previous_pivot
+          m.put i, j, (pivot * m.at(i, j) - m.at(i, k) * m.at(k, j)) / previous_pivot
         end
       end
     end
     sign * pivot
   end
 
+  def determinant_simple
+    m = copy
+    (0..@rows - 1).each do |i|
+      (i + 1..@rows).each do |j|
+        det = (m.at j, i) / (m.at i, i)
+        (i..@rows).each do |k|
+          m.put j, k, ((m.at j, k) - det * (m.at i, k))
+        end
+      end
+    end
+
+    det = 1
+    (0..@rows).each do |i|
+      det *= m.at(i, i)
+    end
+    det
+  end
+
 
 end
+
