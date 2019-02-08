@@ -6,7 +6,7 @@ class SparseMatrix
   attr_reader(:rows, :cols)
 
   def initialize(rows, cols = rows)
-    raise TypeError unless rows.positive? && cols.positive?
+    raise TypeError unless rows >= 0 and cols >= 0
 
     @data = []
     @row_vector = Array.new(rows + 1, 0)
@@ -158,11 +158,16 @@ class SparseMatrix
   end
 
   def zero?
-    raise 'Not implemented'
+    nnz.zero?
   end
 
   def identity?
-    raise 'Not implemented'
+    return false unless square?
+    map_diagonal_nocopy do |v|
+      return false unless v == 1
+      v
+    end
+    nnz == @rows
   end
 
   def square?
@@ -170,13 +175,13 @@ class SparseMatrix
   end
 
   def positive?
+    # TODO: Implement in O(m) time
     (0..@rows-1).each do |r|
       (0..@cols-1).each do |c|
-        return FALSE if at(r, c).negative?
+        return false if at(r, c).negative?
       end
     end
-
-    TRUE
+    true
   end
 
   def invertible?
