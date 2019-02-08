@@ -532,10 +532,10 @@ class SparseMatrixTest < Test::Unit::TestCase
   end
 
   def test_put
+    m = rand_sparse
     v = rand(MIN_VAL..MAX_VAL)
-    m = SparseMatrix.new(100, 100)
-    r = rand(0..99)
-    c = rand(0.99)
+    r = rand(0...m.rows)
+    c = rand(0...m.cols)
 
     # Preconditions
     begin
