@@ -123,7 +123,19 @@ class SparseMatrix
   end
 
   def diagonal
-    raise 'Not implemented'
+    if !square?
+      return nil # TODO: return an error
+    else
+      diag = Array.new(@rows, 0)
+      iter = iterator
+      while iter.has_next?
+        item = iter.next
+        if item[0] == item[1]
+          diag[item[0]] = item[2]
+        end
+      end
+      return diag
+    end
   end
 
   def tridiagonal

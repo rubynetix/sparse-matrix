@@ -589,8 +589,8 @@ class SparseMatrixTest < Test::Unit::TestCase
     false
   end
 
-  def tst_diagonal?
-    m = rand_sparse
+  def test_diagonal?
+    m = rand_square_sparse
 
     # Preconditions
     begin
@@ -617,23 +617,21 @@ class SparseMatrixTest < Test::Unit::TestCase
     assert_invariants(m)
   end
 
-  def tst_diagonal
-    m = rand_sparse
+  def test_diagonal
+    m = rand_square_sparse
 
     # Preconditions
     begin
-      assert_true(square?, 'Diagonal not defined for non-square matrix')
+      assert_true(m.square?, 'Diagonal not defined for non-square matrix')
     end
 
     md = m.diagonal
 
     # Postconditions
     begin
-      assert_true(m.diagonal?, "Diagonal conversion invalid. Expected: True, Actual:#{m.diagonal?}")
-
       # All elements on the diagonal are equivalent to the original matrix
       (0..m.rows - 1).each do |i|
-        assert_equal(m.at(i, i), md.at(i, i), 'Diagonal elements not-equal to original diagonal')
+        assert_equal(m.at(i, i), md[i], 'Diagonal elements not-equal to original diagonal')
       end
     end
 
