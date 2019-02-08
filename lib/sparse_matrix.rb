@@ -15,6 +15,13 @@ class SparseMatrix
     @cols = cols
   end
 
+  def initialize_clone(other)
+    super
+    @data = other.instance_variable_get(:@data).clone
+    @row_vector = other.instance_variable_get(:@row_vector).clone
+    @col_vector = other.instance_variable_get(:@col_vector).clone
+  end
+
   class << self
     def zero(rows, cols = rows)
       SparseMatrix.new(rows, cols)
@@ -211,7 +218,7 @@ class SparseMatrix
 
   # Utility functions
   def map
-    m = dup
+    m = clone
     (0...m.rows).each do |x|
       (0...m.cols).each do |y|
         current = m.at(x, y)
@@ -223,7 +230,7 @@ class SparseMatrix
   end
 
   def map_diagonal
-    m = dup
+    m = clone
     (0...m.rows).each do |x|
       current = m.at(x, x)
       new_val = yield(current, x)
@@ -233,7 +240,7 @@ class SparseMatrix
   end
 
   def map_nz
-    m = dup
+    m = clone
     (0...m.rows).each do |r|
       (0...m.cols).each do |c|
         yield(m.at(r, c)) unless m.at(r, c).zero?
