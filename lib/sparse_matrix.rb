@@ -31,7 +31,7 @@ class SparseMatrix
     end
 
     def identity(n)
-      SparseMatrix.new(n).map_diagonal {1}
+      SparseMatrix.new(n).map_diagonal { 1 }
     end
 
     def [](*rows)
@@ -179,7 +179,7 @@ class SparseMatrix
     raise 'Not implemented'
   end
 
-  def cofactor(_row, _col)
+  def cofactor(row, col)
     raise 'Not implemented'
   end
 
@@ -448,7 +448,31 @@ private
           + at(0, 3) * at(1, 2) * at(2, 1) * at(3, 0)
   end
 
+  # TODO: understand? otherwise won't use
   def determinant_bareiss
     raise NotImplementedError
+    no_pivot = proc { return 0 }
+    sign = +1
+    pivot = 1
+    @rows.times do |k|
+      previous_pivot = pivot
+      if (pivot = at(k, k)).zero?
+        switch = (k + 1...@rows).find(no_pivot) do |row|
+          at(row, k) != 0
+        end
+        a[switch], a[k] = a[k], a[switch]
+        pivot = at(k, k)
+        sign = -sign
+      end
+      (k + 1).upto(@rows - 1) do |i|
+        ai = a[i]
+        (k + 1).upto(@rows - 1) do |j|
+          ai[j] = (pivot * at(i, j) - at(i, k) * at(k, j)) / previous_pivot
+        end
+      end
+    end
+    sign * pivot
   end
+
+
 end
