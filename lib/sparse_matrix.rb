@@ -7,7 +7,7 @@ class SparseMatrix
   attr_reader(:rows, :cols)
 
   def initialize(rows, cols = rows)
-    raise TypeError unless rows > 0 && cols > 0
+    raise TypeError unless rows.positive? && cols.positive?
 
     @data = []
     @row_vector = Array.new(rows + 1, 0)
@@ -61,7 +61,7 @@ class SparseMatrix
   end
 
   def resize(rows, cols)
-    raise NotImplementedError, 'Not implemented'
+    raise 'Not implemented'
   end
 
   def set_zero
@@ -114,7 +114,7 @@ class SparseMatrix
 
     unless old_val.nil?
       # Updating an element
-      if val == 0
+      if val.zero?
         delete(row, index)
       else
         @data[index] = val
@@ -122,7 +122,7 @@ class SparseMatrix
       return
     end
 
-    unless val == 0
+    unless val.zero?
       # Inserting a new element
       insert(row, col, index, val)
     end
@@ -245,7 +245,7 @@ class SparseMatrix
   def map_nz
     (0..@rows - 1).each do |r|
       (0..@cols - 1).each do |c|
-        yield(at(r, c)) unless at(r, c) == 0
+        yield(at(r, c)) unless at(r, c).zero?
       end
     end
   end
@@ -260,11 +260,11 @@ class SparseMatrix
     raise 'Not implemented'
   end
 
-  def mul_matrix(_x)
+  def mul_matrix(x)
     raise 'Not implemented'
   end
 
-  def mul_scalar(_x)
+  def mul_scalar(x)
     raise 'Not implemented'
   end
 
