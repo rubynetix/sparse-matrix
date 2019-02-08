@@ -5,7 +5,7 @@ require_relative 'matrix_exceptions'
 
 # Compressed Sparse Row Matrix
 class SparseMatrix
-  attr_reader(:rows, :cols)
+  attr_reader(:rows, :cols, :data)
 
   def initialize(rows, cols = rows)
     raise TypeError unless rows.positive? && cols.positive?
@@ -418,19 +418,19 @@ private
     sign * pivot
   end
 
-  def determinant_simple
-    m = copy
+  def determinant_simple # this is a LU mat decomposition I think
+    m = self
     (0..@rows - 1).each do |i|
-      (i + 1..@rows).each do |j|
-        det = (m.at j, i) / (m.at i, i)
-        (i..@rows).each do |k|
+      (i + 1..@rows - 1).each do |j|
+        det = (m.at j, i) / (m.at i, i) # TODO: division - what do we want val to be on x/0
+        (i..@rows - 1).each do |k|
           m.put j, k, ((m.at j, k) - det * (m.at i, k))
         end
       end
     end
 
     det = 1
-    (0..@rows).each do |i|
+    (0..@rows - 1).each do |i|
       det *= m.at(i, i)
     end
     det
