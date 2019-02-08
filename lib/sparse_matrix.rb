@@ -22,7 +22,7 @@ class SparseMatrix
     end
 
     def identity(n)
-      SparseMatrix.new(n).map_diagonal {1}
+      SparseMatrix.new(n).map_diagonal { 1 }
     end
 
     alias I identity
@@ -42,7 +42,7 @@ class SparseMatrix
             'Cannot calculate determinate for an empty matrix'
     end
 
-    case @rows  # TODO: note "I would much rather not have this switch-case (only bareiss); only kept at it's used in Matrix.rb"
+    case @rows # TODO: note "I would much rather not have this switch-case (only bareiss); only kept at it's used in Matrix.rb"
       # Small matrices use Laplacian expansion by minors.
     when 0
       +1
@@ -56,11 +56,11 @@ class SparseMatrix
       determinant_4x4
     else
       # Bigger matrices use Gauss-Bareiss algorithm O(n^3)
-      determinant_bareiss
+      Matrix.determinant_bareiss
     end
   end
 
-  def resize(_rows, _cols)
+  def resize(rows, cols)
     raise NotImplementedError, 'Not implemented'
   end
 
@@ -81,27 +81,27 @@ class SparseMatrix
 
   def sum
     total = 0
-    map_nz {|val| total += val}
+    map_nz { |val| total += val }
     total
   end
 
-  def +(_o)
+  def +(other)
     raise 'Not implemented'
   end
 
-  def -(_o)
+  def -(other)
     raise 'Not implemented'
   end
 
-  def *(_o)
+  def *(other)
     raise 'Not implemented'
   end
 
-  def **(_o)
+  def **(other)
     raise 'Not implemented'
   end
 
-  def ==(_o)
+  def ==(other)
     raise 'Not implemented'
   end
 
@@ -136,7 +136,7 @@ class SparseMatrix
     raise 'Not implemented'
   end
 
-  def cofactor(_row, _col)
+  def cofactor(row, col)
     raise 'Not implemented'
   end
 
@@ -252,11 +252,11 @@ class SparseMatrix
 
   private
 
-  def plus_matrix(_o)
+  def plus_matrix(other)
     raise 'Not implemented'
   end
 
-  def plus_scalar(_o)
+  def plus_scalar(other)
     raise 'Not implemented'
   end
 
@@ -335,7 +335,31 @@ class SparseMatrix
           + at(0, 3) * at(1, 2) * at(2, 1) * at(3, 0)
   end
 
+  # TODO: understand? otherwise won't use
   def determinant_bareiss
     raise NotImplementedError
+    no_pivot = proc { return 0 }
+    sign = +1
+    pivot = 1
+    @rows.times do |k|
+      previous_pivot = pivot
+      if (pivot = at(k, k)).zero?
+        switch = (k + 1...@rows).find(no_pivot) do |row|
+          at(row, k) != 0
+        end
+        a[switch], a[k] = a[k], a[switch]
+        pivot = at(k, k)
+        sign = -sign
+      end
+      (k + 1).upto(@rows - 1) do |i|
+        ai = a[i]
+        (k + 1).upto(@rows - 1) do |j|
+          ai[j] = (pivot * at(i, j) - at(i, k) * at(k, j)) / previous_pivot
+        end
+      end
+    end
+    sign * pivot
   end
+
+
 end
