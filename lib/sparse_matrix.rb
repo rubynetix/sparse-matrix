@@ -116,11 +116,11 @@ class SparseMatrix
   def empty_row?
     prev_cnt = @rows[0]
     (1..@rows - 1).each do |cnt|
-      return TRUE if cnt == prev_cnt
+      return 1 if cnt == prev_cnt
 
       prev_cnt = cnt
     end
-    FALSE
+    0
   end
 
   def empty_col?
