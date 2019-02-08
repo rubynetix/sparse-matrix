@@ -299,7 +299,6 @@ private
   def get_index(row, col)
     row_start = @row_vector[row]
     row_end = @row_vector[row + 1]
-
     index = row_start
 
     while (index < row_end) and (index < nnz) and (col >= @col_vector[index])
