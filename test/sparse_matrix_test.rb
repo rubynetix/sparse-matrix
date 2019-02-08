@@ -1057,8 +1057,8 @@ class SparseMatrixTest < Test::Unit::TestCase
     assert_invariants(m)
   end
 
-  def tst_trace
-    m = rand_sparse
+  def test_trace
+    m = rand_square_sparse
 
     # Preconditions
     begin
@@ -1069,11 +1069,10 @@ class SparseMatrixTest < Test::Unit::TestCase
 
     # Postconditions
     begin
-      assert_equal(m.diagonal.trace, tr, 'Trace not equal to trace of diagonal matrix')
       assert_equal(m.diagonal.sum, tr, 'Trace not equal to sum of diagonal matrix')
 
       trace = 0
-      (0..m.rows).each do |r|
+      (0..m.rows-1).each do |r|
         trace += m.at(r, r)
       end
 

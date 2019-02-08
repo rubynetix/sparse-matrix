@@ -165,7 +165,8 @@ class SparseMatrix
   end
 
   def trace
-    raise 'Not implemented'
+    raise 'NonTraceableException' unless traceable?
+    diagonal.sum(init=0)
   end
 
   def nil?
@@ -209,7 +210,7 @@ class SparseMatrix
   end
 
   def traceable?
-    raise 'Not implemented'
+    square?
   end
 
   def orthogonal?
