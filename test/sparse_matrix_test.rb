@@ -5,8 +5,8 @@ require_relative './matrix_test_util'
 class SparseMatrixTest < Test::Unit::TestCase
   include MatrixTestUtil
 
-  MAX_ROWS = 1000
-  MAX_COLS = 1000
+  MAX_ROWS = 100
+  MAX_COLS = 100
   MIN_VAL = -10_000
   MAX_VAL = 10_000
 
@@ -393,7 +393,7 @@ class SparseMatrixTest < Test::Unit::TestCase
     assert_invariants(m3)
   end
 
-  def tst_add_scalar
+  def test_scalar_plus
     m1 = rand_sparse
     num = rand(MIN_VAL..MAX_VAL)
 
@@ -405,18 +405,17 @@ class SparseMatrixTest < Test::Unit::TestCase
 
     # Postconditions
     begin
-      assert_equal(m1.sum + num * m1.nnz, m2.sum, "Matrix scalar addition incorrect. Expected Sum:#{m1.sum + num * m1.nnz}, Actual Sum:#{m2.sum}")
+      assert_equal(m1.sum + num * m1.rows * m1.cols, m2.sum, "Matrix scalar addition incorrect. Expected Sum:#{m1.sum + num * m1.nnz}, Actual Sum:#{m2.sum}")
 
-      (0..m1.rows).each do |r|
-        (0..m1.cols).each do |c|
-          assert_equal(m1.at(r, c) + num, m2.at(r, c), "Incorrect scalar addition at row:#{r2}, col:#{c2}. Expected:#{m1.at(r, c) + num}, Actual:#{m2.at(r, c)}")
+      (0...m1.rows).each do |r|
+        (0...m1.cols).each do |c|
+          assert_equal(m1.at(r, c) + num, m2.at(r, c), "Incorrect scalar addition at row:#{r}, col:#{c}. Expected:#{m1.at(r, c) + num}, Actual:#{m2.at(r, c)}")
         end
       end
     end
 
     assert_invariants(m1)
     assert_invariants(m2)
-    assert_invariants(m3)
   end
 
   def tst_subtract_matrix
@@ -455,7 +454,7 @@ class SparseMatrixTest < Test::Unit::TestCase
     assert_invariants(m3)
   end
 
-  def tst_subtract_scalar
+  def test_scalar_subtract
     m1 = rand_sparse
     num = rand(MIN_VAL..MAX_VAL)
 
@@ -467,10 +466,10 @@ class SparseMatrixTest < Test::Unit::TestCase
 
     # Postconditions
     begin
-      assert_equal(m1.sum - num * m1.nnz, m2.sum, "Matrix scalar subtraction incorrect. Expected Sum:#{m1.sum - num * m1.nnz}, Actual Sum:#{m2.sum}")
+      assert_equal(m1.sum - num * m1.rows * m1.cols, m2.sum, "Matrix scalar subtraction incorrect. Expected Sum:#{m1.sum - num * m1.nnz}, Actual Sum:#{m2.sum}")
 
-      (0..m1.rows).each do |r|
-        (0..m1.cols).each do |c|
+      (0...m1.rows).each do |r|
+        (0...m1.cols).each do |c|
           assert_equal(m1.at(r, c) - num, m2.at(r, c), "Incorrect scalar subraction at row:#{r}, col:#{c}. Expected:#{m1.at(r, c) - num}, Actual:#{m2.at(r, c)}")
         end
       end
@@ -480,12 +479,28 @@ class SparseMatrixTest < Test::Unit::TestCase
     assert_invariants(m2)
   end
 
-  # TODO: * matrix
+  def test_matrix_mult
+    m1 = rand_sparse
+    m2 = rand_sparse(rows: m1.cols)
 
-  def tst_scalar_mult
+    # Preconditions
+    begin
+      assert_equal(m1.cols, m2.rows)
+    end
+
+    m3 = m1 * m2
+
+    # Postconditions
+    begin
+      assert_equal(m1.rows, m3.rows)
+      assert_equal(m2.cols, m3.cols)
+    end
+  end
+
+  def test_scalar_mult
     r = rand(0..MAX_ROWS)
     c = rand(1..MAX_COLS)
-    m = rand_matrix(r, c)
+    m = rand_sparse(rows: r, cols: c)
     rand_range(1, 1000, 20).each do |mult|
       # Preconditions
       begin
@@ -495,8 +510,8 @@ class SparseMatrixTest < Test::Unit::TestCase
 
       # Postconditions
       begin
-        (0..r).each do |i|
-          (0..c).each do |j|
+        (0...r).each do |i|
+          (0...c).each do |j|
             assert_equal(m.at(i, j) * mult, new_m.at(i, j), "Incorrect scalar multiplication at row:#{i}, col:#{j}. Expected:#{m.at(i, j) * mult}, Actual:#{new_m.at(i, j)}")
           end
         end
