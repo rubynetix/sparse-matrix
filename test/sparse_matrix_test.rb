@@ -270,9 +270,8 @@ class SparseMatrixTest < Test::Unit::TestCase
     end
 
     m2 = m1.clone
-
     r = rand(0...m1.rows)
-    c = rand(0...m2.rows)
+    c = rand(0...m1.cols)
 
     # We want to assert that we are working on different copies
     m2.put(r, c, m2.at(r, c) + 1)
@@ -917,8 +916,8 @@ class SparseMatrixTest < Test::Unit::TestCase
     assert_invariants(adj)
   end
 
-  def tst_identity?
-    i = identity_matrix
+  def test_identity?
+    i = SparseMatrix.identity(rand(1..MAX_ROWS))
     m = rand_square_sparse(range: 2...MAX_VAL)
 
     # Preconditions
@@ -938,7 +937,7 @@ class SparseMatrixTest < Test::Unit::TestCase
     assert_invariants(m)
   end
 
-  def tst_square?
+  def test_square?
     m = rand_sparse
 
     # Preconditions
@@ -955,7 +954,7 @@ class SparseMatrixTest < Test::Unit::TestCase
     assert_invariants(m)
   end
 
-  def tst_positive?
+  def test_positive?
     pos_m = rand_sparse(range: 0..MAX_VAL)
     neg_m = rand_sparse(range: MIN_VAL..-1)
 
@@ -1093,12 +1092,12 @@ class SparseMatrixTest < Test::Unit::TestCase
     assert_invariants(mt)
   end
 
-  def tst_zero?
+  def test_zero?
     ms = [
       rand_sparse,
       SparseMatrix.new(0),
-      SparseMatrix.identity(3),
-      SparseMatrix.zero((0..100), (0..100))
+      SparseMatrix.identity(rand(0..100)),
+      SparseMatrix.zero(rand(0..MAX_ROWS), rand(0..MAX_COLS))
     ]
 
     ms.each do |m|
