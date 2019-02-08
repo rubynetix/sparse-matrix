@@ -88,7 +88,7 @@ class SparseMatrix
   end
 
   def *(o)
-    o.is_a?(SparseMatrix) ? mul_matrix(o) : mul_matrix(o)
+    o.is_a?(SparseMatrix) ? mul_matrix(o) : mul_scalar(o)
   end
 
   def **(o)
