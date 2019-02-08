@@ -109,9 +109,7 @@ class SparseMatrixTest < Test::Unit::TestCase
   end
 
   def test_det
-    s = rand(1..1000)
-    m = SparseMatrix.new(s)
-
+    m = rand_square_sparse
     # Preconditions
     begin
       assert_true(m.square?, 'Matrix for determinant test is not square')
