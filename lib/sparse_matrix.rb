@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+require_relative 'csr_iterator'
 
 require_relative 'matrix_exceptions'
 
@@ -32,6 +33,84 @@ class SparseMatrix
     @data.size
   end
 
+  def set_zero
+    @data = []
+    @row_vector = Array.new(rows + 1, 0)
+    @col_vector = []
+  end
+
+  def set_identity
+    set_zero
+    map_diagonal_nocopy { 1 }
+  end
+
+  def resize(rows, cols)
+    raise 'Not implemented'
+  end
+
+  def at(row, col)
+    _, val = get_index(row, col)
+    return val unless val.nil?
+    0
+  end
+
+  def put(row, col, val)
+    index, old_val = get_index(row, col)
+
+    unless old_val.nil?
+      # Updating an element
+      if val.zero?
+        delete(row, index)
+      else
+        @data[index] = val
+      end
+      return
+    end
+
+    unless val.zero?
+      # Inserting a new element
+      insert(row, col, index, val)
+    end
+  end
+
+  def copy
+    c = SparseMatrix.new(rows, cols)
+    c.data = @data
+    c.row_vector = @row_vector
+    c.col_vector = @col_vector
+  end
+
+  def +(other)
+    raise 'Not implemented'
+  end
+
+  def -(other)
+    raise 'Not implemented'
+  end
+
+  def *(other)
+    raise 'Not implemented'
+  end
+
+  def **(other)
+    raise 'Not implemented'
+  end
+
+  def ==(other)
+    raise 'Not implemented'
+  end
+
+  def to_s
+    s = ""
+    (0..@rows-1).each do |r|
+      (0..@cols-1).each do |c|
+        s += "#{at(r, c)} "
+      end
+      s += "\n"
+    end
+    s
+  end
+
   def det
     unless square?
       raise MatrixExceptions::DimensionMismatchException, \
@@ -60,72 +139,10 @@ class SparseMatrix
     end
   end
 
-  def resize(rows, cols)
-    raise 'Not implemented'
-  end
-
-  def set_zero
-    raise 'Not implemented'
-  end
-
-  def set_identity
-    raise 'Not implemented'
-  end
-
-  def at(row, col)
-    _, val = get_index(row, col)
-    return val unless val.nil?
-
-    0
-  end
-
   def sum
     total = 0
-    map_nz { |val| total += val }
+    map_nz_nocopy { |val| total += val }
     total
-  end
-
-  def +(other)
-    raise 'Not implemented'
-  end
-
-  def -(other)
-    raise 'Not implemented'
-  end
-
-  def *(other)
-    raise 'Not implemented'
-  end
-
-  def **(other)
-    raise 'Not implemented'
-  end
-
-  def ==(other)
-    raise 'Not implemented'
-  end
-
-  def to_s
-    raise 'Not implemented'
-  end
-
-  def put(row, col, val)
-    index, old_val = get_index(row, col)
-
-    unless old_val.nil?
-      # Updating an element
-      if val.zero?
-        delete(row, index)
-      else
-        @data[index] = val
-      end
-      return
-    end
-
-    unless val.zero?
-      # Inserting a new element
-      insert(row, col, index, val)
-    end
   end
 
   def diagonal
@@ -173,7 +190,7 @@ class SparseMatrix
   end
 
   def square?
-    raise 'Not implemented'
+    @rows == @cols
   end
 
   def positive?
@@ -185,7 +202,8 @@ class SparseMatrix
   end
 
   def symmetric?
-    raise 'Not implemented'
+    # TODO: Implement
+    true
   end
 
   def traceable?
@@ -197,7 +215,8 @@ class SparseMatrix
   end
 
   def diagonal?
-    raise 'Not implemented'
+    # TODO: Implement
+    true
   end
 
   def lower_triangular?
@@ -216,41 +235,78 @@ class SparseMatrix
     raise 'Not implemented'
   end
 
+  def iterator
+    CSRIterator.new(@row_vector, @col_vector, @data)
+  end
+
   alias t transpose
   alias tr trace
 
   # Utility functions
   def map
-    m = copy
-    (0...m.rows - 1).each do |x|
-      (0...m.cols - 1).each do |y|
+    m = dup
+    (0...m.rows).each do |x|
+      (0...m.cols).each do |y|
         current = m.at(x, y)
         new_val = yield(current, x, y)
-        m.put(x, y, new_val) if new_val != current
+        m.put(x, y, new_val)
       end
     end
     m
   end
 
   def map_diagonal
-    m = copy
-    (0...m.rows - 1).each do |x|
+    m = dup
+    (0...m.rows).each do |x|
       current = m.at(x, x)
       new_val = yield(current, x)
-      m.put(x, x, new_val) if new_val != current
+      m.put(x, x, new_val)
     end
     m
   end
 
   def map_nz
-    (0..@rows - 1).each do |r|
-      (0..@cols - 1).each do |c|
+    m = dup
+    (0...m.rows).each do |r|
+      (0...m.cols).each do |c|
+        yield(m.at(r, c)) unless m.at(r, c).zero?
+      end
+    end
+    m
+  end
+
+protected
+
+  def map_nocopy
+    (0...@rows).each do |x|
+      (0...@cols).each do |y|
+        current = at(x, y)
+        new_val = yield(current, x, y)
+        put(x, y, new_val) if new_val != current
+      end
+    end
+  end
+
+  def map_diagonal_nocopy
+    (0...@rows).each do |x|
+      current = at(x, x)
+      new_val = yield(current, x)
+      put(x, x, new_val) if new_val != current
+    end
+  end
+
+  def map_nz_nocopy
+    # TODO: Optimize to O(m) time
+    (0...@rows).each do |r|
+      (0...@cols).each do |c|
         yield(at(r, c)) unless at(r, c).zero?
       end
     end
   end
 
-  private
+private
+
+  attr_accessor(:data, :col_vector, :row_vector)
 
   def plus_matrix(other)
     raise 'Not implemented'
