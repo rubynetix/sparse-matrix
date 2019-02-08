@@ -16,10 +16,9 @@ class TriDiagonalMatrix < SparseMatrix
   end
 
   def det
-    prev_det = 1        # det of a 0x0 is 1
-    det = @main_dia[0]  # det of a 1x1 is the number itself
+    prev_det = 1 # det of a 0x0 is 1
+    det = @main_dia[0] # det of a 1x1 is the number itself
     index = 1
-
     while index < @rows
       temp_prev = det
       det = @main_dia[index] * det \
