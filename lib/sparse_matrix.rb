@@ -1,9 +1,12 @@
+# frozen_string_literal: true
+
 # Compressed Sparse Row Matrix
 class SparseMatrix
   attr_reader(:rows, :cols)
 
   def initialize(rows, cols = rows)
-    raise TypeError unless rows > 0 && cols > 0
+    raise TypeError unless rows.positive? && cols.positive?
+
     @data = []
     @row_vector = Array.new(rows + 1, 0)
     @col_vector = []
@@ -20,7 +23,7 @@ class SparseMatrix
       SparseMatrix.new(n).map_diagonal { 1 }
     end
 
-    alias :I :identity
+    alias I identity
   end
 
   def nnz
@@ -32,54 +35,52 @@ class SparseMatrix
   end
 
   def resize(rows, cols)
-    raise "Not implemented"
+    raise 'Not implemented'
   end
 
   def set_zero
-    raise "Not implemented"
+    raise 'Not implemented'
   end
 
   def set_identity
-    raise "Not implemented"
+    raise 'Not implemented'
   end
 
   def at(row, col)
     _, val = get_index(row, col)
-    unless val.nil?
-      return val
-    end
+    return val unless val.nil?
+
     0
   end
 
   def sum
     total = 0
-    map_nz{|val| total += val}
+    map_nz { |val| total += val }
     total
   end
 
   def +(o)
-    raise "Not implemented"
+    raise 'Not implemented'
   end
 
   def -(o)
-    raise "Not implemented"
+    raise 'Not implemented'
   end
 
   def *(o)
-    raise "Not implemented"
+    raise 'Not implemented'
   end
 
   def **(o)
-    raise "Not implemented"
-
+    raise 'Not implemented'
   end
 
   def ==(o)
-    raise "Not implemented"
+    raise 'Not implemented'
   end
 
   def to_s
-    raise "Not implemented"
+    raise 'Not implemented'
   end
 
   def put(row, col, val)
@@ -87,7 +88,7 @@ class SparseMatrix
 
     unless old_val.nil?
       # Updating an element
-      if val == 0
+      if val.zero?
         delete(row, index)
       else
         @data[index] = val
@@ -95,108 +96,108 @@ class SparseMatrix
       return
     end
 
-    unless val == 0
+    unless val.zero?
       # Inserting a new element
       insert(row, col, index, val)
     end
   end
 
   def diagonal
-    raise "Not implemented"
+    raise 'Not implemented'
   end
 
   def tridiagonal
-    raise "Not implemented"
+    raise 'Not implemented'
   end
 
-  def cofactor(row, col)
-    raise "Not implemented"
+  def cofactor(_row, _col)
+    raise 'Not implemented'
   end
 
   def adjoint
-    raise "Not implemented"
+    raise 'Not implemented'
   end
 
   def inverse
-    raise "Not implemented"
+    raise 'Not implemented'
   end
 
   def rank
-    raise "Not implemented"
+    raise 'Not implemented'
   end
 
   def transpose
-    raise "Not implemented"
+    raise 'Not implemented'
   end
 
   def trace
-    raise "Not implemented"
+    raise 'Not implemented'
   end
 
   def nil?
-    raise "Not implemented"
+    raise 'Not implemented'
   end
 
   def zero?
-    raise "Not implemented"
+    raise 'Not implemented'
   end
 
   def identity?
-    raise "Not implemented"
+    raise 'Not implemented'
   end
 
   def square?
-    raise "Not implemented"
+    raise 'Not implemented'
   end
 
   def positive?
-    raise "Not implemented"
+    raise 'Not implemented'
   end
 
   def invertible?
-    raise "Not implemented"
+    raise 'Not implemented'
   end
 
   def symmetric?
-    raise "Not implemented"
+    raise 'Not implemented'
   end
 
   def traceable?
-    raise "Not implemented"
+    raise 'Not implemented'
   end
 
   def orthogonal?
-    raise "Not implemented"
+    raise 'Not implemented'
   end
 
   def diagonal?
-    raise "Not implemented"
+    raise 'Not implemented'
   end
 
   def lower_triangular?
-    raise "Not implemented"
+    raise 'Not implemented'
   end
 
   def upper_triangular?
-    raise "Not implemented"
+    raise 'Not implemented'
   end
 
   def lower_hessenberg?
-    raise "Not implemented"
+    raise 'Not implemented'
   end
 
   def upper_hessenberg?
-    raise "Not implemented"
+    raise 'Not implemented'
   end
 
-alias_method :t, :transpose
-alias_method :tr, :trace
+  alias t transpose
+  alias tr trace
 
   # Utility functions
   def map
-    m = self.copy
-    (0...m.rows-1).each do |x|
-      (0...m.cols-1).each do |y|
+    m = copy
+    (0...m.rows - 1).each do |x|
+      (0...m.cols - 1).each do |y|
         current = m.at(x, y)
         new_val = yield(current, x, y)
         m.put(x, y, new_val) if new_val != current
@@ -206,8 +207,8 @@ alias_method :tr, :trace
   end
 
   def map_diagonal
-    m = self.copy
-    (0...m.rows-1).each do |x|
+    m = copy
+    (0...m.rows - 1).each do |x|
       current = m.at(x, x)
       new_val = yield(current, x)
       m.put(x, x, new_val) if new_val != current
@@ -216,45 +217,44 @@ alias_method :tr, :trace
   end
 
   def map_nz
-    (0..@rows-1).each do |r|
-      (0..@cols-1).each do |c|
-        unless at(r, c) == 0
-          yield(at(r,c))
-        end
+    (0..@rows - 1).each do |r|
+      (0..@cols - 1).each do |c|
+        yield(at(r, c)) unless at(r, c).zero?
       end
     end
   end
 
-private
+  private
+
   def plus_matrix(o)
-    raise "Not implemented"
+    raise 'Not implemented'
   end
 
   def plus_scalar(o)
-    raise "Not implemented"
+    raise 'Not implemented'
   end
 
   def mul_matrix(x)
-    raise "Not implemented"
+    raise 'Not implemented'
   end
 
   def mul_scalar(x)
-    raise "Not implemented"
+    raise 'Not implemented'
   end
 
   def rref
-    raise "Not implemented"
+    raise 'Not implemented'
   end
 
   # Returns the index of the
   def get_index(row, col)
-    row_start, row_end = @row_vector[row], @row_vector[row + 1]
+    row_start = @row_vector[row]
+    row_end = @row_vector[row + 1]
     index = row_start
 
-    while index < row_end and col <= @col_vector[index]
-      if @col_vector[index] == col
-        return [index, @data[index]]
-      end
+    while (index < row_end) && (col <= @col_vector[index])
+      return [index, @data[index]] if @col_vector[index] == col
+
       index += 1
     end
     [index, nil]
@@ -263,7 +263,7 @@ private
   def insert(row, col, index, val)
     @data.insert(index, val)
     @col_vector.insert(index, col)
-    (row+1..@rows).each do |r|
+    (row + 1..@rows).each do |r|
       @row_vector[r] += 1
     end
   end
@@ -271,7 +271,7 @@ private
   def delete(row, index)
     @data.delete_at(index)
     @col_vector.delete_at(index)
-    (row+1..@rows).each do |r|
+    (row + 1..@rows).each do |r|
       @row_vector[r] -= 1
     end
   end
