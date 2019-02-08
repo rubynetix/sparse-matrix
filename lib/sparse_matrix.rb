@@ -116,7 +116,7 @@ class SparseMatrix
       raise MatrixExceptions::DimensionMismatchException, \
             'Matrix must be square'
     end
-    unless @data.! empty?
+    if @data.empty?
       raise MatrixExceptions::EmptyMatrixException, \
             'Cannot calculate determinate for an empty matrix'
     end
@@ -134,8 +134,8 @@ class SparseMatrix
     when 4
       determinant_4x4
     else
-      # Bigger matrices use Gauss-Bareiss algorithm O(n^3)
-      Matrix.determinant_bareiss
+      # Matrix uses Gauss-Bareiss algorithm O(n^3)
+      determinant_simple
     end
   end
 
