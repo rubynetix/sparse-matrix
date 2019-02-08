@@ -31,7 +31,7 @@ class SparseMatrix
     end
 
     def identity(n)
-      SparseMatrix.new(n).map_diagonal { 1 }
+      SparseMatrix.new(n).map_diagonal {1}
     end
 
     def [](*rows)
@@ -413,6 +413,39 @@ private
     (row + 1..@rows).each do |r|
       @row_vector[r] -= 1
     end
+  end
+
+  def determinant_3x3
+    +at(0, 0) * at(1, 1) * at(2, 2) - at(0, 0) * at(1, 2) * at(2, 1) \
+          - at(0, 1) * at(1, 0) * at(2, 2) + at(0, 1) * at(1, 2) * at(2, 0) \
+          + at(0, 2) * at(1, 0) * at(2, 1) - at(0, 2) * at(1, 1) * at(2, 0)
+  end
+
+  def determinant_4x4
+    +at(0, 0) * at(1, 1) * at(2, 2) * at(3, 3) \
+          - at(0, 0) * at(1, 1) * at(2, 3) * at(3, 2) \
+          - at(0, 0) * at(1, 2) * at(2, 1) * at(3, 3) \
+          + at(0, 0) * at(1, 2) * at(2, 3) * at(3, 1) \
+          + at(0, 0) * at(1, 3) * at(2, 1) * at(3, 2) \
+          - at(0, 0) * at(1, 3) * at(2, 2) * at(3, 1) \
+          - at(0, 1) * at(1, 0) * at(2, 2) * at(3, 3) \
+          + at(0, 1) * at(1, 0) * at(2, 3) * at(3, 2) \
+          + at(0, 1) * at(1, 2) * at(2, 0) * at(3, 3) \
+          - at(0, 1) * at(1, 2) * at(2, 3) * at(3, 0) \
+          - at(0, 1) * at(1, 3) * at(2, 0) * at(3, 2) \
+          + at(0, 1) * at(1, 3) * at(2, 2) * at(3, 0) \
+          + at(0, 2) * at(1, 0) * at(2, 1) * at(3, 3) \
+          - at(0, 2) * at(1, 0) * at(2, 3) * at(3, 1) \
+          - at(0, 2) * at(1, 1) * at(2, 0) * at(3, 3) \
+          + at(0, 2) * at(1, 1) * at(2, 3) * at(3, 0) \
+          + at(0, 2) * at(1, 3) * at(2, 0) * at(3, 1) \
+          - at(0, 2) * at(1, 3) * at(2, 1) * at(3, 0) \
+          - at(0, 3) * at(1, 0) * at(2, 1) * at(3, 2) \
+          + at(0, 3) * at(1, 0) * at(2, 2) * at(3, 1) \
+          + at(0, 3) * at(1, 1) * at(2, 0) * at(3, 2) \
+          - at(0, 3) * at(1, 1) * at(2, 2) * at(3, 0) \
+          - at(0, 3) * at(1, 2) * at(2, 0) * at(3, 1) \
+          + at(0, 3) * at(1, 2) * at(2, 1) * at(3, 0)
   end
 
   def determinant_bareiss
