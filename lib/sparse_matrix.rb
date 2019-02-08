@@ -295,7 +295,10 @@ private
     raise 'Not implemented'
   end
 
-  # Returns the index of the
+  # Returns the [index, val] corresponding to
+  # an element in the matrix at position row, col
+  # If a value does not exist at that location, the val returned is nil
+  # and the index indicates the insertion location
   def get_index(row, col)
     row_start = @row_vector[row]
     row_end = @row_vector[row + 1]
