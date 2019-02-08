@@ -121,7 +121,7 @@ class SparseMatrix
 
   def diagonal
     if !square?
-      return nil # TODO: return an error
+      raise NonSquareException, "Can not get diagonal of non-square matrix."
     else
       diag = Array.new(@rows, 0)
       iter = iterator
