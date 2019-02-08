@@ -415,13 +415,13 @@ private
     end
   end
 
-  def determinant_3x3
+  def determinant_3x3 # TODO: note "I would much rather not have this function; only kept at it's used in Matrix.rb"
     +at(0, 0) * at(1, 1) * at(2, 2) - at(0, 0) * at(1, 2) * at(2, 1) \
           - at(0, 1) * at(1, 0) * at(2, 2) + at(0, 1) * at(1, 2) * at(2, 0) \
           + at(0, 2) * at(1, 0) * at(2, 1) - at(0, 2) * at(1, 1) * at(2, 0)
   end
 
-  def determinant_4x4
+  def determinant_4x4 # TODO: note "I would much rather not have this function; only kept at it's used in Matrix.rb"
     +at(0, 0) * at(1, 1) * at(2, 2) * at(3, 3) \
           - at(0, 0) * at(1, 1) * at(2, 3) * at(3, 2) \
           - at(0, 0) * at(1, 2) * at(2, 1) * at(3, 3) \
