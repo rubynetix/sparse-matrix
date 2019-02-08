@@ -1,11 +1,12 @@
 # frozen_string_literal: true
+
 require_relative 'csr_iterator'
 
 require_relative 'matrix_exceptions'
 
 # Compressed Sparse Row Matrix
 class SparseMatrix
-  attr_reader(:rows, :cols, :data)
+  attr_reader(:rows, :cols)
 
   def initialize(rows, cols = rows)
     raise TypeError unless rows.positive? && cols.positive?
@@ -44,13 +45,14 @@ class SparseMatrix
     map_diagonal_nocopy { 1 }
   end
 
-  def resize(rows, cols)
+  def resize(_rows, _cols)
     raise 'Not implemented'
   end
 
   def at(row, col)
     _, val = get_index(row, col)
     return val unless val.nil?
+
     0
   end
 
@@ -80,30 +82,30 @@ class SparseMatrix
     c.col_vector = @col_vector
   end
 
-  def +(other)
+  def +(_other)
     raise 'Not implemented'
   end
 
-  def -(other)
+  def -(_other)
     raise 'Not implemented'
   end
 
-  def *(other)
+  def *(_other)
     raise 'Not implemented'
   end
 
-  def **(other)
+  def **(_other)
     raise 'Not implemented'
   end
 
-  def ==(other)
+  def ==(_other)
     raise 'Not implemented'
   end
 
   def to_s
-    s = ""
-    (0..@rows-1).each do |r|
-      (0..@cols-1).each do |c|
+    s = ''
+    (0..@rows - 1).each do |r|
+      (0..@cols - 1).each do |c|
         s += "#{at(r, c)} "
       end
       s += "\n"
@@ -111,30 +113,31 @@ class SparseMatrix
     s
   end
 
-  def det
-    unless square?
-      raise MatrixExceptions::DimensionMismatchException, \
-            'Matrix must be square'
-    end
-    if @data.empty?
-      raise MatrixExceptions::EmptyMatrixException, \
-            'Cannot calculate determinate for an empty matrix'
-    end
+  def empty_row?
+    prev_cnt = @rows[0]
+    (1..@rows - 1).each do |cnt|
+      return TRUE if cnt == prev_cnt
 
-    case @rows # TODO: note "I would much rather not have this switch-case (only bareiss); only kept at it's used in Matrix.rb"
-      # Small matrices use Laplacian expansion by minors.
+      prev_cnt = cnt
+    end
+    FALSE
+  end
+
+  def empty_col?
+    @col_vector.to_set.length == @cols
+  end
+
+  def det
+    return 0 if empty_row? || empty_col?
+
+    case @rows
     when 0
       +1
     when 1
-      @data[0]
+      at(0, 0)
     when 2
       at(0, 0) * at(1, 1) - at(0, 1) * at(1, 0)
-    when 3
-      determinant_3x3
-    when 4
-      determinant_4x4
     else
-      # Matrix uses Gauss-Bareiss algorithm O(n^3)
       determinant_simple
     end
   end
@@ -146,14 +149,21 @@ class SparseMatrix
   end
 
   def diagonal
-    raise 'Not implemented'
+    throw RuntimeError unless square?
+    diag = Array.new(@rows, 0)
+    iter = iterator
+    while iter.has_next?
+      item = iter.next
+      diag[item[0]] = item[2] if yield(item)
+    end
+    diag
   end
 
   def tridiagonal
     raise 'Not implemented'
   end
 
-  def cofactor(row, col)
+  def cofactor(_row, _col)
     raise 'Not implemented'
   end
 
@@ -275,7 +285,7 @@ class SparseMatrix
     m
   end
 
-protected
+  protected
 
   def map_nocopy
     (0...@rows).each do |x|
@@ -304,23 +314,23 @@ protected
     end
   end
 
-private
+  private
 
   attr_accessor(:data, :col_vector, :row_vector)
 
-  def plus_matrix(other)
+  def plus_matrix(_other)
     raise 'Not implemented'
   end
 
-  def plus_scalar(other)
+  def plus_scalar(_other)
     raise 'Not implemented'
   end
 
-  def mul_matrix(x)
+  def mul_matrix(_x)
     raise 'Not implemented'
   end
 
-  def mul_scalar(x)
+  def mul_scalar(_x)
     raise 'Not implemented'
   end
 
@@ -358,66 +368,15 @@ private
     end
   end
 
-  def determinant_3x3 # TODO: note "I would much rather not have this function; only kept at it's used in Matrix.rb"
-    +at(0, 0) * at(1, 1) * at(2, 2) - at(0, 0) * at(1, 2) * at(2, 1) \
-          - at(0, 1) * at(1, 0) * at(2, 2) + at(0, 1) * at(1, 2) * at(2, 0) \
-          + at(0, 2) * at(1, 0) * at(2, 1) - at(0, 2) * at(1, 1) * at(2, 0)
-  end
-
-  def determinant_4x4 # TODO: note "I would much rather not have this function; only kept at it's used in Matrix.rb"
-    +at(0, 0) * at(1, 1) * at(2, 2) * at(3, 3) \
-          - at(0, 0) * at(1, 1) * at(2, 3) * at(3, 2) \
-          - at(0, 0) * at(1, 2) * at(2, 1) * at(3, 3) \
-          + at(0, 0) * at(1, 2) * at(2, 3) * at(3, 1) \
-          + at(0, 0) * at(1, 3) * at(2, 1) * at(3, 2) \
-          - at(0, 0) * at(1, 3) * at(2, 2) * at(3, 1) \
-          - at(0, 1) * at(1, 0) * at(2, 2) * at(3, 3) \
-          + at(0, 1) * at(1, 0) * at(2, 3) * at(3, 2) \
-          + at(0, 1) * at(1, 2) * at(2, 0) * at(3, 3) \
-          - at(0, 1) * at(1, 2) * at(2, 3) * at(3, 0) \
-          - at(0, 1) * at(1, 3) * at(2, 0) * at(3, 2) \
-          + at(0, 1) * at(1, 3) * at(2, 2) * at(3, 0) \
-          + at(0, 2) * at(1, 0) * at(2, 1) * at(3, 3) \
-          - at(0, 2) * at(1, 0) * at(2, 3) * at(3, 1) \
-          - at(0, 2) * at(1, 1) * at(2, 0) * at(3, 3) \
-          + at(0, 2) * at(1, 1) * at(2, 3) * at(3, 0) \
-          + at(0, 2) * at(1, 3) * at(2, 0) * at(3, 1) \
-          - at(0, 2) * at(1, 3) * at(2, 1) * at(3, 0) \
-          - at(0, 3) * at(1, 0) * at(2, 1) * at(3, 2) \
-          + at(0, 3) * at(1, 0) * at(2, 2) * at(3, 1) \
-          + at(0, 3) * at(1, 1) * at(2, 0) * at(3, 2) \
-          - at(0, 3) * at(1, 1) * at(2, 2) * at(3, 0) \
-          - at(0, 3) * at(1, 2) * at(2, 0) * at(3, 1) \
-          + at(0, 3) * at(1, 2) * at(2, 1) * at(3, 0)
-  end
-
-  # TODO: swap rows - matrix.rb function
-  def determinant_bareiss
-    # raise NotImplementedError
-    m = copy
-    no_pivot = proc { return 0 }
-    sign = +1
-    pivot = 1
-    @rows.times do |k|
-      previous_pivot = pivot
-      if (pivot = m.at(k, k)).zero?
-        switch = (k + 1...@rows).find(no_pivot) do |row|
-          m.at(row, k) != 0
-        end
-        # Swap two rows
-        a[switch], a[k] = a[k], a[switch]
-        pivot = m.at(k, k)
-        sign = -sign
-      end
-      (k + 1).upto(@rows - 1) do |i|
-        (k + 1).upto(@rows - 1) do |j|
-          m.put i, j, (pivot * m.at(i, j) - m.at(i, k) * m.at(k, j)) / previous_pivot
-        end
-      end
+  def determinant_simple
+    det = 0
+    (0..(@cols - 1)).each do |i|
+      right = 1.0
+      left = 1.0
+      (diagonal { |item| item[1] == (item[0] + i) % @rows }).each { |i| right *= i }
+      (diagonal { |item| item[1] == (item[0] + i) % @rows }).each { |i| left *= i }
+      det += right - left
     end
-    sign * pivot
+    det
   end
-
-
 end
-

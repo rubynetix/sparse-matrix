@@ -109,7 +109,11 @@ class SparseMatrixTest < Test::Unit::TestCase
   end
 
   def test_det
-    m = rand_square_sparse
+    m = rand_square_sparse size:5
+    print m.to_s
+    print (m.any_diagonal{ |item| item[0] == (item[1] + 1) % m.rows })
+    print (m.any_diagonal{ |item| item[1] == (item[0] + 1) % m.rows })
+
     # Preconditions
     begin
       assert_true(m.square?, 'Matrix for determinant test is not square')
