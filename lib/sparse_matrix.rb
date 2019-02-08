@@ -205,7 +205,17 @@ class SparseMatrix
   end
 
   def diagonal?
-    # TODO: Implement
+    iter = iterator
+    if square?
+      while iter.has_next?
+        item = iter.next
+        if item[0] != item[1] && item[2] != 0
+          return false
+        end
+      end
+    else
+      return false
+    end
     true
   end
 
