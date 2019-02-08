@@ -270,9 +270,8 @@ class SparseMatrixTest < Test::Unit::TestCase
     end
 
     m2 = m1.clone
-
     r = rand(0...m1.rows)
-    c = rand(0...m2.rows)
+    c = rand(0...m1.cols)
 
     # We want to assert that we are working on different copies
     m2.put(r, c, m2.at(r, c) + 1)

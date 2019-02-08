@@ -20,6 +20,8 @@ class SparseMatrix
     @data = other.instance_variable_get(:@data).clone
     @row_vector = other.instance_variable_get(:@row_vector).clone
     @col_vector = other.instance_variable_get(:@col_vector).clone
+    @rows = other.rows
+    @cols = other.cols
   end
 
   class << self
