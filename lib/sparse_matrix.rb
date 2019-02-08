@@ -232,8 +232,22 @@ class SparseMatrix
     true
   end
 
+  ##
+  # Returns true if all the entries above the main diagonal are zero.
+  # Returns false otherwise.
   def lower_triangular?
-    raise 'Not implemented'
+    if square?
+      iter = iterator
+      while iter.has_next?
+        item = iter.next
+        if item[1] > item[0] && item[2] != 0
+          return false
+        end
+      end
+    else
+      return false
+    end
+    true
   end
 
   def upper_triangular?
