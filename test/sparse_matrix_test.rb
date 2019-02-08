@@ -638,7 +638,7 @@ class SparseMatrixTest < Test::Unit::TestCase
     assert_invariants(m)
   end
 
-  def tst_lower_triangular?(_nonsquare)
+  def test_lower_triangular?(_nonsquare)
     r = 0
     c = 0
     while r != c
@@ -664,7 +664,7 @@ class SparseMatrixTest < Test::Unit::TestCase
     while i < 20
       rc = rand(0..MAX_ROWS)
       m_tri = lower_triangular_matrix(rc, 0, 1000)
-      m_random = rand_matrix(rc, rc)
+      m_random = rand_square_sparse
 
       # Preconditions
       begin
