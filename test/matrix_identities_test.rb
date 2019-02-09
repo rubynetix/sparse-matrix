@@ -5,7 +5,7 @@ require_relative './test_helper_matrix_util'
 class MatrixIdentitiesTest < Test::Unit::TestCase
   include MatrixTestUtil
 
-  TEST_ITER = 10
+  TEST_ITER = 100
   MAX_ROWS = 10
   MAX_COLS = 10
   MIN_VAL = -10
@@ -109,6 +109,7 @@ class MatrixIdentitiesTest < Test::Unit::TestCase
 
       # Transpose distributes over multiplication
       assert_equal((@a * @b).transpose, @b_t * @a_t,"Transpose does not distribute over multiplication.")
+      assert_equal((@a * @b * @c).transpose, @c_t * @b_t * @a_t,"Transpose does not distribute over multiplication.")
     end
   end
 
@@ -118,8 +119,11 @@ class MatrixIdentitiesTest < Test::Unit::TestCase
     (0..TEST_ITER).each do
       generate_matrices
 
-      # assert_equal((@a_t * @b * @a).symmetric?, @b.symmetric?,"Symmetric identity does not hold.")
-      # assert_equal((@a * @b * @a_t).symmetric?, @b.symmetric?,"Symmetric identity does not hold.")
+      if @b.symmetric?
+        assert_equal((@a_t * @b * @a).symmetric?, @b.symmetric?,"Symmetric identity does not hold.")
+        assert_equal((@a * @b * @a_t).symmetric?, @b.symmetric?,"Symmetric identity does not hold.")
+      end
+
       assert_true((@a_t * @a).symmetric?,"Symmetric identity does not hold.")
       assert_true((@a * @a_t).symmetric?,"Symmetric identity does not hold.")
       assert_true((@a * @a_t).symmetric?,"Symmetric identity does not hold.")
