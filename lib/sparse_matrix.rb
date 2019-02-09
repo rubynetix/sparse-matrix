@@ -263,7 +263,7 @@ class SparseMatrix
   end
 
   def symmetric?
-    self == clone.transpose
+    self == dup.transpose
   end
 
   def traceable?
