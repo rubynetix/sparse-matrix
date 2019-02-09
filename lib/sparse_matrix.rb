@@ -119,20 +119,21 @@ class SparseMatrix
   def empty_row?
     prev_cnt = @rows[0]
     (1..@rows - 1).each do |cnt|
-      return 1 if cnt == prev_cnt
+      return true if cnt == prev_cnt
 
       prev_cnt = cnt
     end
-    0
+    false
   end
 
   def empty_col?
-    @col_vector.to_set.length == @cols
+    @col_vector.to_set.length < @cols
   end
 
   def det
     return 0 if empty_row? || empty_col?
 
+    print "No empty rows/cols\n"
     case @rows
     when 0
       +1
@@ -390,10 +391,12 @@ class SparseMatrix
   def determinant_simple
     det = 0
     (0..(@cols - 1)).each do |i|
-      right = 1.0
-      left = 1.0
+      right = 1
+      left = 1
+
       (diagonal { |item| item[1] == (item[0] + i) % @rows }).each { |i| right *= i }
-      (diagonal { |item| item[1] == (item[0] + i) % @rows }).each { |i| left *= i }
+      (diagonal { |item| (item[1] + item[0]) % @rows == i}).each { |i| left *= i }
+      print right, " ", left, "\n"
       det += right - left
     end
     det

@@ -109,7 +109,8 @@ class SparseMatrixTest < Test::Unit::TestCase
   end
 
   def test_det
-    m = rand_square_sparse size:5
+    m = rand_square_sparse size:12, range:-15..15
+    print m
 
     # Preconditions
     begin
@@ -344,8 +345,8 @@ class SparseMatrixTest < Test::Unit::TestCase
     # Postconditions
     begin
       expected = 0
-      (0..m.rows-1).each do |r|
-        (0..m.cols-1).each do |c|
+      (0..m.rows - 1).each do |r|
+        (0..m.cols - 1).each do |c|
           expected += m.at(r, c)
         end
       end

@@ -103,7 +103,9 @@ module MatrixTestUtil
       row, col, val = it.next
       a[row][col] = val
     end
-    Matrix.build(s.rows, s.cols) { |i, j| a[i][j] }
+    m = Matrix.build(s.rows, s.cols) { |i, j| a[i][j] }
+    print m.to_s
+    m
   end
 
   def iterate_matrix(m)
