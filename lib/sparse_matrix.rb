@@ -67,7 +67,16 @@ class SparseMatrix
   end
 
   def resize(rows, cols)
-    raise 'Not implemented'
+    if rows > @rows
+      increase_rows rows
+    elsif rows < @rows
+      decrease_rows rows
+    end
+    if cols > @cols
+      @cols = cols
+    elsif cols < @cols
+      decrease_cols cols
+    end
   end
 
   def at(row, col)
@@ -107,8 +116,16 @@ class SparseMatrix
     o.is_a?(SparseMatrix) ? mul_matrix(o) : mul_scalar(o)
   end
 
-  def **(o)
-    raise 'Not implemented'
+  def **(x)
+    throw RuntimeError unless square?
+    throw TypeError unless x.is_a? Integer
+    throw ArgumentError unless x > 1
+    new_m = dup
+    while x >= 2
+      new_m *= self
+      x -= 1
+    end
+    new_m
   end
 
   def ==(other)
@@ -174,7 +191,7 @@ class SparseMatrix
   end
 
   def tridiagonal
-    raise 'Not implemented'
+    map { |val, r, c| (r == c || c == r - 1 || c == r + 1) ? val : 0 }
   end
 
   def cofactor(row, col)
@@ -196,7 +213,13 @@ class SparseMatrix
   end
 
   def transpose
-    raise 'Not implemented'
+    m = SparseMatrix.new @cols, @rows
+    iter = iterator
+    while iter.has_next?
+      row, col, val = iter.next
+      m.put col, row, val
+    end
+    m
   end
 
   def trace
@@ -240,8 +263,7 @@ class SparseMatrix
   end
 
   def symmetric?
-    # TODO: Implement
-    true
+    self == dup.transpose
   end
 
   def traceable?
@@ -429,7 +451,35 @@ private
     end
   end
 
-  def determinant_3x3 # TODO: note "I would much rather not have this function; only kept at it's used in Matrix.rb"
+  def increase_rows(rows)
+    (0..(rows - @rows)).each do |_num|
+      @row_vector.push @row_vector.last
+    end
+    @rows = rows
+  end
+
+  def decrease_rows(rows)
+    rm_rows = @row_vector.pop(@rows - rows)
+    num_vals_rmd = rm_rows.last - @row_vector.last
+    @col_vector.pop num_vals_rmd
+    @data.pop num_vals_rmd
+    @rows = rows
+  end
+
+  def decrease_cols(cols)
+    it = iterator
+    to_rm = []
+    while it.has_next?
+      item = it.next
+      to_rm.push item if item[1] >= cols
+    end
+    to_rm.each do |r, c, _|
+      delete r, c
+    end
+    @cols = cols
+  end
+
+  def determinant_3x3
     +at(0, 0) * at(1, 1) * at(2, 2) - at(0, 0) * at(1, 2) * at(2, 1) \
           - at(0, 1) * at(1, 0) * at(2, 2) + at(0, 1) * at(1, 2) * at(2, 0) \
           + at(0, 2) * at(1, 0) * at(2, 1) - at(0, 2) * at(1, 1) * at(2, 0)
@@ -488,7 +538,6 @@ private
     end
     sign * pivot
   end
-
 
 end
 
