@@ -161,7 +161,13 @@ class SparseMatrix
   end
 
   def transpose
-    raise 'Not implemented'
+    m = new @rows, @cols
+    iter = iterator
+    while iter.has_next?
+      row, col, val = iter.next
+      m.insert col, row, val
+    end
+    m
   end
 
   def trace
