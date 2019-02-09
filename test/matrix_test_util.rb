@@ -1,3 +1,7 @@
+# frozen_string_literal: true
+
+require 'matrix'
+
 module MatrixTestUtil
   def rand_range(l, h, size)
     i = 0
@@ -11,10 +15,11 @@ module MatrixTestUtil
 
   def rand_sparse(rows: rand(1..100), cols: rand(1..100), range: (-100..100))
     m = SparseMatrix.new(rows, cols)
-    nnz = rand(1..(rows*cols)/2.floor)
+    nnz = rand(1..(rows * cols) / 2.floor)
 
-    while nnz > 0 do
-      r, c = rand(0..rows-1), rand(0..cols-1)
+    while nnz > 0
+      r = rand(0..rows - 1)
+      c = rand(0..cols - 1)
       if m.at(r, c) == 0
         m.put(r, c, rand(range))
         nnz -= 1
@@ -92,13 +97,13 @@ module MatrixTestUtil
   end
 
   def sparse_to_matrix(s)
-    m = Matrix.build(s.rows, s.cols) { |_row, _col| 0 }
+    a = Array.new(s.rows) { Array.new(s.cols) { 0 } }
     it = s.iterator
-    while s.next?
-      e = s.next
-      m[e.row][e.col] = e.val
+    while it.has_next?
+      row, col, val = it.next
+      a[row][col] = val
     end
-    m
+    Matrix.build(s.rows, s.cols) { |i, j| a[i][j] }
   end
 
   def iterate_matrix(m)

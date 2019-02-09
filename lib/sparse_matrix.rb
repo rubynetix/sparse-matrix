@@ -4,7 +4,7 @@ require_relative 'matrix_solver'
 
 # Compressed Sparse Row Matrix
 class SparseMatrix
-  attr_reader(:rows, :cols)
+  attr_reader(:rows, :cols, :data)
 
   def initialize(rows, cols = rows)
     raise TypeError unless rows >= 0 and cols >= 0
@@ -163,6 +163,8 @@ class SparseMatrix
     total
   end
 
+  ##
+  # Returns an array containing the values along the main diagonal of the matrix
   def diagonal
     if !square?
       raise NonSquareException, "Can not get diagonal of non-square matrix."
@@ -183,7 +185,7 @@ class SparseMatrix
     map { |val, r, c| (r == c || c == r - 1 || c == r + 1) ? val : 0 }
   end
 
-  def cofactor(_row, _col)
+  def cofactor(row, col)
     raise 'Not implemented'
   end
 
@@ -263,6 +265,8 @@ class SparseMatrix
     raise 'Not implemented'
   end
 
+  ##
+  # Returns true if the matrix only contains non-zero values on the main diagonal
   def diagonal?
     iter = iterator
     if square?
@@ -290,14 +294,28 @@ class SparseMatrix
           return false
         end
       end
+      true
     else
-      return false
+      false
     end
-    true
   end
 
+  ##
+  # Returns true if all the entries below the main diagonal are zero.
+  # Returns false otherwise.
   def upper_triangular?
-    raise 'Not implemented'
+    if square?
+      iter = iterator
+      while iter.has_next?
+        item = iter.next
+        if item[0] > item[1] && item[2] != 0
+          return false
+        end
+      end
+      true
+    else
+      false
+    end
   end
 
   def lower_hessenberg?
@@ -423,4 +441,67 @@ private
       @row_vector[r] -= 1
     end
   end
+
+  def determinant_3x3 # TODO: note "I would much rather not have this function; only kept at it's used in Matrix.rb"
+    +at(0, 0) * at(1, 1) * at(2, 2) - at(0, 0) * at(1, 2) * at(2, 1) \
+          - at(0, 1) * at(1, 0) * at(2, 2) + at(0, 1) * at(1, 2) * at(2, 0) \
+          + at(0, 2) * at(1, 0) * at(2, 1) - at(0, 2) * at(1, 1) * at(2, 0)
+  end
+
+  def determinant_4x4 # TODO: note "I would much rather not have this function; only kept at it's used in Matrix.rb"
+    +at(0, 0) * at(1, 1) * at(2, 2) * at(3, 3) \
+          - at(0, 0) * at(1, 1) * at(2, 3) * at(3, 2) \
+          - at(0, 0) * at(1, 2) * at(2, 1) * at(3, 3) \
+          + at(0, 0) * at(1, 2) * at(2, 3) * at(3, 1) \
+          + at(0, 0) * at(1, 3) * at(2, 1) * at(3, 2) \
+          - at(0, 0) * at(1, 3) * at(2, 2) * at(3, 1) \
+          - at(0, 1) * at(1, 0) * at(2, 2) * at(3, 3) \
+          + at(0, 1) * at(1, 0) * at(2, 3) * at(3, 2) \
+          + at(0, 1) * at(1, 2) * at(2, 0) * at(3, 3) \
+          - at(0, 1) * at(1, 2) * at(2, 3) * at(3, 0) \
+          - at(0, 1) * at(1, 3) * at(2, 0) * at(3, 2) \
+          + at(0, 1) * at(1, 3) * at(2, 2) * at(3, 0) \
+          + at(0, 2) * at(1, 0) * at(2, 1) * at(3, 3) \
+          - at(0, 2) * at(1, 0) * at(2, 3) * at(3, 1) \
+          - at(0, 2) * at(1, 1) * at(2, 0) * at(3, 3) \
+          + at(0, 2) * at(1, 1) * at(2, 3) * at(3, 0) \
+          + at(0, 2) * at(1, 3) * at(2, 0) * at(3, 1) \
+          - at(0, 2) * at(1, 3) * at(2, 1) * at(3, 0) \
+          - at(0, 3) * at(1, 0) * at(2, 1) * at(3, 2) \
+          + at(0, 3) * at(1, 0) * at(2, 2) * at(3, 1) \
+          + at(0, 3) * at(1, 1) * at(2, 0) * at(3, 2) \
+          - at(0, 3) * at(1, 1) * at(2, 2) * at(3, 0) \
+          - at(0, 3) * at(1, 2) * at(2, 0) * at(3, 1) \
+          + at(0, 3) * at(1, 2) * at(2, 1) * at(3, 0)
+  end
+
+  # TODO: swap rows - matrix.rb function
+  def determinant_bareiss
+    # raise NotImplementedError
+    m = copy
+    no_pivot = proc { return 0 }
+    sign = +1
+    pivot = 1
+    @rows.times do |k|
+      previous_pivot = pivot
+      if (pivot = m.at(k, k)).zero?
+        switch = (k + 1...@rows).find(no_pivot) do |row|
+          m.at(row, k) != 0
+        end
+        # Swap two rows
+        a[switch], a[k] = a[k], a[switch]
+        pivot = m.at(k, k)
+        sign = -sign
+      end
+      (k + 1).upto(@rows - 1) do |i|
+        (k + 1).upto(@rows - 1) do |j|
+          m.put i, j, (pivot * m.at(i, j) - m.at(i, k) * m.at(k, j)) / previous_pivot
+        end
+      end
+    end
+    sign * pivot
+  end
+
+
 end
+
