@@ -1023,8 +1023,9 @@ class SparseMatrixTest < Test::Unit::TestCase
     assert_invariants(m)
   end
 
-  def tst_symmetric?
+  def test_symmetric?
     m = rand_sparse
+    m_copy = m.dup
 
     # Preconditions
     begin
@@ -1035,6 +1036,7 @@ class SparseMatrixTest < Test::Unit::TestCase
     # Postconditions
     begin
       assert_equal(m == m.transpose, sym, 'Symmetric matrix not equal to its transpose')
+      assert_equal(m, m_copy, 'symmetric? must not alter matrix values')
     end
 
     assert_invariants(m)
