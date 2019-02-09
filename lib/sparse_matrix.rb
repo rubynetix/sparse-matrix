@@ -97,8 +97,16 @@ class SparseMatrix
     raise 'Not implemented'
   end
 
-  def ==(o)
-    raise 'Not implemented'
+  def ==(other)
+    return false unless other.is_a? SparseMatrix
+    return false unless (other.rows.equal? @rows) && (other.cols.equal? @cols)
+
+    iter = iterator
+    o_iter = other.iterator
+    while iter.has_next? && o_iter.has_next?
+      return false unless iter.next == o_iter.next
+    end
+    !iter.has_next? && !o_iter.has_next?
   end
 
   def to_s
