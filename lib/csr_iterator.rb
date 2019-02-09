@@ -16,7 +16,7 @@ class CSRIterator
   def next
     row, col, val = @row_idx - 1, @col_vec[@col_idx], @data[@col_idx]
     @col_idx += 1
-    if @col_idx >= @row_vec[@row_idx]
+    while @col_idx >= @row_vec[@row_idx]
       @row_idx += 1
     end
     [row, col, val]
