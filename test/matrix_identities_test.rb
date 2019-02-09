@@ -113,6 +113,21 @@ class MatrixIdentitiesTest < Test::Unit::TestCase
   end
 
   # TODO: Activate test with inverse implementation
+  def test_symmetric_identities
+    # Verify symmetric identities hold
+    (0..TEST_ITER).each do
+      generate_matrices
+
+      # assert_equal((@a_t * @b * @a).symmetric?, @b.symmetric?,"Symmetric identity does not hold.")
+      # assert_equal((@a * @b * @a_t).symmetric?, @b.symmetric?,"Symmetric identity does not hold.")
+      assert_true((@a_t * @a).symmetric?,"Symmetric identity does not hold.")
+      assert_true((@a * @a_t).symmetric?,"Symmetric identity does not hold.")
+      assert_true((@a * @a_t).symmetric?,"Symmetric identity does not hold.")
+      # assert_equal@a_inv.symmetric?, a.symmetric?"Symmetric identity does not hold.")
+    end
+  end
+
+  # TODO: Activate test with inverse implementation
   def tst_general_matrix_identities
     # Verify more general matrix identities hold.
     #
