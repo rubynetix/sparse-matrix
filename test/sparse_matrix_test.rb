@@ -218,7 +218,7 @@ class SparseMatrixTest < Test::Unit::TestCase
 
   def test_set_identity
     (0..TEST_ITER).each do
-      m = rand_square_sparse(range: 2..MAX_VAL)
+      m = rand_square_sparse
 
       # Preconditions
       begin
