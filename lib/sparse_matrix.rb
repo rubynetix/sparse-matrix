@@ -111,12 +111,12 @@ class SparseMatrix
     throw RuntimeError unless square?
     throw TypeError unless x.is_a? Integer
     throw ArgumentError unless x > 1
-    m = dup
+    new_m = dup
     while x >= 2
-      m = m * m
+      new_m *= self
       x -= 1
     end
-    m
+    new_m
   end
 
   def ==(other)
