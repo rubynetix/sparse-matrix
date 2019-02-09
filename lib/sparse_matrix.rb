@@ -34,6 +34,20 @@ class SparseMatrix
       SparseMatrix.new(n).map_diagonal { 1 }
     end
 
+    def [](*rows)
+      # 0x0 matrix
+      return SparseMatrix.new(rows.length) if rows.length == 0
+
+      m = SparseMatrix.new(rows.length, rows[0].length)
+
+      (0...m.rows).each do |r|
+        (0...m.cols).each do |c|
+          m.put(r, c, rows[r][c])
+        end
+      end
+      m
+    end
+
     alias I identity
   end
 
@@ -97,15 +111,34 @@ class SparseMatrix
     raise 'Not implemented'
   end
 
-  def ==(o)
-    raise 'Not implemented'
+  def ==(other)
+    return false unless other.is_a? SparseMatrix
+    return false unless (other.rows.equal? @rows) && (other.cols.equal? @cols)
+
+    iter = iterator
+    o_iter = other.iterator
+    while iter.has_next? && o_iter.has_next?
+      return false unless iter.next == o_iter.next
+    end
+    !iter.has_next? && !o_iter.has_next?
   end
 
   def to_s
+    return "nil\n" if nil?
+
+    it = iterator
+    col_width = Array.new(cols, 1)
+
+    while it.has_next?
+      _, c, val = it.next
+      col_width[c] = [col_width[c], val.to_s.length].max
+    end
+
     s = ""
-    (0..@rows-1).each do |r|
-      (0..@cols-1).each do |c|
-        s += "#{at(r, c)} "
+    (0...rows).each do |r|
+      (0...cols).each do |c|
+        s += at(r, c).to_s.rjust(col_width[c])
+        s += " " if c < cols - 1
       end
       s += "\n"
     end
@@ -161,7 +194,13 @@ class SparseMatrix
   end
 
   def transpose
-    raise 'Not implemented'
+    m = SparseMatrix.new @cols, @rows
+    iter = iterator
+    while iter.has_next?
+      row, col, val = iter.next
+      m.put col, row, val
+    end
+    m
   end
 
   def trace
@@ -170,7 +209,7 @@ class SparseMatrix
   end
 
   def nil?
-    raise 'Not implemented'
+    @rows.zero? || @cols.zero?
   end
 
   def zero?
@@ -293,11 +332,7 @@ class SparseMatrix
 
   def map_nz
     m = clone
-    (0...m.rows).each do |r|
-      (0...m.cols).each do |c|
-        yield(m.at(r, c)) unless m.at(r, c).zero?
-      end
-    end
+    m.iterator.iterate{|_, _, val| yield(val) unless val.zero?}
     m
   end
 
@@ -322,12 +357,7 @@ protected
   end
 
   def map_nz_nocopy
-    # TODO: Optimize to O(m) time
-    (0...@rows).each do |r|
-      (0...@cols).each do |c|
-        yield(at(r, c)) unless at(r, c).zero?
-      end
-    end
+    iterator.iterate{|_, _, val| yield val unless val.zero?}
   end
 
 private
