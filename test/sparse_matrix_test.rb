@@ -524,9 +524,7 @@ class SparseMatrixTest < Test::Unit::TestCase
   def test_exponentiation
     exp = rand(2..12)
     m = rand_sparse
-    # Preconditions
-    begin
-    end
+    # No Preconditions
 
     new_m = m.**(exp)
 
