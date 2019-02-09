@@ -195,7 +195,7 @@ class SparseMatrix
   end
 
   def nil?
-    rows == 0 and cols == 0
+    @rows.zero? || @cols.zero?
   end
 
   def zero?
