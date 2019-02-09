@@ -851,16 +851,10 @@ class SparseMatrixTest < Test::Unit::TestCase
     end
   end
 
-  def tst_equals
-    r1 = 0
-    r2 = 0
-    while r1 != r2
-      r1 = rand(0..MAX_ROWS)
-      r2 = rand(0..MAX_ROWS)
-    end
-    m = rand_matrix(r1, rand(0..MAX_ROWS))
+  def test_equals
+    m = rand_sparse
     m_same = m.clone
-    m_diff = rand_matrix(r2, rand(0..MAX_ROWS))
+    m_diff = rand_sparse
 
     # Preconditions
     begin
