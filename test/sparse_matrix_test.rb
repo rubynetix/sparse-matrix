@@ -127,12 +127,12 @@ class SparseMatrixTest < Test::Unit::TestCase
     assert_invariants(m)
   end
 
-  def tst_resize
+  def test_resize
     r = rand(0..MAX_ROWS)
     c = rand(0..MAX_COLS)
     nr = rand(0..MAX_ROWS)
     nc = rand(0..MAX_COLS)
-    m = rand_sparse(r, c)
+    m = rand_sparse rows: r, cols: c
     nnzi = m.nnz
 
     # Upsize test
@@ -163,7 +163,7 @@ class SparseMatrixTest < Test::Unit::TestCase
     assert_invariants(m)
   end
 
-  def tst_resize_down
+  def test_resize_down
     # A more explicit case where we check that
     # a value was removed
     r = rand(2..MAX_ROWS)
@@ -171,7 +171,7 @@ class SparseMatrixTest < Test::Unit::TestCase
     dr = r - 1
     dc = c - 1
     m = SparseMatrix.new(r, c)
-    m.put(r, c, 1)
+    m.put(r - 1, c - 1, 1)
 
     # Preconditions
     begin
