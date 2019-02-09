@@ -172,7 +172,7 @@ class SparseMatrix
   end
 
   def tridiagonal
-    raise 'Not implemented'
+    map { |val, r, c| (r == c || c == r - 1 || c == r + 1) ? val : 0 }
   end
 
   def cofactor(_row, _col)

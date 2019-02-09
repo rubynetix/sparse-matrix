@@ -1174,31 +1174,25 @@ class SparseMatrixTest < Test::Unit::TestCase
     assert_invariants(m)
   end
 
-  def tst_tridiagonal
-    TestUtil.rand_range(1, 1000, 20).each do |len|
-      upper_diagonal = Array.new(len - 1)
-      upper_diagonal.put(TestUtil.rand_range(1, 1000, len - 1))
-      lower_diagonal = Array.new(len - 1)
-      lower_diagonal.put(TestUtil.rand_range(1, 1000, len - 1))
-      diagonal = Array.new(len)
-      diagonal.put(TestUtil.rand_range(1, 1000, len))
-      diagonals = Array.[](upper_diagonal, diagonal, lower_diagonal)
+  def test_tridiagonal
+    (0..TEST_ITER).each do
+      m = rand_square_sparse
 
       # Preconditions
       begin
-        assert_equal(diagonals[1].length, (diagonals[0].length + 1), 'Upper/main diagonal band lengths differ by more than one')
-        assert_equal(diagonals[1].length, (diagonals[2].length + 1), 'Lower/main diagonal band lengths differ by more than one')
+        assert_true(m.square?, "Tri-diagonal matrix must be square.")
       end
 
-      m = SparseMatrix.tridagonal(diagonals)
+      tri_diag = m.tridiagonal
 
       # Postconditions
       begin
-        assert_true(m.square?, 'Tri-diagonal matrix must be square.')
-        range 0...len.each do |y|
-          range 0...len.each do |x|
-            unless x == y || x == y - 1 || x == y + 1
-              assert_equal(m.at(x, y), 0, 'Tri-diagonal matrix cannot have non-zero elements outside of band.')
+        assert_true(tri_diag.square?, 'Tri-diagonal matrix must be square.')
+
+        (0...tri_diag.rows).each do |r|
+          (0...tri_diag.cols).each do |c|
+            unless r == c || c == r - 1 || c == r + 1
+              assert_equal(tri_diag.at(r, c), 0, 'Tri-diagonal matrix cannot have non-zero elements outside of band.')
             end
           end
         end
