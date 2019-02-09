@@ -120,8 +120,8 @@ class MatrixIdentitiesTest < Test::Unit::TestCase
       generate_matrices
 
       if @b.symmetric?
-        assert_equal((@a_t * @b * @a).symmetric?, @b.symmetric?,"Symmetric identity does not hold.")
-        assert_equal((@a * @b * @a_t).symmetric?, @b.symmetric?,"Symmetric identity does not hold.")
+        assert_true((@a_t * @b * @a).symmetric?, "Symmetric identity does not hold.")
+        assert_true((@a * @b * @a_t).symmetric?, "Symmetric identity does not hold.")
       end
 
       assert_true((@a_t * @a).symmetric?,"Symmetric identity does not hold.")
