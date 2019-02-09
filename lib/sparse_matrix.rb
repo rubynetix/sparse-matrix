@@ -170,7 +170,7 @@ class SparseMatrix
   end
 
   def nil?
-    raise 'Not implemented'
+    @rows.zero? || @cols.zero?
   end
 
   def zero?
