@@ -318,7 +318,7 @@ class SparseMatrixTest < Test::Unit::TestCase
           assert_equal(1, char_count("\n", s), 'Nil Matrix incorrect to_s format')
         else
           # number of \n == rows()
-          assert_equal(m.rows, char_count("\n", s), "Matrix incorrect to_s FORMAT on s=#{s}")
+          assert_equal(m.rows, char_count("\n", s), "Matrix incorrect to_s format ")
           # all rows have the same length
           len = nil
           s.each_line("\n") do |l|

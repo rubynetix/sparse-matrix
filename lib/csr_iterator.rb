@@ -21,4 +21,10 @@ class CSRIterator
     end
     [row, col, val]
   end
+
+  def iterate
+    while has_next?
+      yield(self.next)
+    end
+  end
 end

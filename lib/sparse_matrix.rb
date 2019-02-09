@@ -116,7 +116,7 @@ class SparseMatrix
   end
 
   def to_s
-    return "nil\n" if rows == 0 and cols == 0
+    return "nil\n" if nil?
 
     it = iterator
     col_width = Array.new(cols, 1)
@@ -319,11 +319,7 @@ class SparseMatrix
 
   def map_nz
     m = clone
-    (0...m.rows).each do |r|
-      (0...m.cols).each do |c|
-        yield(m.at(r, c)) unless m.at(r, c).zero?
-      end
-    end
+    m.iterator.iterate{|_, _, val| yield(val) unless val.zero?}
     m
   end
 
@@ -348,12 +344,7 @@ protected
   end
 
   def map_nz_nocopy
-    # TODO: Optimize to O(m) time
-    (0...@rows).each do |r|
-      (0...@cols).each do |c|
-        yield(at(r, c)) unless at(r, c).zero?
-      end
-    end
+    iterator.iterate{|_, _, val| yield val unless val.zero?}
   end
 
 private
