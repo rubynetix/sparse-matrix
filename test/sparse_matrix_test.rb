@@ -530,7 +530,7 @@ class SparseMatrixTest < Test::Unit::TestCase
     # Postconditions
     begin
       expected = m
-      (0..exp).each do |_i|
+      (2..exp).each do |_i|
         expected *= m
       end
       assert_equal(expected, new_m, "Incorrect exponentiation. Expected:#{expected}, Actual:#{new_m}")
