@@ -285,14 +285,28 @@ class SparseMatrix
           return false
         end
       end
+      true
     else
-      return false
+      false
     end
-    true
   end
 
+  ##
+  # Returns true if all the entries below the main diagonal are zero.
+  # Returns false otherwise.
   def upper_triangular?
-    raise 'Not implemented'
+    if square?
+      iter = iterator
+      while iter.has_next?
+        item = iter.next
+        if item[0] > item[1] && item[2] != 0
+          return false
+        end
+      end
+      true
+    else
+      false
+    end
   end
 
   def lower_hessenberg?
