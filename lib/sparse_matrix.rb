@@ -93,14 +93,8 @@ class SparseMatrix
     o.is_a?(SparseMatrix) ? mul_matrix(o) : mul_scalar(o)
   end
 
-  def **(x)
-    throw TypeError unless x.is_a? Integer
-    throw ArgumentError unless x > 1
-    m = dup
-    (2..x).each do |_i|
-      m *= m
-    end
-    m
+  def **(o)
+    raise 'Not implemented'
   end
 
   def ==(o)
