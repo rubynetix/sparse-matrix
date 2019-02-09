@@ -110,12 +110,10 @@ class SparseMatrixTest < Test::Unit::TestCase
   end
 
   def tst_det
-    s = rand(1..1000)
-    m = SparseMatrix.new(s)
-
+    m = rand_square_sparse
     # Preconditions
     begin
-      assert_true(square?, 'Matrix for determinant test is not square')
+      assert_true(m.square?, 'Matrix for determinant test is not square')
     end
 
     d = m.det
@@ -129,12 +127,12 @@ class SparseMatrixTest < Test::Unit::TestCase
     assert_invariants(m)
   end
 
-  def tst_resize
+  def test_resize
     r = rand(0..MAX_ROWS)
     c = rand(0..MAX_COLS)
     nr = rand(0..MAX_ROWS)
     nc = rand(0..MAX_COLS)
-    m = rand_sparse(r, c)
+    m = rand_sparse rows: r, cols: c
     nnzi = m.nnz
 
     # Upsize test
@@ -165,7 +163,7 @@ class SparseMatrixTest < Test::Unit::TestCase
     assert_invariants(m)
   end
 
-  def tst_resize_down
+  def test_resize_down
     # A more explicit case where we check that
     # a value was removed
     r = rand(2..MAX_ROWS)
@@ -173,7 +171,7 @@ class SparseMatrixTest < Test::Unit::TestCase
     dr = r - 1
     dc = c - 1
     m = SparseMatrix.new(r, c)
-    m.put(r, c, 1)
+    m.put(r - 1, c - 1, 1)
 
     # Preconditions
     begin
@@ -657,7 +655,7 @@ class SparseMatrixTest < Test::Unit::TestCase
     assert_invariants(m)
   end
 
-  def tst_lower_triangular_square
+  def test_lower_triangular_square
     i = 0
     while i < 20
       rc = rand(0..MAX_ROWS)
@@ -681,7 +679,7 @@ class SparseMatrixTest < Test::Unit::TestCase
     end
   end
 
-  def tst_upper_triangular_nonsquare
+  def test_upper_triangular?(_nonsquare)
     r = 0
     c = 0
     while r != c
@@ -702,12 +700,12 @@ class SparseMatrixTest < Test::Unit::TestCase
     assert_invariants(m)
   end
 
-  def tst_upper_triangular_square
+  def test_upper_triangular_square
     i = 0
     while i < 20
       rc = rand(0..MAX_ROWS)
       m_tri = upper_triangular_matrix(rc, 0, 1000)
-      m_random = rand_matrix(rc, rc)
+      m_random = rand_square_sparse
 
       # Preconditions
       begin
