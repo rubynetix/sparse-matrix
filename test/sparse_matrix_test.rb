@@ -532,8 +532,8 @@ class SparseMatrixTest < Test::Unit::TestCase
       expected = m
       (0..exp).each do |_i|
         expected *= m
-        assert_equal(expected, new_m, "Incorrect exponentiation. Expected:#{expected}, Actual:#{new_m}")
       end
+      assert_equal(expected, new_m, "Incorrect exponentiation. Expected:#{expected}, Actual:#{new_m}")
     end
 
     assert_invariants(m)
