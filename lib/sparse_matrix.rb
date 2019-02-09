@@ -94,11 +94,13 @@ class SparseMatrix
   end
 
   def **(x)
+    throw RuntimeError unless square?
     throw TypeError unless x.is_a? Integer
     throw ArgumentError unless x > 1
     m = dup
-    (2..x).each do |_i|
-      m *= m
+    while x >= 2
+      m = m * m
+      x -= 1
     end
     m
   end
