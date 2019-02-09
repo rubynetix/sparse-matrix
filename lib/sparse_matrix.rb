@@ -34,6 +34,20 @@ class SparseMatrix
       SparseMatrix.new(n).map_diagonal { 1 }
     end
 
+    def [](*rows)
+      # 0x0 matrix
+      return SparseMatrix.new(rows.length) if rows.length == 0
+
+      m = SparseMatrix.new(rows.length, rows[0].length)
+
+      (0...m.rows).each do |r|
+        (0...m.cols).each do |c|
+          m.put(r, c, rows[r][c])
+        end
+      end
+      m
+    end
+
     alias I identity
   end
 
@@ -102,10 +116,21 @@ class SparseMatrix
   end
 
   def to_s
+    return "nil\n" if rows == 0 and cols == 0
+
+    it = iterator
+    col_width = Array.new(cols, 1)
+
+    while it.has_next?
+      _, c, val = it.next
+      col_width[c] = [col_width[c], val.to_s.length].max
+    end
+
     s = ""
-    (0..@rows-1).each do |r|
-      (0..@cols-1).each do |c|
-        s += "#{at(r, c)} "
+    (0...rows).each do |r|
+      (0...cols).each do |c|
+        s += at(r, c).to_s.rjust(col_width[c])
+        s += " " if c < cols - 1
       end
       s += "\n"
     end
@@ -170,7 +195,7 @@ class SparseMatrix
   end
 
   def nil?
-    raise 'Not implemented'
+    rows == 0 and cols == 0
   end
 
   def zero?
