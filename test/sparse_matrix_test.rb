@@ -5,10 +5,11 @@ require_relative './matrix_test_util'
 class SparseMatrixTest < Test::Unit::TestCase
   include MatrixTestUtil
 
+  TEST_ITER = 10
   MAX_ROWS = 100
   MAX_COLS = 100
-  MIN_VAL = -10_000
-  MAX_VAL = 10_000
+  MIN_VAL = -100
+  MAX_VAL = 100
 
   def assert_invariants(m)
     assert_true(m.rows >= 0)
@@ -215,29 +216,32 @@ class SparseMatrixTest < Test::Unit::TestCase
     assert_invariants(m)
   end
 
-  def tst_set_identity
-    m = rand_sparse
+  def test_set_identity
+    (0..TEST_ITER).each do
+      m = rand_square_sparse
 
-    # Preconditions
-    begin
-    end
+      # Preconditions
+      begin
+        assert_true(m.square?, "Identity matrix must be square.")
+      end
 
-    m.set_identity
+      m.set_identity
 
-    # Postconditions
-    begin
-      (0..m.rows).each do |r|
-        (0..m.cols).each do |c|
-          if r == c
-            assert_equal(1, m.at(r, c), "Value for set_identity matrix not 1 at row:#{r}, col:#{c}")
-          else
-            assert_equal(0, m.at(r, c), "Value for set_identity matrix not 0 at row:#{r}, col:#{c}")
+      # Postconditions
+      begin
+        (0...m.rows).each do |r|
+          (0...m.cols).each do |c|
+            if r == c
+              assert_equal(1, m.at(r, c), "Identity matrix contains element other than 1 on diagonal.")
+            else
+              assert_equal(0, m.at(r, c), "Identity matrix contains non-zero element off diagonal.")
+            end
           end
         end
       end
-    end
 
-    assert_invariants(m)
+      assert_invariants(m)
+    end
   end
 
   def test_at
