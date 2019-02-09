@@ -1075,7 +1075,7 @@ class SparseMatrixTest < Test::Unit::TestCase
     assert_invariants(m)
   end
 
-  def tst_transpose
+  def test_transpose
     m = rand_sparse
 
     # Preconditions
