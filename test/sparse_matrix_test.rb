@@ -1020,7 +1020,7 @@ class SparseMatrixTest < Test::Unit::TestCase
     assert_invariants(m)
   end
 
-  def tst_symmetric?
+  def test_symmetric?
     m = rand_sparse
 
     # Preconditions

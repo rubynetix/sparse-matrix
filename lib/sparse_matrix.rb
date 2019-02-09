@@ -244,8 +244,7 @@ class SparseMatrix
   end
 
   def symmetric?
-    # TODO: Implement
-    true
+    self == dup.transpose
   end
 
   def traceable?
