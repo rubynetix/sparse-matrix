@@ -288,18 +288,18 @@ class SparseMatrixTest < Test::Unit::TestCase
 
   def tst_to_s
     test_ms = [
-      SparseMatrix.new(0, 0),
-      SparseMatrix.create { [[10, 2, 3]] },
-      SparseMatrix.identity(3),
-      SparseMatrix.create { [[100, 0, 0, 0], [0, 1, 1, 0], [0, -1, 0, 0]] }
+        SparseMatrix.new(0, 0),
+        SparseMatrix.create {[[10, 2, 3]]},
+        SparseMatrix.identity(3),
+        SparseMatrix.create {[[100, 0, 0, 0], [0, 1, 1, 0], [0, -1, 0, 0]]}
     ]
 
     exps = [
-      "nil\n", # the null case
-      "10 2 3\n", # vector case
-      "1 0 0\n0 1 0\n0 0 1\n", # matrix case
-      "100  0 0 0\n  0  1 1 0\n  0 -1 0 0\n" # Note the formatting. Values are left-padded to the longest
-      # elements column-wise
+        "nil\n", # the null case
+        "10 2 3\n", # vector case
+        "1 0 0\n0 1 0\n0 0 1\n", # matrix case
+        "100  0 0 0\n  0  1 1 0\n  0 -1 0 0\n" # Note the formatting. Values are left-padded to the longest
+    # elements column-wise
     ]
 
     test_ms.zip(exps).each do |m, e|
@@ -345,8 +345,8 @@ class SparseMatrixTest < Test::Unit::TestCase
     # Postconditions
     begin
       expected = 0
-      (0..m.rows-1).each do |r|
-        (0..m.cols-1).each do |c|
+      (0..m.rows - 1).each do |r|
+        (0..m.cols - 1).each do |c|
           expected += m.at(r, c)
         end
       end
@@ -521,28 +521,25 @@ class SparseMatrixTest < Test::Unit::TestCase
     end
   end
 
-  def tst_exponentiation
-    r = rand(0..MAX_ROWS)
-    c = rand(1..MAX_COLS)
-    m = rand_matrix(r, c)
-    rand_range(1, 15, 20).each do |exp|
-      # Preconditions
-      begin
-      end
-
-      new_m = m.**(exp)
-
-      # Postconditions
-      begin
-        expected = m
-        (0..exp).each do |_i|
-          expected *= m
-          assert_equal(expected, new_m, "Incorrect exponentiation. Expected:#{expected}, Actual:#{new_m}")
-        end
-      end
-
-      assert_invariants(m)
+  def test_exponentiation
+    exp = rand(2..12)
+    m = rand_sparse
+    # Preconditions
+    begin
     end
+
+    new_m = m.**(exp)
+
+    # Postconditions
+    begin
+      expected = m
+      (0..exp).each do |_i|
+        expected *= m
+        assert_equal(expected, new_m, "Incorrect exponentiation. Expected:#{expected}, Actual:#{new_m}")
+      end
+    end
+
+    assert_invariants(m)
   end
 
   def test_put
@@ -1072,7 +1069,7 @@ class SparseMatrixTest < Test::Unit::TestCase
       assert_equal(m.diagonal.sum, tr, 'Trace not equal to sum of diagonal matrix')
 
       trace = 0
-      (0..m.rows-1).each do |r|
+      (0..m.rows - 1).each do |r|
         trace += m.at(r, r)
       end
 
@@ -1096,7 +1093,7 @@ class SparseMatrixTest < Test::Unit::TestCase
       assert_equal(m.rows, mt.cols, 'Transpose has a different number of columns')
       assert_equal(m.cols, mt.rows, 'Transpose has different number of rows')
       assert_equal(m.sum, mt.sum, 'Sum of transposes not equal')
-      iterate_matrix(mt) { |i, j, v| assert_equal(m.at(j, i), v) }
+      iterate_matrix(mt) {|i, j, v| assert_equal(m.at(j, i), v)}
       assert_equal(mt.transpose, m, 'Transpose of transpose not equal to original')
     end
 
@@ -1106,10 +1103,10 @@ class SparseMatrixTest < Test::Unit::TestCase
 
   def test_zero?
     ms = [
-      rand_sparse,
-      SparseMatrix.new(0),
-      SparseMatrix.identity(rand(0..100)),
-      SparseMatrix.zero(rand(0..MAX_ROWS), rand(0..MAX_COLS))
+        rand_sparse,
+        SparseMatrix.new(0),
+        SparseMatrix.identity(rand(0..100)),
+        SparseMatrix.zero(rand(0..MAX_ROWS), rand(0..MAX_COLS))
     ]
 
     ms.each do |m|
