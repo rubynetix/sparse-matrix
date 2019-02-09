@@ -107,8 +107,16 @@ class SparseMatrix
     o.is_a?(SparseMatrix) ? mul_matrix(o) : mul_scalar(o)
   end
 
-  def **(o)
-    raise 'Not implemented'
+  def **(x)
+    throw RuntimeError unless square?
+    throw TypeError unless x.is_a? Integer
+    throw ArgumentError unless x > 1
+    new_m = dup
+    while x >= 2
+      new_m *= self
+      x -= 1
+    end
+    new_m
   end
 
   def ==(other)
