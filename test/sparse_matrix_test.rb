@@ -286,12 +286,12 @@ class SparseMatrixTest < Test::Unit::TestCase
     assert_invariants(m2)
   end
 
-  def tst_to_s
+  def test_to_s
     test_ms = [
       SparseMatrix.new(0, 0),
-      SparseMatrix.create { [[10, 2, 3]] },
+      SparseMatrix.[]([10, 2, 3]),
       SparseMatrix.identity(3),
-      SparseMatrix.create { [[100, 0, 0, 0], [0, 1, 1, 0], [0, -1, 0, 0]] }
+      SparseMatrix.[]([100, 0, 0, 0], [0, 1, 1, 0], [0, -1, 0, 0])
     ]
 
     exps = [
@@ -315,14 +315,13 @@ class SparseMatrixTest < Test::Unit::TestCase
 
         # More generically
         if m.nil?
-          assert_equal(0, char_count('\n', s), 'Nil Matrix incorrect to_s format')
+          assert_equal(1, char_count("\n", s), 'Nil Matrix incorrect to_s format')
         else
           # number of \n == rows()
-          assert_equal(m.rows, char_count('\n', s), 'Matrix incorrect to_s format ')
-          t
+          assert_equal(m.rows, char_count("\n", s), "Matrix incorrect to_s format ")
           # all rows have the same length
           len = nil
-          s.each_line('\n') do |l|
+          s.each_line("\n") do |l|
             len = l.size if len.nil?
             assert_equal(len, l.size, 'Matrix to_s format, incorrect row length')
           end
@@ -852,16 +851,10 @@ class SparseMatrixTest < Test::Unit::TestCase
     end
   end
 
-  def tst_equals
-    r1 = 0
-    r2 = 0
-    while r1 != r2
-      r1 = rand(0..MAX_ROWS)
-      r2 = rand(0..MAX_ROWS)
-    end
-    m = rand_matrix(r1, rand(0..MAX_ROWS))
+  def test_equals
+    m = rand_sparse
     m_same = m.clone
-    m_diff = rand_matrix(r2, rand(0..MAX_ROWS))
+    m_diff = rand_sparse
 
     # Preconditions
     begin
