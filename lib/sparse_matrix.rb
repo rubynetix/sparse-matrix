@@ -161,11 +161,11 @@ class SparseMatrix
   end
 
   def transpose
-    m = new @rows, @cols
+    m = SparseMatrix.new @cols, @rows
     iter = iterator
     while iter.has_next?
       row, col, val = iter.next
-      m.insert col, row, val
+      m.put col, row, val
     end
     m
   end
