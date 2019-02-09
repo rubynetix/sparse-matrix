@@ -67,7 +67,16 @@ class SparseMatrix
   end
 
   def resize(rows, cols)
-    raise 'Not implemented'
+    if rows > @rows
+      increase_rows rows
+    elsif rows < @rows
+      decrease_rows rows
+    end
+    if cols > @cols
+      @cols = cols
+    elsif cols < @cols
+      decrease_cols cols
+    end
   end
 
   def at(row, col)
@@ -422,5 +431,29 @@ private
     (row + 1..@rows).each do |r|
       @row_vector[r] -= 1
     end
+  end
+
+  def increase_rows(rows)
+    (0..(rows - @rows)).each do |_num|
+      @row_vector.push @row_vector.last
+    end
+    @rows = rows
+  end
+
+  def decrease_rows(rows)
+    rm_rows = @row_vector.pop(@rows - rows)
+    num_vals_rmd = rm_rows.last - rm.first
+    @data.pop num_vals_rmd
+    @col_vector.pop num_vals_rmd
+    @rows = rows
+  end
+
+  def decrease_cols(cols)
+    it = iterator
+    while it.has_next?
+      r, c, val = it.next
+      delete r, c if c >= cols
+    end
+    @cols = cols
   end
 end
