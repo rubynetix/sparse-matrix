@@ -442,17 +442,21 @@ private
 
   def decrease_rows(rows)
     rm_rows = @row_vector.pop(@rows - rows)
-    num_vals_rmd = rm_rows.last - rm.first
-    @data.pop num_vals_rmd
+    num_vals_rmd = rm_rows.last - @row_vector.last
     @col_vector.pop num_vals_rmd
+    @data.pop num_vals_rmd
     @rows = rows
   end
 
   def decrease_cols(cols)
     it = iterator
+    to_rm = []
     while it.has_next?
-      r, c, val = it.next
-      delete r, c if c >= cols
+      item = it.next
+      to_rm.push item if item[1] >= cols
+    end
+    to_rm.each do |r, c, _|
+      delete r, c
     end
     @cols = cols
   end
