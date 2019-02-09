@@ -47,10 +47,6 @@ class SparseMatrix
       end
       m
     end
-    unless @data.! empty?
-      raise MatrixExceptions::EmptyMatrixException, \
-            'Cannot calculate determinate for an empty matrix'
-    end
 
     alias I identity
   end
