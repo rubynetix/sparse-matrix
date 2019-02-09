@@ -360,40 +360,42 @@ class SparseMatrixTest < Test::Unit::TestCase
     assert_invariants(m)
   end
 
-  def tst_add_matrix
-    r = rand(1..MAX_ROWS)
-    c = rand(1..MAX_COLS)
-    m1 = rand_sparse(rows: r, cols: c)
-    m2 = rand_sparse(rows: r, cols: c)
+  def test_add_matrix
+    (0..TEST_ITER).each do
+      r = rand(1..MAX_ROWS)
+      c = rand(1..MAX_COLS)
+      m1 = rand_sparse(rows: r, cols: c)
+      m2 = rand_sparse(rows: r, cols: c)
 
-    # Preconditions
-    begin
-      assert_equal(m1.rows, m2.rows, "Incompatable matrix row count, vector addition not possible. Matrix 1 Row Count:#{m1.rows}, Matrix 2 Row Count:#{m2.rows}")
-      assert_equal(m1.cols, m2.cols, "Incompatable matrix column count, vector addition not possible. Matrix 1 Col Count:#{m1.cols}, Matrix 2 Col Count:#{m2.cols}")
-    end
-
-    m3 = m1 + m2
-
-    # Postconditions
-    begin
-      assert_equal(m1.sum + m2.sum, m3.sum, "Matrix vector addition incorrect. Expected Sum:#{m1.sum + m2.sum}, Actual Sum:#{m3.sum}")
-
-      if m1.traceable?
-        assert_equal(m1.trace + m2.trace, m3.trace, "Matrix vector addition incorrect. Expected Trace:#{m1.trace + m2.trace}, Actual Trace:#{m3.trace}")
+      # Preconditions
+      begin
+        assert_equal(m1.rows, m2.rows, "Cannot add matrices of different dimensions.")
+        assert_equal(m1.cols, m2.cols, "Cannot add matrices of different dimensions.")
       end
 
-      assert_equal(m1, m3 - m2, 'Matrix vector addition incorrect. Expected reversible operation')
+      m3 = m1 + m2
 
-      (0..m1.rows).each do |r2|
-        (0..m1.cols).each do |c2|
-          assert_equal(m1.at(r2, c2) + m2.at(r2, c2), m3.at(r2, c2), "Incorrect vector addition at row:#{r2}, col:#{c2}. Expected:#{m1.at(r2, c2) + m2.at(r2, c2)}, Actual:#{m3.at(r2, c2)}")
+      # Postconditions
+      begin
+        assert_equal(m1.sum + m2.sum, m3.sum, "Matrix addition incorrect. Expected Sum:#{m1.sum + m2.sum}, Actual Sum:#{m3.sum}")
+
+        if m1.traceable?
+          assert_equal(m1.trace + m2.trace, m3.trace, "Matrix addition incorrect. Expected Trace:#{m1.trace + m2.trace}, Actual Trace:#{m3.trace}")
+        end
+
+        assert_equal(m1, m3 - m2, "Matrix addition error.")
+
+        (0...m1.rows).each do |r2|
+          (0...m1.cols).each do |c2|
+            assert_equal(m1.at(r2, c2) + m2.at(r2, c2), m3.at(r2, c2), "Matrix addition error at row:#{r2}, col:#{c2}. Expected:#{m1.at(r2, c2) + m2.at(r2, c2)}, Actual:#{m3.at(r2, c2)}")
+          end
         end
       end
-    end
 
-    assert_invariants(m1)
-    assert_invariants(m2)
-    assert_invariants(m3)
+      assert_invariants(m1)
+      assert_invariants(m2)
+      assert_invariants(m3)
+    end
   end
 
   def test_scalar_plus
@@ -421,40 +423,42 @@ class SparseMatrixTest < Test::Unit::TestCase
     assert_invariants(m2)
   end
 
-  def tst_subtract_matrix
-    r = rand(1..MAX_ROWS)
-    c = rand(1..MAX_COLS)
-    m1 = rand_sparse(rows: r, cols: c)
-    m2 = rand_sparse(rows: r, cols: c)
+  def test_subtract_matrix
+    (0..TEST_ITER).each do
+      r = rand(1..MAX_ROWS)
+      c = rand(1..MAX_COLS)
+      m1 = rand_sparse(rows: r, cols: c)
+      m2 = rand_sparse(rows: r, cols: c)
 
-    # Preconditions
-    begin
-      assert_equal(m1.rows, m2.rows, "Incompatable matrix row count, vector subtraction not possible. Matrix 1 Row Count:#{m1.rows}, Matrix 2 Row Count:#{m2.rows}")
-      assert_equal(m1.cols, m2.cols, "Incompatable matrix column count, vector subtraction not possible. Matrix 1 Col Count:#{m1.cols}, Matrix 2 Col Count:#{m2.cols}")
-    end
-
-    m3 = m1 - m2
-
-    # Postconditions
-    begin
-      assert_equal(m1.sum - m2.sum, m3.sum, "Matrix vector subtraction incorrect. Expected Sum:#{m1.sum - m2.sum}, Actual Sum:#{m3.sum}")
-
-      if m1.traceable?
-        assert_equal(m1.trace - m2.trace, m3.trace, "Matrix vector subtraction incorrect. Expected Trace:#{m1.trace - m2.trace}, Actual Trace:#{m3.trace}")
+      # Preconditions
+      begin
+        assert_equal(m1.rows, m2.rows, "Cannot subtract matrices of different dimensions.")
+        assert_equal(m1.cols, m2.cols, "Cannot subtract matrices of different dimensions.")
       end
 
-      assert_equal(m1, m3 + m2, 'Matrix vector subtraction incorrect. Expected reversible operation')
+      m3 = m1 - m2
 
-      (0..m1.rows).each do |r2|
-        (0..m1.cols).each do |c2|
-          assert_equal(m1.at(r2, c2) - m2.at(r2, c2), m3.at(r2, c2), "Incorrect vector subtraction at row:#{r2}, col:#{c2}. Expected:#{m1.at(r2, c2) - m2.at(r2, c2)}, Actual:#{m3.at(r2, c2)}")
+      # Postconditions
+      begin
+        assert_equal(m1.sum - m2.sum, m3.sum, "Matrix subtraction incorrect. Expected Sum:#{m1.sum - m2.sum}, Actual Sum:#{m3.sum}")
+
+        if m1.traceable?
+          assert_equal(m1.trace - m2.trace, m3.trace, "Matrix subtraction incorrect. Expected Trace:#{m1.trace - m2.trace}, Actual Trace:#{m3.trace}")
+        end
+
+        assert_equal(m1, m3 + m2, 'Matrix subtraction error.')
+
+        (0...m1.rows).each do |r2|
+          (0...m1.cols).each do |c2|
+            assert_equal(m1.at(r2, c2) - m2.at(r2, c2), m3.at(r2, c2), "Incorrect subtraction at row:#{r2}, col:#{c2}. Expected:#{m1.at(r2, c2) - m2.at(r2, c2)}, Actual:#{m3.at(r2, c2)}")
+          end
         end
       end
-    end
 
-    assert_invariants(m1)
-    assert_invariants(m2)
-    assert_invariants(m3)
+      assert_invariants(m1)
+      assert_invariants(m2)
+      assert_invariants(m3)
+    end
   end
 
   def test_scalar_subtract

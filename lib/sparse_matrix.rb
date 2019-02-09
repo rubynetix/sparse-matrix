@@ -100,7 +100,7 @@ class SparseMatrix
   end
 
   def -(o)
-    o.is_a?(SparseMatrix) ? plus_matrix(-o) : plus_scalar(-o)
+    o.is_a?(SparseMatrix) ? plus_matrix(o * -1) : plus_scalar(-o)
   end
 
   def *(o)
@@ -373,7 +373,7 @@ private
   attr_accessor(:data, :col_vector, :row_vector)
 
   def plus_matrix(o)
-    raise 'Not implemented'
+    map {|val, r, c| val + o.at(r, c)}
   end
 
   def plus_scalar(x)
