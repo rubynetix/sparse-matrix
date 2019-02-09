@@ -521,7 +521,7 @@ class SparseMatrixTest < Test::Unit::TestCase
   end
 
   def test_exponentiation
-    exp = 2
+    exp = 3
     m = rand_square_sparse
     # No Preconditions
 
