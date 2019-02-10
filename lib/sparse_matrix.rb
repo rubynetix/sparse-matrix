@@ -2,6 +2,7 @@
 require 'matrix'
 require_relative 'csr_iterator'
 require_relative 'matrix_solver'
+require_relative 'matrix_exceptions'
 
 
 # Compressed Sparse Row Matrix
@@ -28,6 +29,7 @@ class SparseMatrix
   end
 
   class << self
+    include MatrixExceptions
     def zero(rows, cols = rows)
       SparseMatrix.new(rows, cols)
     end
@@ -132,7 +134,7 @@ class SparseMatrix
   end
 
   def **(x)
-    throw RuntimeError unless square?
+    throw NonSquareException unless square?
     throw TypeError unless x.is_a? Integer
     throw ArgumentError unless x > 1
     new_m = dup
@@ -243,7 +245,7 @@ class SparseMatrix
   end
 
   def trace
-    raise 'NonTraceableException' unless traceable?
+    raise NonTraceableException unless traceable?
 
     diagonal.sum(init=0)
   end
@@ -540,66 +542,6 @@ private
       put r, c, 0
     end
     @cols = cols
-  end
-
-  def determinant_3x3
-    +at(0, 0) * at(1, 1) * at(2, 2) - at(0, 0) * at(1, 2) * at(2, 1) \
-          - at(0, 1) * at(1, 0) * at(2, 2) + at(0, 1) * at(1, 2) * at(2, 0) \
-          + at(0, 2) * at(1, 0) * at(2, 1) - at(0, 2) * at(1, 1) * at(2, 0)
-  end
-
-  def determinant_4x4 # TODO: note "I would much rather not have this function; only kept at it's used in Matrix.rb"
-    +at(0, 0) * at(1, 1) * at(2, 2) * at(3, 3) \
-          - at(0, 0) * at(1, 1) * at(2, 3) * at(3, 2) \
-          - at(0, 0) * at(1, 2) * at(2, 1) * at(3, 3) \
-          + at(0, 0) * at(1, 2) * at(2, 3) * at(3, 1) \
-          + at(0, 0) * at(1, 3) * at(2, 1) * at(3, 2) \
-          - at(0, 0) * at(1, 3) * at(2, 2) * at(3, 1) \
-          - at(0, 1) * at(1, 0) * at(2, 2) * at(3, 3) \
-          + at(0, 1) * at(1, 0) * at(2, 3) * at(3, 2) \
-          + at(0, 1) * at(1, 2) * at(2, 0) * at(3, 3) \
-          - at(0, 1) * at(1, 2) * at(2, 3) * at(3, 0) \
-          - at(0, 1) * at(1, 3) * at(2, 0) * at(3, 2) \
-          + at(0, 1) * at(1, 3) * at(2, 2) * at(3, 0) \
-          + at(0, 2) * at(1, 0) * at(2, 1) * at(3, 3) \
-          - at(0, 2) * at(1, 0) * at(2, 3) * at(3, 1) \
-          - at(0, 2) * at(1, 1) * at(2, 0) * at(3, 3) \
-          + at(0, 2) * at(1, 1) * at(2, 3) * at(3, 0) \
-          + at(0, 2) * at(1, 3) * at(2, 0) * at(3, 1) \
-          - at(0, 2) * at(1, 3) * at(2, 1) * at(3, 0) \
-          - at(0, 3) * at(1, 0) * at(2, 1) * at(3, 2) \
-          + at(0, 3) * at(1, 0) * at(2, 2) * at(3, 1) \
-          + at(0, 3) * at(1, 1) * at(2, 0) * at(3, 2) \
-          - at(0, 3) * at(1, 1) * at(2, 2) * at(3, 0) \
-          - at(0, 3) * at(1, 2) * at(2, 0) * at(3, 1) \
-          + at(0, 3) * at(1, 2) * at(2, 1) * at(3, 0)
-  end
-
-  # TODO: swap rows - matrix.rb function
-  def determinant_bareiss
-    # raise NotImplementedError
-    m = copy
-    no_pivot = proc { return 0 }
-    sign = +1
-    pivot = 1
-    @rows.times do |k|
-      previous_pivot = pivot
-      if (pivot = m.at(k, k)).zero?
-        switch = (k + 1...@rows).find(no_pivot) do |row|
-          m.at(row, k) != 0
-        end
-        # Swap two rows
-        a[switch], a[k] = a[k], a[switch]
-        pivot = m.at(k, k)
-        sign = -sign
-      end
-      (k + 1).upto(@rows - 1) do |i|
-        (k + 1).upto(@rows - 1) do |j|
-          m.put i, j, (pivot * m.at(i, j) - m.at(i, k) * m.at(k, j)) / previous_pivot
-        end
-      end
-    end
-    sign * pivot
   end
 
 end
