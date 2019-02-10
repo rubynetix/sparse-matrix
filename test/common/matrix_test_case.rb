@@ -72,42 +72,41 @@ module MatrixTestCase
   #
   #   assert_invariants(m)
   # end
-  #
-  # def test_rows
-  #   r = rand(0..MAX_ROWS)
-  #   c = rand(1..MAX_COLS)
-  #   m = @factory.new(r, c)
-  #
-  #   # Preconditions
-  #   begin
-  #     assert_true(r >= 0, "Number of rows is invalid: #{r}")
-  #   end
-  #
-  #   # Postconditions
-  #   begin
-  #     assert_equal(r, m.rows, "Number of matrix rows is incorrect. Expected: #{r}, Actual: #{m.rows}")
-  #   end
-  #
-  #   assert_invariants(m)
-  # end
-  #
-  # def test_cols
-  #   r = rand(1..MAX_ROWS)
-  #   c = rand(0..MAX_COLS)
-  #   m = @factory.new(r, c)
-  #
-  #   # Preconditions
-  #   begin
-  #     assert_true(c >= 0, "Number of cols is invalid: #{c}")
-  #   end
-  #
-  #   # Postconditions
-  #   begin
-  #     assert_equal(c, m.cols, "Number of matrix columns is incorrect. Expected: #{c}, Actual: #{m.cols}")
-  #   end
-  #
-  #   assert_invariants(m)
-  # end
+
+  def test_rows
+    r = rand(0..MAX_ROWS)
+    c = rand(1..MAX_COLS)
+    m = @factory.new(r, c)
+
+    # Preconditions
+    begin
+      assert_true(r >= 0, "Number of rows is invalid: #{r}")
+    end
+
+    # Postconditions
+    begin
+      assert_equal(r, m.rows, "Number of matrix rows is incorrect. Expected: #{r}, Actual: #{m.rows}")
+    end
+
+    assert_invariants(m)
+  end
+
+  def test_cols
+    n = rand(1..MAX_ROWS)
+    m = @factory.random_square(size: n)
+
+    # Preconditions
+    begin
+      assert_true(n >= 0, "Number of cols is invalid: #{n}")
+    end
+
+    # Postconditions
+    begin
+      assert_equal(n, m.cols, "Number of matrix columns is incorrect. Expected: #{n}, Actual: #{m.cols}")
+    end
+
+    assert_invariants(m)
+  end
 
   def test_det
     m = @factory.random_square
@@ -239,27 +238,31 @@ module MatrixTestCase
     end
   end
 
-  # def test_at
-  #   v = rand(MIN_VAL..MAX_VAL)
-  #   m = @factory.random
-  #   r = rand(0..99)
-  #   c = rand(0..99)
-  #
-  #   m.put(r, c, v)
-  #
-  #   # Preconditions
-  #   begin
-  #     assert_true(r >= 0 && r <= m.rows - 1, 'Invalid row: Out of matrix row range')
-  #     assert_true(c >= 0 && c <= m.cols - 1, 'Invalid column: Out of matrix column range')
-  #   end
-  #
-  #   # Postconditions
-  #   begin
-  #     assert_equal(v, m.at(r, c), "Incorrect value at row:#{r}, col:#{c}. Expected: #{v}, Actual:#{m.at(r, c)}")
-  #   end
-  #
-  #   assert_invariants(m)
-  # end
+  def test_at
+    v = rand(MIN_VAL..MAX_VAL)
+    m = @factory.random
+    r = c = nil
+
+    loop do
+      r = rand(0...m.rows)
+      c = rand(0...m.cols)
+      succ = m.put(r, c, v)
+      break unless !succ
+    end
+
+    # Preconditions
+    begin
+      assert_true(r >= 0 && r <= m.rows - 1, 'Invalid row: Out of matrix row range')
+      assert_true(c >= 0 && c <= m.cols - 1, 'Invalid column: Out of matrix column range')
+    end
+
+    # Postconditions
+    begin
+      assert_equal(v, m.at(r, c), "Incorrect value at row:#{r}, col:#{c}. Expected: #{v}, Actual:#{m.at(r, c)}")
+    end
+
+    assert_invariants(m)
+  end
 
   def test_clone
     m1 = rand_sparse
@@ -1101,34 +1104,33 @@ module MatrixTestCase
     assert_invariants(mt)
   end
 
-  # def test_zero?
-  #   ms = [
-  #       @factory.rand,
-  #       @factory.new(0),
-  #       @factory.identity(rand(0..100)),
-  #       @factory.zero(rand(0..MAX_ROWS), rand(0..MAX_COLS))
-  #   ]
-  #
-  #   ms.each do |m|
-  #     # Preconditions
-  #     begin
-  #     end
-  #
-  #     is_zero = m.zero?
-  #
-  #     # Postconditions
-  #     begin
-  #       if m.nnz > 0
-  #         assert_false(is_zero, 'Non-zero matrix recognized as zero')
-  #       else
-  #         assert_true(is_zero, 'Zero matrix not recognized as zero')
-  #       end
-  #     end
-  #
-  #     assert_invariants(m)
-  #   end
-  # end
-  #
+  def test_zero?
+    ms = [
+        @factory.random,
+        @factory.identity(rand(0..100)),
+        @factory.zero(rand(0..MAX_ROWS))
+    ]
+
+    ms.each do |m|
+      # Preconditions
+      begin
+      end
+
+      is_zero = m.zero?
+
+      # Postconditions
+      begin
+        if m.nnz > 0
+          assert_false(is_zero, 'Non-zero matrix recognized as zero')
+        else
+          assert_true(is_zero, 'Zero matrix not recognized as zero')
+        end
+      end
+
+      assert_invariants(m)
+    end
+  end
+
   # def tst_rank
   #   m = @factory.random
   #

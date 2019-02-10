@@ -105,12 +105,13 @@ class TriDiagonalMatrix < SparseMatrix
   def put(r, c, val)
     unless on_band?(r, c)
       warn "Insertion at (#{r}, #{c}) would violate tri-diagonal structure. No element inserted."
-      return
+      return false
     end
 
     resize!([r, c].max + 1) unless [r, c].max + 1 <= @rows
     diag, idx = get_index(r, c)
     diag[idx] = val unless diag.nil?
+    true
   end
 
   def det
