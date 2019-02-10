@@ -28,9 +28,20 @@ class SparseMatrixTest < Test::Unit::TestCase
     end
 
     # Implementation specific assertions
-    assert_equal(m.nnz, m.instance_variable_get(:@row_vector)[-1], "Row vector inconsistent with data")
-    assert_equal(m.nnz, m.instance_variable_get(:@data).size, "Data vector inconsistent with data")
-    assert_equal(m.nnz, m.instance_variable_get(:@col_vector).size, "Col vector inconsistent with data")
+    row_vector = m.instance_variable_get(:@row_vector)
+    data = m.instance_variable_get(:@data)
+    col_vector = m.instance_variable_get(:@col_vector)
+
+    assert_equal(m.nnz, row_vector[-1], "Row vector inconsistent with data")
+    assert_equal(m.nnz, data.size, "Data vector inconsistent with data")
+    assert_equal(m.nnz, col_vector.size, "Col vector inconsistent with data")
+
+    assert_equal(row_vector.sort, row_vector, "Row vector must be in increasing order")
+    (0...m.rows).each do |r|
+      range = row_vector[r]...row_vector[r+1]
+      cols_in_row = col_vector[range]
+      assert_equal(cols_in_row.sort, cols_in_row, "Col vector must be in increasing order for each row")
+    end
   end
 
   def test_identity
