@@ -104,16 +104,17 @@ class SparseMatrix
 
       (0...rows).each do |r|
         idx, row_end = @row_vector[r], @row_vector[r+1]
-        while idx < row_end and idx < nnz and cols > @col_vector[idx]
+        while idx < row_end and idx < nnz and @col_vector[idx] < cols
           new_data_vector.push(@data[idx])
           new_col_vector.push(@col_vector[idx])
-          row_dec += 1
           idx += 1
         end
 
         @row_vector[r] -= row_dec
+        row_dec += row_end - idx
       end
 
+      @row_vector[rows] -= row_dec
       @data = new_data_vector
       @col_vector = new_col_vector
     end

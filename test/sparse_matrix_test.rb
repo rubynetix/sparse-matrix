@@ -26,6 +26,11 @@ class SparseMatrixTest < Test::Unit::TestCase
     if m.cols == 0
       assert_true(m.rows == 0, 'Invalid assertion. Invalid column count')
     end
+
+    # Implementation specific assertions
+    assert_equal(m.nnz, m.instance_variable_get(:@row_vector)[-1], "Row vector inconsistent with data")
+    assert_equal(m.nnz, m.instance_variable_get(:@data).size, "Data vector inconsistent with data")
+    assert_equal(m.nnz, m.instance_variable_get(:@col_vector).size, "Col vector inconsistent with data")
   end
 
   def test_identity
