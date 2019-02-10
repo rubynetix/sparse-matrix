@@ -58,24 +58,6 @@ class SparseMatrixTest < Test::Unit::TestCase
     assert_invariants(m)
   end
 
-  def test_rows
-    r = rand(0..MAX_ROWS)
-    c = rand(1..MAX_COLS)
-    m = SparseMatrix.new(r, c)
-
-    # Preconditions
-    begin
-      assert_true(r >= 0, "Number of rows is invalid: #{r}")
-    end
-
-    # Postconditions
-    begin
-      assert_equal(r, m.rows, "Number of matrix rows is incorrect. Expected: #{r}, Actual: #{m.rows}")
-    end
-
-    assert_invariants(m)
-  end
-
   def test_cols
     r = rand(1..MAX_ROWS)
     c = rand(0..MAX_COLS)
