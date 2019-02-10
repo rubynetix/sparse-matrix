@@ -253,39 +253,6 @@ class SparseMatrixTest < Test::Unit::TestCase
     end
   end
 
-  def test_put
-    m = rand_sparse
-    v = rand(MIN_VAL..MAX_VAL)
-    r = rand(0...m.rows)
-    c = rand(0...m.cols)
-
-    # Preconditions
-    begin
-      assert_true(r >= 0 && r <= m.rows - 1, 'Invalid row: Out of matrix row range')
-      assert_true(c >= 0 && c <= m.cols - 1, 'Invalid column: Out of matrix column range')
-    end
-
-    nnz_before = m.nnz
-    v_before = m.at(r, c)
-    m.put(r, c, v)
-
-    # Postconditions
-    begin
-      # Check that the value is set
-      assert_equal(v, m.at(r, c), "Invalid insertion, value not set. Expected:#{v}, Actual:#{m.at(r, c)}")
-
-      if ((v != 0) && (v_before != 0)) || ((v == 0) && (v_before == 0))
-        assert_equal(nnz_before, m.nnz, 'Invalid insertion, number of non-zero elements unexpectedly changed.')
-      elsif (v != 0) && (v_before == 0)
-        assert_equal(nnz_before + 1, m.nnz, "Invalid insertion, number of non-zero elements is incorrect after replacing zero value with non-zero. Expected:#{nnz_before + 1}, Actual:#{m.nnz}")
-      else # v == 0 and v_before != 0
-        assert_equal(nnz_before - 1, m.nnz, "Invalid insertion, number of non-zero elements is incorrect after replacing non-zero value with zero. Expected:#{nnz_before - 1}, Actual:#{m.nnz}")
-      end
-    end
-
-    assert_invariants(m)
-  end
-
   # Helper function for test_diagonal?
   def nnz_off_diagonal?(m)
     (0..m.rows - 1).each do |i|
