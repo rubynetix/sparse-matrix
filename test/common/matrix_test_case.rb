@@ -8,8 +8,8 @@ module MatrixTestCase
   TEST_ITER = 10
   MAX_ROWS = 100
   MAX_COLS = 100
-  MIN_VAL = -10_000
-  MAX_VAL = 10_000
+  MIN_VAL = -100
+  MAX_VAL = 100
 
   def assert_base_invariants(m)
     assert_true(m.rows >= 0)
@@ -51,31 +51,34 @@ module MatrixTestCase
       assert_invariants(m)
     end
   end
-  #
-  # def test_nnz
-  #   n = rand(0..20)
-  #   m = @factory.new(n)
-  #   x = (0...m.cols).to_a.shuffle.take(n)
-  #   y = (0...m.rows).to_a.shuffle.take(n)
-  #   (0...n).each do |i|
-  #     m.put(x[i], y[i], rand(1..1000))
-  #   end
-  #   # Preconditions
-  #   begin
-  #     assert_true(n >= 0, "Number of non-zero elements is invalid: #{n}")
-  #   end
-  #
-  #   # Postconditions
-  #   begin
-  #     assert_equal(n, m.nnz, "Number of non-zero elements in the matrix is incorrect. Expected: #{n}, Actual: #{m.nnz}")
-  #   end
-  #
-  #   assert_invariants(m)
-  # end
+
+  def test_nnz
+    n = rand(0..10)
+    m = @factory.zero(MAX_ROWS)
+
+    ins = 0
+    while ins < n
+      x = rand(0...m.rows)
+      y = rand(0...m.cols)
+      succ = m.put(x, y, rand(MAX_VAL..MAX_VAL))
+      ins += 1 if succ
+    end
+
+    # Preconditions - N/A
+    begin
+    end
+
+    # Postconditions
+    begin
+      assert_equal(n, m.nnz, "Number of non-zero elements in the matrix is incorrect. Expected: #{n}, Actual: #{m.nnz}")
+    end
+
+    assert_invariants(m)
+  end
 
   def test_rows
-    r = rand(0..MAX_ROWS)
-    c = rand(1..MAX_COLS)
+    r = rand(2..MAX_ROWS)
+    c = rand(2..MAX_COLS)
     m = @factory.new(r, c)
 
     # Preconditions
@@ -127,67 +130,64 @@ module MatrixTestCase
     assert_invariants(m)
   end
 
-  # def test_resize
-  #   m = @factory.random
-  #   nr = rand(0..MAX_ROWS)
-  #   nc = rand(0..MAX_COLS)
-  #   r = m.rows
-  #   c = m.cols
-  #   nnzi = m.nnz
-  #
-  #   # Preconditions
-  #   begin
-  #   end
-  #
-  #   m.resize!(nr, nc)
-  #
-  #   # Postconditions
-  #   begin
-  #     assert_equal(nr, m.rows, "Resize rows is incorrect. Expected: #{nr}, Actual: #{m.rows}")
-  #     assert_equal(nc, m.cols, "Resize cols is incorrect. Expected: #{nc}, Actual: #{m.cols}")
-  #
-  #     # Resize up
-  #     if (nr >= r) && (nc >= c)
-  #       assert_equal(nnzi, m.nnz, "Number of non-zero elements in resized matrix is incorrect. Expected: #{nnzi}, Actual: #{m.nnz}")
-  #       return
-  #     end
-  #
-  #     # Resizing down
-  #     assert_true(nnzi >= m.nnz, "Number of non-zero elements in resized matrix is incorrect. Expected: #{nnzi}, Actual: #{m.nnz}")
-  #   end
-  #
-  #   assert_invariants(m)
-  # end
-  #
-  # def test_resize_down
-  #   # A more explicit case where we check that
-  #   # a value was removed
-  #   r = rand(2..MAX_ROWS)
-  #   c = rand(2..MAX_COLS)
-  #   dr = r - 1
-  #   dc = c - 1
-  #   m = @factory.new(r, c)
-  #   m.put(r-1, c-1, 1)
-  #
-  #   # Preconditions
-  #   begin
-  #     assert_equal(r, m.rows, "Number of rows is invalid. Expected: #{r}, Actual: #{m.rows}")
-  #     assert_equal(c, m.cols, "Number of cols is invalid: Expected: #{c}, Actual: #{m.cols}")
-  #     assert_true(dr <= m.rows, 'Resize down row count is larger than original matrix row count')
-  #     assert_true(dc <= m.cols, 'Resize down column count is larger than original matrix column count')
-  #   end
-  #
-  #   m.resize!(dr, dc)
-  #
-  #   # Postconditions
-  #   begin
-  #     assert_equal(dr, m.rows, "Resize rows is incorrect. Expected: #{dr}, Actual: #{m.rows}")
-  #     assert_equal(dc, m.cols, "Resize cols is incorrect. Expected: #{dc}, Actual: #{m.cols}")
-  #     assert_equal(0, m.nnz, 'Number of non-zero elements is invalid. The only non-zero element should have been pushed out during resize down')
-  #   end
-  #
-  #   assert_invariants(m)
-  # end
+  def test_resize
+    m = @factory.random
+    n = rand(0..MAX_ROWS)
+    r = m.rows
+    c = m.cols
+    nnzi = m.nnz
+
+    # Preconditions
+    begin
+    end
+
+    m.resize!(n, n)
+
+    # Postconditions
+    begin
+      assert_equal(n, m.rows, "Resize rows is incorrect. Expected: #{n}, Actual: #{m.rows}")
+      assert_equal(n, m.cols, "Resize cols is incorrect. Expected: #{n}, Actual: #{m.cols}")
+
+      # Resize up
+      if (n >= r) && (n >= c)
+        assert_equal(nnzi, m.nnz, "Number of non-zero elements in resized matrix is incorrect. Expected: #{nnzi}, Actual: #{m.nnz}")
+        return
+      end
+
+      # Resizing down
+      assert_true(nnzi >= m.nnz, "Number of non-zero elements in resized matrix is incorrect. Expected: #{nnzi}, Actual: #{m.nnz}")
+    end
+
+    assert_invariants(m)
+  end
+
+  def test_resize_down
+    # A more explicit case where we check that
+    # a value was removed
+    n = rand(2..MAX_ROWS)
+    dn = n - 1
+    m = @factory.zero(n)
+    m.put(n - 1, n - 1, 1)
+
+    # Preconditions
+    begin
+      assert_equal(n, m.rows, "Number of rows is invalid. Expected: #{n}, Actual: #{m.rows}")
+      assert_equal(n, m.cols, "Number of cols is invalid: Expected: #{n}, Actual: #{m.cols}")
+      assert_true(dn <= m.rows, 'Resize down row count is larger than original matrix row count')
+      assert_true(dn <= m.cols, 'Resize down column count is larger than original matrix column count')
+    end
+
+    m.resize!(dn, dn)
+
+    # Postconditions
+    begin
+      assert_equal(dn, m.rows, "Resize rows is incorrect. Expected: #{dn}, Actual: #{m.rows}")
+      assert_equal(dn, m.cols, "Resize cols is incorrect. Expected: #{dn}, Actual: #{m.cols}")
+      assert_equal(0, m.nnz, 'Number of non-zero elements is invalid. The only non-zero element should have been pushed out during resize down')
+    end
+
+    assert_invariants(m)
+  end
 
   def test_set_zero
     m = @factory.random
