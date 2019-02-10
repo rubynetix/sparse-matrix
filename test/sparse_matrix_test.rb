@@ -3,10 +3,12 @@ require_relative '../lib/sparse_matrix'
 require_relative 'common/test_helper_matrix_util'
 require_relative '../lib/sparse_matrix_factory'
 require_relative 'common/matrix_test_case'
+require_relative 'common/matrix_identities_test_case'
 
 class SparseMatrixTest < Test::Unit::TestCase
   include MatrixTestUtil
   include MatrixTestCase
+  include MatrixIdentitiesTestCase
 
   TEST_ITER = 10
   MAX_ROWS = 100
