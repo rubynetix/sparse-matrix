@@ -30,7 +30,6 @@ class TriDiagonalMatrix < SparseMatrix
     det
   end
 
-<<<<<<< HEAD
   def nil?
     rows == 0 && cols == 0
   end
