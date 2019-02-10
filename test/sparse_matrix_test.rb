@@ -38,8 +38,7 @@ class SparseMatrixTest < Test::Unit::TestCase
 
     assert_equal(row_vector.sort, row_vector, "Row vector must be in increasing order")
     (0...m.rows).each do |r|
-      range = row_vector[r]...row_vector[r+1]
-      cols_in_row = col_vector[range]
+      cols_in_row = col_vector[row_vector[r]...row_vector[r+1]]
       assert_equal(cols_in_row.sort, cols_in_row, "Col vector must be in increasing order for each row")
     end
   end
