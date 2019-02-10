@@ -109,20 +109,19 @@ class SparseMatrixTest < Test::Unit::TestCase
     assert_invariants(m)
   end
 
-  def tst_det
-    s = rand(1..1000)
-    m = SparseMatrix.new(s)
+  def test_det
+    m = rand_square_sparse
 
     # Preconditions
     begin
-      assert_true(square?, 'Matrix for determinant test is not square')
+      assert_true(m.square?, 'Matrix for determinant test is not square')
     end
 
     d = m.det
 
     # Postconditions
     begin
-      assert_equal(d, sparse_to_matrix(m).det, "Determinant is incorrect. Expected: #{sparse_to_matrix(m).det}, Actual: #{d}")
+      assert_equal(d, m.to_ruby_matrix.det, "Determinant is incorrect. Expected: #{(m).to_ruby_matrix.det}, Actual: #{d}")
       assert_equal(d, m.t.det, "Determinant is incorrect. Expected: #{m.t.det}, Actual: #{d}")
     end
 
@@ -980,8 +979,8 @@ class SparseMatrixTest < Test::Unit::TestCase
     assert_invariants(neg_m)
   end
 
-  def tst_invertible?
-    m = rand_sparse
+  def test_invertible?
+    m = rand_square_sparse
 
     # Preconditions
     begin
@@ -997,12 +996,15 @@ class SparseMatrixTest < Test::Unit::TestCase
     assert_invariants(m)
   end
 
-  def tst_inverse
-    m = rand_square_sparse
+  def test_inverse
+    m = rand_square_sparse(size: rand(1...10))
+
+    puts m.to_s
+    puts m.det
 
     # Preconditions
     begin
-      assert_true(m.invertible?, 'Cannot calculate inverse of singular matrix')
+      assert_true(m.invertible?, "Cannot calculate inverse of singular matrix. Determinant of matrix: #{m.det}")
     end
 
     inv = m.inverse
@@ -1196,4 +1198,24 @@ class SparseMatrixTest < Test::Unit::TestCase
       assert_invariants(m)
     end
   end
+
+  def test_to_ruby_matrix
+    m = rand_square_sparse
+
+    # Preconditions
+    begin
+    end
+
+    ruby_m = m.to_ruby_matrix
+    
+    # Postcondition
+    begin
+      (0...m.rows).each do |r|
+        (0...m.cols).each do |c|
+          assert_equal(m.at(r, c), ruby_m[r,c], "Ruby matrix value is incorrect at row:#{r} col:#{c}. Value: #{ruby_m[r,c]}")
+        end
+      end
+    end
+  end
+  
 end
