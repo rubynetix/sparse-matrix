@@ -327,12 +327,40 @@ class SparseMatrix
     end
   end
 
+  ##
+  # Returns true if all the entries above the first superdiagonal are zero.
+  # Returns false otherwise.
   def lower_hessenberg?
-    raise 'Not implemented'
+    if square?
+      iter = iterator
+      while iter.has_next?
+        item = iter.next
+        if item[1] > (item[0] + 1) && item[2] != 0
+          return false
+        end
+      end
+      true
+    else
+      false
+    end
   end
 
+  ##
+  # Returns true if all the entries below the main diagonal are zero.
+  # Returns false otherwise.
   def upper_hessenberg?
-    raise 'Not implemented'
+    if square?
+      iter = iterator
+      while iter.has_next?
+        item = iter.next
+        if item[0] > (item[1] + 1) && item[2] != 0
+          return false
+        end
+      end
+      true
+    else
+      false
+    end
   end
 
   def iterator
@@ -478,7 +506,7 @@ private
     end
     @cols = cols
   end
-  
+
   def determinant_3x3
     +at(0, 0) * at(1, 1) * at(2, 2) - at(0, 0) * at(1, 2) * at(2, 1) \
           - at(0, 1) * at(1, 0) * at(2, 2) + at(0, 1) * at(1, 2) * at(2, 0) \
