@@ -38,6 +38,20 @@ class SparseMatrix
       SparseMatrix.new(n).map_diagonal { 1 }
     end
 
+    def [](*rows)
+      # 0x0 matrix
+      return SparseMatrix.new(rows.length) if rows.length == 0
+
+      m = SparseMatrix.new(rows.length, rows[0].length)
+
+      (0...m.rows).each do |r|
+        (0...m.cols).each do |c|
+          m.put(r, c, rows[r][c])
+        end
+      end
+      m
+    end
+
     alias I identity
   end
 
@@ -123,26 +137,53 @@ class SparseMatrix
   end
 
   def -(o)
-    o.is_a?(SparseMatrix) ? plus_matrix(-o) : plus_scalar(-o)
+    o.is_a?(SparseMatrix) ? plus_matrix(o * -1) : plus_scalar(-o)
   end
 
   def *(o)
     o.is_a?(SparseMatrix) ? mul_matrix(o) : mul_scalar(o)
   end
 
-  def **(o)
-    raise 'Not implemented'
+  def **(x)
+    throw RuntimeError unless square?
+    throw TypeError unless x.is_a? Integer
+    throw ArgumentError unless x > 1
+    new_m = dup
+    while x >= 2
+      new_m *= self
+      x -= 1
+    end
+    new_m
   end
 
-  def ==(o)
-    raise 'Not implemented'
+  def ==(other)
+    return false unless other.is_a? SparseMatrix
+    return false unless (other.rows.equal? @rows) && (other.cols.equal? @cols)
+
+    iter = iterator
+    o_iter = other.iterator
+    while iter.has_next? && o_iter.has_next?
+      return false unless iter.next == o_iter.next
+    end
+    !iter.has_next? && !o_iter.has_next?
   end
 
   def to_s
+    return "nil\n" if nil?
+
+    it = iterator
+    col_width = Array.new(cols, 1)
+
+    while it.has_next?
+      _, c, val = it.next
+      col_width[c] = [col_width[c], val.to_s.length].max
+    end
+
     s = ""
-    (0..@rows-1).each do |r|
-      (0..@cols-1).each do |c|
-        s += "#{at(r, c)} "
+    (0...rows).each do |r|
+      (0...cols).each do |c|
+        s += at(r, c).to_s.rjust(col_width[c])
+        s += " " if c < cols - 1
       end
       s += "\n"
     end
@@ -159,15 +200,28 @@ class SparseMatrix
     total
   end
 
+  # Returns an array containing the values along the main diagonal of the matrix
   def diagonal
-    raise 'Not implemented'
+    if !square?
+      raise NonSquareException, "Can not get diagonal of non-square matrix."
+    else
+      diag = Array.new(@rows, 0)
+      iter = iterator
+      while iter.has_next?
+        item = iter.next
+        if item[0] == item[1]
+          diag[item[0]] = item[2]
+        end
+      end
+      return diag
+    end
   end
 
   def tridiagonal
-    raise 'Not implemented'
+    map { |val, r, c| (r == c || c == r - 1 || c == r + 1) ? val : 0 }
   end
 
-  def cofactor(_row, _col)
+  def cofactor(row, col)
     raise 'Not implemented'
   end
 
@@ -186,15 +240,22 @@ class SparseMatrix
   end
 
   def transpose
-    raise 'Not implemented'
+    m = SparseMatrix.new @cols, @rows
+    iter = iterator
+    while iter.has_next?
+      row, col, val = iter.next
+      m.put col, row, val
+    end
+    m
   end
 
   def trace
-    raise 'Not implemented'
+    raise 'NonTraceableException' unless traceable?
+    diagonal.sum(init=0)
   end
 
   def nil?
-    raise 'Not implemented'
+    @rows.zero? || @cols.zero?
   end
 
   def zero?
@@ -230,37 +291,104 @@ class SparseMatrix
   end
 
   def symmetric?
-    # TODO: Implement
-    true
+    self == dup.transpose
   end
 
   def traceable?
-    raise 'Not implemented'
+    square?
   end
 
   def orthogonal?
     raise 'Not implemented'
   end
 
+  ##
+  # Returns true if the matrix only contains non-zero values on the main diagonal
   def diagonal?
-    # TODO: Implement
+    iter = iterator
+    if square?
+      while iter.has_next?
+        item = iter.next
+        if item[0] != item[1] && item[2] != 0
+          return false
+        end
+      end
+    else
+      return false
+    end
     true
   end
 
+  ##
+  # Returns true if all the entries above the main diagonal are zero.
+  # Returns false otherwise.
   def lower_triangular?
-    raise 'Not implemented'
+    if square?
+      iter = iterator
+      while iter.has_next?
+        item = iter.next
+        if item[1] > item[0] && item[2] != 0
+          return false
+        end
+      end
+      true
+    else
+      false
+    end
   end
 
+  ##
+  # Returns true if all the entries below the main diagonal are zero.
+  # Returns false otherwise.
   def upper_triangular?
-    raise 'Not implemented'
+    if square?
+      iter = iterator
+      while iter.has_next?
+        item = iter.next
+        if item[0] > item[1] && item[2] != 0
+          return false
+        end
+      end
+      true
+    else
+      false
+    end
   end
 
+  ##
+  # Returns true if all the entries above the first superdiagonal are zero.
+  # Returns false otherwise.
   def lower_hessenberg?
-    raise 'Not implemented'
+    if square?
+      iter = iterator
+      while iter.has_next?
+        item = iter.next
+        if item[1] > (item[0] + 1) && item[2] != 0
+          return false
+        end
+      end
+      true
+    else
+      false
+    end
   end
 
+  ##
+  # Returns true if all the entries below the main diagonal are zero.
+  # Returns false otherwise.
   def upper_hessenberg?
-    raise 'Not implemented'
+    if square?
+      iter = iterator
+      while iter.has_next?
+        item = iter.next
+        if item[0] > (item[1] + 1) && item[2] != 0
+          return false
+        end
+      end
+      true
+    else
+      false
+    end
   end
 
   def iterator
@@ -295,11 +423,7 @@ class SparseMatrix
 
   def map_nz
     m = clone
-    (0...m.rows).each do |r|
-      (0...m.cols).each do |c|
-        yield(m.at(r, c)) unless m.at(r, c).zero?
-      end
-    end
+    m.iterator.iterate{|_, _, val| yield(val) unless val.zero?}
     m
   end
 
@@ -333,7 +457,7 @@ class SparseMatrix
 private
 
   def plus_matrix(o)
-    raise 'Not implemented'
+    map {|val, r, c| val + o.at(r, c)}
   end
 
   def plus_scalar(x)
@@ -381,4 +505,94 @@ private
       @row_vector[r] -= 1
     end
   end
+
+  def increase_rows(rows)
+    (0..(rows - @rows)).each do |_num|
+      @row_vector.push @row_vector.last
+    end
+    @rows = rows
+  end
+
+  def decrease_rows(rows)
+    rm_rows = @row_vector.pop(@rows - rows)
+    num_vals_rmd = rm_rows.last - @row_vector.last
+    @col_vector.pop num_vals_rmd
+    @data.pop num_vals_rmd
+    @rows = rows
+  end
+
+  def decrease_cols(cols)
+    it = iterator
+    to_rm = []
+    while it.has_next?
+      item = it.next
+      to_rm.push item if item[1] >= cols
+    end
+    to_rm.each do |r, c, _|
+      delete r, c
+    end
+    @cols = cols
+  end
+
+  def determinant_3x3
+    +at(0, 0) * at(1, 1) * at(2, 2) - at(0, 0) * at(1, 2) * at(2, 1) \
+          - at(0, 1) * at(1, 0) * at(2, 2) + at(0, 1) * at(1, 2) * at(2, 0) \
+          + at(0, 2) * at(1, 0) * at(2, 1) - at(0, 2) * at(1, 1) * at(2, 0)
+  end
+
+  def determinant_4x4 # TODO: note "I would much rather not have this function; only kept at it's used in Matrix.rb"
+    +at(0, 0) * at(1, 1) * at(2, 2) * at(3, 3) \
+          - at(0, 0) * at(1, 1) * at(2, 3) * at(3, 2) \
+          - at(0, 0) * at(1, 2) * at(2, 1) * at(3, 3) \
+          + at(0, 0) * at(1, 2) * at(2, 3) * at(3, 1) \
+          + at(0, 0) * at(1, 3) * at(2, 1) * at(3, 2) \
+          - at(0, 0) * at(1, 3) * at(2, 2) * at(3, 1) \
+          - at(0, 1) * at(1, 0) * at(2, 2) * at(3, 3) \
+          + at(0, 1) * at(1, 0) * at(2, 3) * at(3, 2) \
+          + at(0, 1) * at(1, 2) * at(2, 0) * at(3, 3) \
+          - at(0, 1) * at(1, 2) * at(2, 3) * at(3, 0) \
+          - at(0, 1) * at(1, 3) * at(2, 0) * at(3, 2) \
+          + at(0, 1) * at(1, 3) * at(2, 2) * at(3, 0) \
+          + at(0, 2) * at(1, 0) * at(2, 1) * at(3, 3) \
+          - at(0, 2) * at(1, 0) * at(2, 3) * at(3, 1) \
+          - at(0, 2) * at(1, 1) * at(2, 0) * at(3, 3) \
+          + at(0, 2) * at(1, 1) * at(2, 3) * at(3, 0) \
+          + at(0, 2) * at(1, 3) * at(2, 0) * at(3, 1) \
+          - at(0, 2) * at(1, 3) * at(2, 1) * at(3, 0) \
+          - at(0, 3) * at(1, 0) * at(2, 1) * at(3, 2) \
+          + at(0, 3) * at(1, 0) * at(2, 2) * at(3, 1) \
+          + at(0, 3) * at(1, 1) * at(2, 0) * at(3, 2) \
+          - at(0, 3) * at(1, 1) * at(2, 2) * at(3, 0) \
+          - at(0, 3) * at(1, 2) * at(2, 0) * at(3, 1) \
+          + at(0, 3) * at(1, 2) * at(2, 1) * at(3, 0)
+  end
+
+  # TODO: swap rows - matrix.rb function
+  def determinant_bareiss
+    # raise NotImplementedError
+    m = copy
+    no_pivot = proc { return 0 }
+    sign = +1
+    pivot = 1
+    @rows.times do |k|
+      previous_pivot = pivot
+      if (pivot = m.at(k, k)).zero?
+        switch = (k + 1...@rows).find(no_pivot) do |row|
+          m.at(row, k) != 0
+        end
+        # Swap two rows
+        a[switch], a[k] = a[k], a[switch]
+        pivot = m.at(k, k)
+        sign = -sign
+      end
+      (k + 1).upto(@rows - 1) do |i|
+        (k + 1).upto(@rows - 1) do |j|
+          m.put i, j, (pivot * m.at(i, j) - m.at(i, k) * m.at(k, j)) / previous_pivot
+        end
+      end
+    end
+    sign * pivot
+  end
+
 end
+

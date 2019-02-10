@@ -1,3 +1,6 @@
+# frozen_string_literal: true
+require 'matrix'
+
 module MatrixTestUtil
   def rand_range(l, h, size)
     i = 0
@@ -11,10 +14,11 @@ module MatrixTestUtil
 
   def rand_sparse(rows: rand(1..100), cols: rand(1..100), range: (-100..100))
     m = SparseMatrix.new(rows, cols)
-    nnz = rand(1..(rows*cols)/2.floor)
+    nnz = rand(1..(rows * cols) / 2.floor)
 
-    while nnz > 0 do
-      r, c = rand(0..rows-1), rand(0..cols-1)
+    while nnz > 0
+      r = rand(0..rows - 1)
+      c = rand(0..cols - 1)
       if m.at(r, c) == 0
         m.put(r, c, rand(range))
         nnz -= 1
@@ -71,9 +75,9 @@ module MatrixTestUtil
     # return a upper hessenberg matrix with n rows and columns
     # with non-zero values in the range l..h
     m = SparseMatrix.new(n, n)
-    (0..m.rows).each do |y|
-      (0..m.cols).each do |x|
-        m.put(x, y, rand(l...h)) if (y <= x + 1) && (rand(0..1) == 0)
+    (0...m.rows).each do |y|
+      (0...m.cols).each do |x|
+        m.put(y, x, rand(l...h)) if (y <= x + 1) && (rand(0..1) == 0)
       end
     end
     m
@@ -83,22 +87,22 @@ module MatrixTestUtil
     # return a lower hessenberg matrix with n rows and columns
     # with non-zero values in the range l..h
     m = SparseMatrix.new(n, n)
-    (0..m.rows).each do |y|
-      (0..m.cols).each do |x|
-        m.put(x, y, rand(l...h)) if (x <= y + 1) && (rand(0..1) == 0)
+    (0...m.rows).each do |y|
+      (0...m.cols).each do |x|
+        m.put(y, x, rand(l...h)) if (x <= y + 1) && (rand(0..1) == 0)
       end
     end
     m
   end
 
   def sparse_to_matrix(s)
-    m = Matrix.build(s.rows, s.cols) { |_row, _col| 0 }
+    a = Array.new(s.rows) { Array.new(s.cols) { 0 } }
     it = s.iterator
-    while s.next?
-      e = s.next
-      m[e.row][e.col] = e.val
+    while it.has_next?
+      row, col, val = it.next
+      a[row][col] = val
     end
-    m
+    Matrix.build(s.rows, s.cols) { |i, j| a[i][j] }
   end
 
   def iterate_matrix(m)
