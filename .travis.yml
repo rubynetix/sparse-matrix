@@ -5,12 +5,18 @@ dist: trusty
 rvm: 2.5.3
 
 stages:
-  - test
+  - build
+  - identities
+  - sparse_tests
 
 jobs:
   include:
-    - stage: test
-      before_install:
-        - ./scripts/setup.sh
+    - stage: build
       script:
-        - bundle exec ruby test/*.rb
+        - ./scripts/setup.sh
+    - stage: identities
+      script:
+        - ruby test/matrix_identities_test.rb
+    - stage: sparse_tests
+      script:
+        - ruby test/sparse_*.rb
