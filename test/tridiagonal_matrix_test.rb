@@ -10,5 +10,8 @@ class TridiagonalMatrixTest < Test::Unit::TestCase
 
   def assert_invariants(m)
     assert_base_invariants(m)
+
+    # Implementation specific assertions
+    # TODO: Any?
   end
 end
