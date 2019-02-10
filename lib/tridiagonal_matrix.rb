@@ -1,6 +1,7 @@
 # frozen_string_literal: true
-
 require_relative 'sparse_matrix'
+require_relative 'tri_diagonal_iterator'
+
 # Tridiagonal Sparse Matrix
 class TriDiagonalMatrix < SparseMatrix
   attr_reader(:rows, :cols)
@@ -27,5 +28,9 @@ class TriDiagonalMatrix < SparseMatrix
       index += 1
     end
     det
+  end
+
+  def iterator
+    TriDiagonalIterator.new(@lower_dia, @main_dia, @upper_dia)
   end
 end
