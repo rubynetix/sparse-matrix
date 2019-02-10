@@ -642,7 +642,7 @@ module MatrixTestCase
     while r != c
       r = rand(0..MAX_ROWS)
       c = rand(0..MAX_COLS)
-      m = rand_matrix(r, c)
+      m = @factory.random(rows: r, cols: c)
     end
 
     # Preconditions
@@ -687,7 +687,7 @@ module MatrixTestCase
     while r != c
       r = rand(0..MAX_ROWS)
       c = rand(0..MAX_COLS)
-      m = rand_matrix(r, c)
+      m = @factory.random(rows: r, cols: c)
     end
 
     # Preconditions
@@ -750,7 +750,7 @@ module MatrixTestCase
     while r != c
       r = rand(0..10_000)
       c = rand(0..10_000)
-      m = rand_matrix(r, c)
+      m = @factory.random(rows: r, cols: c)
     end
 
     # Preconditions
@@ -814,7 +814,7 @@ module MatrixTestCase
     while r != c
       r = rand(0..MAX_ROWS)
       c = rand(0..MAX_COLS)
-      m = rand_matrix(r, c)
+      m = @factory.random(rows: r, cols: c)
     end
 
     # Preconditions
@@ -1019,7 +1019,7 @@ module MatrixTestCase
   #
   #   assert_invariants(m)
   # end
-  #
+
   def test_symmetric?
     m = @factory.random
 
@@ -1201,7 +1201,7 @@ module MatrixTestCase
       assert_invariants(m)
     end
   end
-  #
+
   # def test_to_ruby_matrix
   #   m = @factory.random_square
   #
@@ -1220,5 +1220,4 @@ module MatrixTestCase
   #     end
   #   end
   # end
-
 end

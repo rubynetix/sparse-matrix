@@ -1,9 +1,12 @@
 require 'test/unit'
 require_relative '../lib/sparse_matrix'
 require_relative 'common/test_helper_matrix_util'
+require_relative '../lib/sparse_matrix_factory'
+require_relative 'common/matrix_test_case'
 
 class SparseMatrixTest < Test::Unit::TestCase
   include MatrixTestUtil
+  include MatrixTestCase
 
   TEST_ITER = 10
   MAX_ROWS = 100
@@ -11,21 +14,12 @@ class SparseMatrixTest < Test::Unit::TestCase
   MIN_VAL = -10_000
   MAX_VAL = 10_000
 
+  def setup
+    @factory = SparseMatrixFactory.new
+  end
+
   def assert_invariants(m)
-    assert_true(m.rows >= 0)
-    assert_true(m.cols >= 0)
-    if m.cols > 0
-      assert_true(m.rows > 0, 'Invariant assertion. Invalid row count')
-    end
-    if m.rows > 0
-      assert_true(m.cols > 0, 'Invalid assertion. Invalid column count')
-    end
-    if m.rows == 0
-      assert_true(m.cols == 0, 'Invariant assertion. Invalid row count')
-    end
-    if m.cols == 0
-      assert_true(m.rows == 0, 'Invalid assertion. Invalid column count')
-    end
+    assert_base_invariants(m)
 
     # Implementation specific assertions
     row_vector = m.instance_variable_get(:@row_vector)
@@ -40,30 +34,6 @@ class SparseMatrixTest < Test::Unit::TestCase
     (0...m.rows).each do |r|
       cols_in_row = col_vector[row_vector[r]...row_vector[r+1]]
       assert_equal(cols_in_row.sort, cols_in_row, "Col vector must be in increasing order for each row")
-    end
-  end
-
-  def test_identity
-    rand_range(1, MAX_ROWS, 5).each do |size|
-      # Preconditions
-      begin
-        assert_true(size > 0, 'Identity matrix is nil')
-      end
-
-      m = SparseMatrix.identity(size)
-
-      # Postconditions
-      begin
-        assert_true(m.square?, 'Identity matrix is not square')
-        assert_true(m.diagonal?, 'Identity matrix is not diagonal')
-        assert_true(m.symmetric?, 'Identity mastrix is not symmetric')
-        assert_equal(size, m.sum, 'Identity matrix sum is not equivalent to size')
-        (0..size - 1).each do |i|
-          assert_equal(1, m.at(i, i), "Value for identity matrix not 1 at row:#{i}, col:#{i}")
-        end
-      end
-
-      assert_invariants(m)
     end
   end
 
@@ -119,25 +89,6 @@ class SparseMatrixTest < Test::Unit::TestCase
     # Postconditions
     begin
       assert_equal(c, m.cols, "Number of matrix columns is incorrect. Expected: #{c}, Actual: #{m.cols}")
-    end
-
-    assert_invariants(m)
-  end
-
-  def test_det
-    m = rand_square_sparse
-
-    # Preconditions
-    begin
-      assert_true(m.square?, 'Matrix for determinant test is not square')
-    end
-
-    d = m.det
-
-    # Postconditions
-    begin
-      assert_equal(d, m.to_ruby_matrix.det, "Determinant is incorrect. Expected: #{(m).to_ruby_matrix.det}, Actual: #{d}")
-      assert_equal(d, m.t.det, "Determinant is incorrect. Expected: #{m.t.det}, Actual: #{d}")
     end
 
     assert_invariants(m)
@@ -205,55 +156,6 @@ class SparseMatrixTest < Test::Unit::TestCase
     assert_invariants(m)
   end
 
-  def test_set_zero
-    m = rand_sparse
-
-    # Preconditions
-    begin
-    end
-
-    m.set_zero
-
-    # Postconditions
-    begin
-      (0...m.rows).each do |r|
-        (0...m.cols).each do |c|
-          assert_equal(0, m.at(r, c), "Matrix is not zero at row:#{r} col:#{c}. Value: #{m.at(r, c)}")
-        end
-      end
-    end
-
-    assert_invariants(m)
-  end
-
-  def test_set_identity
-    (0..TEST_ITER).each do
-      m = rand_square_sparse
-
-      # Preconditions
-      begin
-        assert_true(m.square?, "Identity matrix must be square.")
-      end
-
-      m.set_identity
-
-      # Postconditions
-      begin
-        (0...m.rows).each do |r|
-          (0...m.cols).each do |c|
-            if r == c
-              assert_equal(1, m.at(r, c), "Identity matrix contains element other than 1 on diagonal.")
-            else
-              assert_equal(0, m.at(r, c), "Identity matrix contains non-zero element off diagonal.")
-            end
-          end
-        end
-      end
-
-      assert_invariants(m)
-    end
-  end
-
   def test_at
     v = rand(MIN_VAL..MAX_VAL)
     m = SparseMatrix.new(100, 100)
@@ -274,30 +176,6 @@ class SparseMatrixTest < Test::Unit::TestCase
     end
 
     assert_invariants(m)
-  end
-
-  def test_clone
-    m1 = rand_sparse
-
-    # Preconditions
-    begin
-    end
-
-    m2 = m1.clone
-    r = rand(0...m1.rows)
-    c = rand(0...m1.cols)
-
-    # We want to assert that we are working on different copies
-    m2.put(r, c, m2.at(r, c) + 1)
-
-    # Postconditions
-    begin
-      assert_not_equal(m1.object_id, m2.object_id, "Object ids are equal after clone")
-      assert_equal(m1.sum + 1, m2.sum, "Clone did not create deep copy")
-    end
-
-    assert_invariants(m1)
-    assert_invariants(m2)
   end
 
   def test_to_s
@@ -344,30 +222,6 @@ class SparseMatrixTest < Test::Unit::TestCase
 
       assert_invariants(m)
     end
-  end
-
-  def test_sum
-    m = rand_sparse
-
-    # Preconditions
-    begin
-    end
-
-    sum = m.sum
-
-    # Postconditions
-    begin
-      expected = 0
-      (0..m.rows - 1).each do |r|
-        (0..m.cols - 1).each do |c|
-          expected += m.at(r, c)
-        end
-      end
-
-      assert_equal(expected, sum, "Incorrect matrix sum. Expected:#{expected}, Actual: #{sum}")
-    end
-
-    assert_invariants(m)
   end
 
   def test_add_matrix
@@ -538,25 +392,6 @@ class SparseMatrixTest < Test::Unit::TestCase
     end
   end
 
-  def test_exponentiation
-    exp = 3
-    m = rand_square_sparse
-    # No Preconditions
-
-    new_m = m**exp
-
-    # Postconditions
-    begin
-      expected = m
-      (2..exp).each do |_i|
-        expected *= m
-      end
-      assert_equal(expected, new_m, "Incorrect exponentiation. Expected:#{expected}, Actual:#{new_m}")
-    end
-
-    assert_invariants(m)
-  end
-
   def test_put
     m = rand_sparse
     v = rand(MIN_VAL..MAX_VAL)
@@ -627,245 +462,6 @@ class SparseMatrixTest < Test::Unit::TestCase
     end
 
     assert_invariants(m)
-  end
-
-  def test_diagonal
-    m = rand_square_sparse
-
-    # Preconditions
-    begin
-      assert_true(m.square?, 'Diagonal not defined for non-square matrix')
-    end
-
-    md = m.diagonal
-
-    # Postconditions
-    begin
-      # All elements on the diagonal are equivalent to the original matrix
-      (0..m.rows - 1).each do |i|
-        assert_equal(m.at(i, i), md[i], 'Diagonal elements not-equal to original diagonal')
-      end
-    end
-
-    assert_invariants(m)
-  end
-
-  def test_lower_triangular?(_nonsquare)
-    r = 0
-    c = 0
-    while r != c
-      r = rand(0..MAX_ROWS)
-      c = rand(0..MAX_COLS)
-      m = rand_matrix(r, c)
-    end
-
-    # Preconditions
-    begin
-    end
-
-    # Postconditions
-    begin
-      assert_equal(sparse_to_matrix(m).lower_triangular?, m.lower_triangular?, "Non-square Matrix lower triangular check is incorrect. Expected:#{sparse_to_matrix(m).lower_triangular?}, Actual:#{m.lower_triangular?}")
-    end
-
-    assert_invariants(m)
-  end
-
-  def test_lower_triangular_square
-    i = 0
-    while i < 20
-      rc = rand(0..MAX_ROWS)
-      m_tri = lower_triangular_matrix(rc, 0, 1000)
-      m_random = rand_square_sparse
-
-      # Preconditions
-      begin
-      end
-
-      # Postconditions
-      begin
-        assert_equal(sparse_to_matrix(m_tri).lower_triangular?, m_tri.lower_triangular?, "Lower triangular check is incorrect for Square Lower Triangular Matrix. Expected:#{sparse_to_matrix(m_tri).lower_triangular?}, Actual:#{m_tri.lower_triangular?}")
-        assert_equal(sparse_to_matrix(m_random).lower_triangular?, m_random.lower_triangular?, "Lower triangular check is incorrect for Random Square Matrix. Expected:#{sparse_to_matrix(m_random).lower_triangular?}, Actual:#{m_random.lower_triangular?}")
-      end
-
-      assert_invariants(m_tri)
-      assert_invariants(m_random)
-
-      i += 1
-    end
-  end
-
-  def test_upper_triangular?(_nonsquare)
-    r = 0
-    c = 0
-    while r != c
-      r = rand(0..MAX_ROWS)
-      c = rand(0..MAX_COLS)
-      m = rand_matrix(r, c)
-    end
-
-    # Preconditions
-    begin
-    end
-
-    # Postconditions
-    begin
-      assert_equal(sparse_to_matrix(m).upper_triangular?, m.upper_triangular?, "Non-square Matrix upper triangular check is incorrect. Expected:#{sparse_to_matrix(m).upper_triangular?}, Actual:#{m.upper_triangular?}")
-    end
-
-    assert_invariants(m)
-  end
-
-  def test_upper_triangular_square
-    i = 0
-    while i < 20
-      rc = rand(0..MAX_ROWS)
-      m_tri = upper_triangular_matrix(rc, 0, 1000)
-      m_random = rand_square_sparse
-
-      # Preconditions
-      begin
-      end
-
-      # Postconditions
-      begin
-        assert_equal(sparse_to_matrix(m_tri).upper_triangular?, m_tri.upper_triangular?, "Upper triangular check is incorrect for Square Upper Triangular Matrix. Expected:#{sparse_to_matrix(m_tri).upper_triangular?}, Actual:#{m_tri.upper_triangular?}")
-        assert_equal(sparse_to_matrix(m_random).upper_triangular?, m_random.upper_triangular?, "Upper triangular check is incorrect for Random Square Matrix. Expected:#{sparse_to_matrix(m_random).upper_triangular?}, Actual:#{m_random.upper_triangular?}")
-      end
-
-      assert_invariants(m_tri)
-      assert_invariants(m_random)
-
-      i += 1
-    end
-  end
-
-  def check_lower_hessenberg(m)
-    # algorithm to test if matrix m is lower_hessenberg
-    # Returns true if matrix m is lower hessenberg. False otherwise.
-    if !m.square?
-      assert_false(m.lower_hessenberg?, "Lower Hessenberg check for Non-square Matrix is incorrect. Expected: False, Actual:#{m.lower_hessenberg?}")
-    else
-      (0...m.rows).each do |y|
-        (0...m.cols).each do |x|
-          if (x > y + 1 ) && (m.at(y, x) != 0)
-            return false
-          end
-        end
-      end
-      true
-    end
-  end
-
-  def test_lower_hessenberg?(_nonsquare)
-    # tests lower_hessenberg? with a nonsquare matrix
-    r = 0
-    c = 0
-    while r != c
-      r = rand(0..10_000)
-      c = rand(0..10_000)
-      m = rand_matrix(r, c)
-    end
-
-    # Preconditions
-    begin
-    end
-
-    # Postconditions
-    begin
-      check_lower_hessenberg(m)
-    end
-
-    assert_invariants(m)
-  end
-
-  def test_lower_hessenberg_square
-    # tests lower_hessenberg with a square matrix
-    i = 0
-    while i < 20
-      rc = rand(0..MAX_ROWS)
-      m_hess = lower_hessenberg_matrix(rc, 0, 1000)
-      m_random = rand_square_sparse
-
-      # Preconditions
-      begin
-      end
-
-      # Postconditions
-      begin
-        assert_true(m_hess.lower_hessenberg?, "lower_hessenberg? returned false for a lower hessenberg matrix")
-        assert_true(!m_random.lower_hessenberg?, "lower_hessenberg? returned true for a non-lower hessenberg matrix") if !check_lower_hessenberg(m_random)
-      end
-
-      assert_invariants(m_hess)
-      assert_invariants(m_random)
-
-      i += 1
-    end
-  end
-
-  def check_upper_hessenberg(m)
-    # algorithm to test matrix m is upper_hessenberg
-    # Returns true if matrix m is upper hessenberg. False otherwise.
-    if !m.square?
-      assert(!m.upper_hessenberg?, 'Non-square matrix cannot be upper hessenberg')
-    else
-      (0...m.rows).each do |y|
-        (0...m.cols).each do |x|
-          if (y > x + 1) && (m.at(y, x) != 0)
-            return false
-          end
-        end
-      end
-      true
-    end
-  end
-
-  def test_upper_hessenberg?(_nonsquare)
-    # tests upper_hessenberg? with a nonsquare matrix
-    r = 0
-    c = 0
-    while r != c
-      r = rand(0..MAX_ROWS)
-      c = rand(0..MAX_COLS)
-      m = rand_matrix(r, c)
-    end
-
-    # Preconditions
-    begin
-    end
-
-    # Postconditions
-    begin
-      check_upper_hessenberg(m)
-    end
-
-    assert_invariants(m)
-  end
-
-  def test_upper_hessenberg_square
-    # tests upper_hessenberg with a square matrix
-    i = 0
-    while i < 10
-      rc = rand(0..MAX_ROWS)
-      m_hess = upper_hessenberg_matrix(rc, 0, 1000)
-      m_random = rand_square_sparse
-
-      # Preconditions
-      begin
-      end
-
-      # Postconditions
-      begin
-        assert_true(m_hess.upper_hessenberg?, "upper_hessenberg? returned false for a upper hessenberg matrix")
-        assert_true(!m_random.upper_hessenberg?, "upper_hessenberg? returned true for a non upper hessenberg matrix") if !check_upper_hessenberg(m_random)
-      end
-
-      assert_invariants(m_hess)
-      assert_invariants(m_random)
-
-      i += 1
-    end
   end
 
   def test_equals
@@ -939,82 +535,6 @@ class SparseMatrixTest < Test::Unit::TestCase
     assert_invariants(adj)
   end
 
-  def test_identity?
-    i = SparseMatrix.identity(rand(1..MAX_ROWS))
-    m = rand_square_sparse(range: 2...MAX_VAL)
-
-    # Preconditions
-    begin
-    end
-
-    identity = i.identity?
-    non_identity = m.identity?
-
-    # Posconditions
-    begin
-      assert_true(identity, 'Identity matrix declared as non-identity matrix')
-      assert_false(non_identity, 'Non-identity matrix declared as identity matrix')
-    end
-
-    assert_invariants(i)
-    assert_invariants(m)
-  end
-
-  def test_square?
-    m = rand_sparse
-
-    # Preconditions
-    begin
-    end
-
-    sq = m.square?
-
-    # Postconditions
-    begin
-      assert_equal(m.rows == m.cols, sq, 'Square/non-square matrix declared as non-square/square')
-    end
-
-    assert_invariants(m)
-  end
-
-  def test_positive?
-    pos_m = rand_sparse(range: 0..MAX_VAL)
-    neg_m = rand_sparse(range: MIN_VAL..-1)
-
-    # Preconditions
-    begin
-    end
-
-    pos = pos_m.positive?
-    neg = neg_m.positive?
-
-    # Postconditions
-    begin
-      assert_true(pos, 'Positive matrix declared non-positive')
-      assert_false(neg, 'Non-positive matrix declared as positive')
-    end
-
-    assert_invariants(pos_m)
-    assert_invariants(neg_m)
-  end
-
-  def test_invertible?
-    m = rand_square_sparse
-
-    # Preconditions
-    begin
-    end
-
-    inv = m.invertible?
-
-    # Postconditions
-    begin
-      assert_equal(m.square? && m.det != 0, inv, 'Invertible/singular matrix declared as singular/invertible.')
-    end
-
-    assert_invariants(m)
-  end
-
   def test_inverse
     m = rand_square_sparse(size: rand(25...50))
 
@@ -1032,87 +552,6 @@ class SparseMatrixTest < Test::Unit::TestCase
     end
 
     assert_invariants(m)
-  end
-
-  def test_symmetric?
-    m = rand_sparse
-
-    # Preconditions
-    begin
-    end
-
-    sym = m.symmetric?
-
-    # Postconditions
-    begin
-      assert_equal(m == m.transpose, sym, 'Symmetric matrix not equal to its transpose')
-    end
-
-    assert_invariants(m)
-  end
-
-  def tst_traceable?
-    m = rand_sparse
-
-    # Preconditions
-    begin
-    end
-
-    tr = m.traceable?
-
-    # Postconditions
-    begin
-      assert_equal(m.square?, tr, 'Square/non-square matrix are not-traceable/traceable')
-    end
-
-    assert_invariants(m)
-  end
-
-  def test_trace
-    m = rand_square_sparse
-
-    # Preconditions
-    begin
-      assert_true(m.traceable?, 'Matrix is not traceable')
-    end
-
-    tr = m.trace
-
-    # Postconditions
-    begin
-      assert_equal(m.diagonal.sum, tr, 'Trace not equal to sum of diagonal matrix')
-
-      trace = 0
-      (0..m.rows - 1).each do |r|
-        trace += m.at(r, r)
-      end
-
-      assert_equal(trace, tr, 'Trace not equal to sum of diagonal elements')
-    end
-
-    assert_invariants(m)
-  end
-
-  def test_transpose
-    m = rand_sparse
-
-    # Preconditions
-    begin
-    end
-
-    mt = m.transpose
-
-    # Postconditions
-    begin
-      assert_equal(m.rows, mt.cols, 'Transpose has a different number of columns')
-      assert_equal(m.cols, mt.rows, 'Transpose has different number of rows')
-      assert_equal(m.sum, mt.sum, 'Sum of transposes not equal')
-      iterate_matrix(mt) {|i, j, v| assert_equal(m.at(j, i), v)}
-      assert_equal(mt.transpose, m, 'Transpose of transpose not equal to original')
-    end
-
-    assert_invariants(m)
-    assert_invariants(mt)
   end
 
   def test_zero?
@@ -1188,34 +627,6 @@ class SparseMatrixTest < Test::Unit::TestCase
     assert_invariants(m)
   end
 
-  def test_tridiagonal
-    (0..TEST_ITER).each do
-      m = rand_square_sparse
-
-      # Preconditions
-      begin
-        assert_true(m.square?, "Tri-diagonal matrix must be square.")
-      end
-
-      tri_diag = m.tridiagonal
-
-      # Postconditions
-      begin
-        assert_true(tri_diag.square?, 'Tri-diagonal matrix must be square.')
-
-        (0...tri_diag.rows).each do |r|
-          (0...tri_diag.cols).each do |c|
-            unless r == c || c == r - 1 || c == r + 1
-              assert_equal(tri_diag.at(r, c), 0, 'Tri-diagonal matrix cannot have non-zero elements outside of band.')
-            end
-          end
-        end
-      end
-
-      assert_invariants(m)
-    end
-  end
-
   def test_to_ruby_matrix
     m = rand_square_sparse
 
@@ -1234,5 +645,4 @@ class SparseMatrixTest < Test::Unit::TestCase
       end
     end
   end
-
 end
