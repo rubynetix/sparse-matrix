@@ -8,8 +8,8 @@ class SparseMatrixTest < Test::Unit::TestCase
   TEST_ITER = 10
   MAX_ROWS = 100
   MAX_COLS = 100
-  MIN_VAL = -100
-  MAX_VAL = 100
+  MIN_VAL = -10_000
+  MAX_VAL = 10_000
 
   def assert_invariants(m)
     assert_true(m.rows >= 0)
@@ -25,6 +25,21 @@ class SparseMatrixTest < Test::Unit::TestCase
     end
     if m.cols == 0
       assert_true(m.rows == 0, 'Invalid assertion. Invalid column count')
+    end
+
+    # Implementation specific assertions
+    row_vector = m.instance_variable_get(:@row_vector)
+    data = m.instance_variable_get(:@data)
+    col_vector = m.instance_variable_get(:@col_vector)
+
+    assert_equal(m.nnz, row_vector[-1], "Row vector inconsistent with data")
+    assert_equal(m.nnz, data.size, "Data vector inconsistent with data")
+    assert_equal(m.nnz, col_vector.size, "Col vector inconsistent with data")
+
+    assert_equal(row_vector.sort, row_vector, "Row vector must be in increasing order")
+    (0...m.rows).each do |r|
+      cols_in_row = col_vector[row_vector[r]...row_vector[r+1]]
+      assert_equal(cols_in_row.sort, cols_in_row, "Col vector must be in increasing order for each row")
     end
   end
 
@@ -129,22 +144,18 @@ class SparseMatrixTest < Test::Unit::TestCase
   end
 
   def test_resize
-    r = rand(0..MAX_ROWS)
-    c = rand(0..MAX_COLS)
+    m = rand_sparse
     nr = rand(0..MAX_ROWS)
     nc = rand(0..MAX_COLS)
-    m = rand_sparse rows: r, cols: c
+    r = m.rows
+    c = m.cols
     nnzi = m.nnz
-
-    # Upsize test
 
     # Preconditions
     begin
-      assert_equal(r, m.rows, "Number of rows is invalid. Expected: #{r}, Actual: #{m.rows}")
-      assert_equal(c, m.cols, "Number of cols is invalid: Expected: #{c}, Actual: #{m.cols}")
     end
 
-    m.resize(nr, nc)
+    m.resize!(nr, nc)
 
     # Postconditions
     begin
@@ -172,17 +183,17 @@ class SparseMatrixTest < Test::Unit::TestCase
     dr = r - 1
     dc = c - 1
     m = SparseMatrix.new(r, c)
-    m.put(r - 1, c - 1, 1)
+    m.put(r-1, c-1, 1)
 
     # Preconditions
     begin
       assert_equal(r, m.rows, "Number of rows is invalid. Expected: #{r}, Actual: #{m.rows}")
       assert_equal(c, m.cols, "Number of cols is invalid: Expected: #{c}, Actual: #{m.cols}")
-      assert_true(dr <= r, 'Resize down row count is larger than original matrix row count')
-      assert_true(dc <= c, 'Resize down column count is larger than original matrix column count')
+      assert_true(dr <= m.rows, 'Resize down row count is larger than original matrix row count')
+      assert_true(dc <= m.cols, 'Resize down column count is larger than original matrix column count')
     end
 
-    m.resize(dr, dc)
+    m.resize!(dr, dc)
 
     # Postconditions
     begin
@@ -1106,10 +1117,10 @@ class SparseMatrixTest < Test::Unit::TestCase
 
   def test_zero?
     ms = [
-        rand_sparse,
-        SparseMatrix.new(0),
-        SparseMatrix.identity(rand(0..100)),
-        SparseMatrix.zero(rand(0..MAX_ROWS), rand(0..MAX_COLS))
+      rand_sparse,
+      SparseMatrix.new(0),
+      SparseMatrix.identity(rand(0..100)),
+      SparseMatrix.zero(rand(0..MAX_ROWS), rand(0..MAX_COLS))
     ]
 
     ms.each do |m|
