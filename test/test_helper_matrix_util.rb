@@ -1,5 +1,4 @@
 # frozen_string_literal: true
-
 require 'matrix'
 
 module MatrixTestUtil
@@ -76,9 +75,9 @@ module MatrixTestUtil
     # return a upper hessenberg matrix with n rows and columns
     # with non-zero values in the range l..h
     m = SparseMatrix.new(n, n)
-    (0..m.rows).each do |y|
-      (0..m.cols).each do |x|
-        m.put(x, y, rand(l...h)) if (y <= x + 1) && (rand(0..1) == 0)
+    (0...m.rows).each do |y|
+      (0...m.cols).each do |x|
+        m.put(y, x, rand(l...h)) if (y <= x + 1) && (rand(0..1) == 0)
       end
     end
     m
@@ -88,9 +87,9 @@ module MatrixTestUtil
     # return a lower hessenberg matrix with n rows and columns
     # with non-zero values in the range l..h
     m = SparseMatrix.new(n, n)
-    (0..m.rows).each do |y|
-      (0..m.cols).each do |x|
-        m.put(x, y, rand(l...h)) if (x <= y + 1) && (rand(0..1) == 0)
+    (0...m.rows).each do |y|
+      (0...m.cols).each do |x|
+        m.put(y, x, rand(l...h)) if (x <= y + 1) && (rand(0..1) == 0)
       end
     end
     m
