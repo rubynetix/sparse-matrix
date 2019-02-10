@@ -78,7 +78,7 @@ class TriDiagonalMatrix < SparseMatrix
     @lower_dia = Array.new(rows-1, 0)
   end
 
-  def resize!(size)
+  def resize!(size, _ = size)
     if size > @rows
       size_up!(@main_dia, size)
       size_up!(@lower_dia, size - 1)

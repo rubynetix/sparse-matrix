@@ -39,38 +39,6 @@ class SparseMatrixTest < Test::Unit::TestCase
     end
   end
 
-  def test_resize
-    m = rand_sparse
-    nr = rand(0..MAX_ROWS)
-    nc = rand(0..MAX_COLS)
-    r = m.rows
-    c = m.cols
-    nnzi = m.nnz
-
-    # Preconditions
-    begin
-    end
-
-    m.resize!(nr, nc)
-
-    # Postconditions
-    begin
-      assert_equal(nr, m.rows, "Resize rows is incorrect. Expected: #{nr}, Actual: #{m.rows}")
-      assert_equal(nc, m.cols, "Resize cols is incorrect. Expected: #{nc}, Actual: #{m.cols}")
-
-      # Resize up
-      if (nr >= r) && (nc >= c)
-        assert_equal(nnzi, m.nnz, "Number of non-zero elements in resized matrix is incorrect. Expected: #{nnzi}, Actual: #{m.nnz}")
-        return
-      end
-
-      # Resizing down
-      assert_true(nnzi >= m.nnz, "Number of non-zero elements in resized matrix is incorrect. Expected: #{nnzi}, Actual: #{m.nnz}")
-    end
-
-    assert_invariants(m)
-  end
-
   def test_resize_down
     # A more explicit case where we check that
     # a value was removed
