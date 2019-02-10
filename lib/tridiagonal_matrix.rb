@@ -53,11 +53,8 @@ class TriDiagonalMatrix < SparseMatrix
     def from_sparse_matrix(s)
       raise NonSquareException unless s.square?
       m = TriDiagonalMatrix.new(s.rows)
-
-      (0...m.rows).each do |r|
-        (0...m.cols).each do |c|
-          m.put(r, c, s[r, c]) if r - c <= 1
-        end
+      s.iterator.iterate do |r, c, v|
+        m.put(r, c, v) if r - c <= 1
       end
       m
     end
@@ -129,6 +126,22 @@ class TriDiagonalMatrix < SparseMatrix
     m
   end
 
+  def lower_triangular?
+    @upper_dia.count { |x| x != 0 } == 0
+  end
+
+  def upper_triangular?
+    @lower_dia.count { |x| x != 0 } == 0
+  end
+
+  def lower_hessenberg?
+    true
+  end
+
+  def upper_hessenberg?
+    true
+  end
+  
 private
 
   def transpose!
