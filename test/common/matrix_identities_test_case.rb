@@ -1,8 +1,7 @@
-require 'test/unit'
-require_relative '../lib/sparse_matrix'
-require_relative 'common/test_helper_matrix_util'
+require_relative '../../lib/sparse_matrix'
+require_relative 'test_helper_matrix_util'
 
-class MatrixIdentitiesTest < Test::Unit::TestCase
+module MatrixIdentitiesTestCase
   include MatrixTestUtil
 
   TEST_ITER = 100
@@ -12,23 +11,23 @@ class MatrixIdentitiesTest < Test::Unit::TestCase
   MAX_VAL = 10
 
   def generate_matrices
-    @a = rand_square_sparse(size: rand(2..MAX_ROWS))
+    @a = @factory.random_square(size: rand(2..MAX_ROWS))
     @a_t =  @a.transpose
     # @a_inv = @a.inverse
 
-    @b = rand_square_sparse(size: @a.rows)
+    @b = @factory.random_square(size: @a.rows)
     @b_t = @b.transpose
     # @b_inv = @b.inverse
 
-    @c = rand_square_sparse(size: @a.rows)
+    @c = @factory.random_square(size: @a.rows)
     @c_t = @c.transpose
     # @c_inv = @c.inverse
 
-    @d = rand_square_sparse(size: @a.rows)
+    @d = @factory.random_square(size: @a.rows)
     @d_t = @d.transpose
 
-    @zero = SparseMatrix.zero(@a.rows)
-    @i = SparseMatrix.identity(@a.rows)
+    @zero = @factory.zero(@a.rows)
+    @i = @factory.identity(@a.rows)
   end
 
   def test_addition_identities
