@@ -6,17 +6,13 @@ rvm: 2.5.3
 
 stages:
   - build
-  - identities
-  - sparse_tests
+  - test
 
 jobs:
   include:
     - stage: build
       script:
         - ./scripts/setup.sh
-    - stage: identities
+    - stage: test
       script:
-        - ruby test/matrix_identities_test.rb
-    - stage: sparse_tests
-      script:
-        - ruby test/sparse_*.rb
+        - find test -name '*_test.rb' | xargs -n1 -I{} ruby -Itest {}
