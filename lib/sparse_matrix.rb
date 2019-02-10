@@ -542,34 +542,4 @@ private
       @row_vector[r] -= 1
     end
   end
-
-  def increase_rows(rows)
-    (0..(rows - @rows)).each do |_num|
-      @row_vector.push @row_vector.last
-    end
-    @rows = rows
-  end
-
-  def decrease_rows(rows)
-    rm_rows = @row_vector.pop(@rows - rows)
-    num_vals_rmd = rm_rows.last - @row_vector.last
-    @col_vector.pop num_vals_rmd
-    @data.pop num_vals_rmd
-    @rows = rows
-  end
-
-  def decrease_cols(cols)
-    it = iterator
-    to_rm = []
-    while it.has_next?
-      item = it.next
-      to_rm.push item if item[1] >= cols
-    end
-    to_rm.each do |r, c, _|
-      put r, c, 0
-    end
-    @cols = cols
-  end
-
 end
-
