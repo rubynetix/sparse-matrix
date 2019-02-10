@@ -324,7 +324,17 @@ class SparseMatrix
   end
 
   def orthogonal?
-    raise 'Not implemented'
+    if !square?
+      return false
+    else
+      t = transpose
+      i = t.*(self)
+      if i.identity?
+        return true
+      else
+        return false
+      end
+    end
   end
 
   ##

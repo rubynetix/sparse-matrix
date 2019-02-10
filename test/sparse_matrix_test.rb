@@ -1171,7 +1171,7 @@ class SparseMatrixTest < Test::Unit::TestCase
     assert_invariants(m)
   end
 
-  def tst_orthogonal?
+  def test_orthogonal?
     m = rand_square_sparse
 
     # Preconditions
@@ -1182,7 +1182,7 @@ class SparseMatrixTest < Test::Unit::TestCase
 
     # Post conditions
     begin
-      assert_true(m.transpose == m.inverse, orth, 'Conflict between orthogonal result and transpose/inverse equality')
+      assert_equal(m.transpose == m.inverse, orth, 'Conflict between orthogonal result and transpose/inverse equality')
     end
 
     assert_invariants(m)
@@ -1224,7 +1224,7 @@ class SparseMatrixTest < Test::Unit::TestCase
     end
 
     ruby_m = m.to_ruby_matrix
-    
+
     # Postcondition
     begin
       (0...m.rows).each do |r|
@@ -1234,5 +1234,5 @@ class SparseMatrixTest < Test::Unit::TestCase
       end
     end
   end
-  
+
 end
