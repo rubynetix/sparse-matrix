@@ -726,20 +726,22 @@ class SparseMatrixTest < Test::Unit::TestCase
 
   def check_lower_hessenberg(m)
     # algorithm to test if matrix m is lower_hessenberg
+    # Returns true if matrix m is lower hessenberg. False otherwise.
     if !m.square?
       assert_false(m.lower_hessenberg?, "Lower Hessenberg check for Non-square Matrix is incorrect. Expected: False, Actual:#{m.lower_hessenberg?}")
     else
       (0...m.rows).each do |y|
         (0...m.cols).each do |x|
-          if x > y + 1
-            assert_equal(0, m.at(x, y), "Lower Hessenberg Matrix is not zero at row:#{y} col:#{x}. Value: #{m.at(x, y)}")
+          if (x > y + 1 ) && (m.at(y, x) != 0)
+            return false
           end
         end
       end
+      true
     end
   end
 
-  def tst_lower_hessenberg_nonsquare
+  def test_lower_hessenberg?(_nonsquare)
     # tests lower_hessenberg? with a nonsquare matrix
     r = 0
     c = 0
@@ -761,13 +763,13 @@ class SparseMatrixTest < Test::Unit::TestCase
     assert_invariants(m)
   end
 
-  def tst_lower_hessenberg_square
+  def test_lower_hessenberg_square
     # tests lower_hessenberg with a square matrix
     i = 0
     while i < 20
       rc = rand(0..MAX_ROWS)
       m_hess = lower_hessenberg_matrix(rc, 0, 1000)
-      m_random = rand_matrix(rc, rc)
+      m_random = rand_square_sparse
 
       # Preconditions
       begin
@@ -775,8 +777,8 @@ class SparseMatrixTest < Test::Unit::TestCase
 
       # Postconditions
       begin
-        check_lower_hessenberg(m_hess)
-        check_lower_hessenberg(m_random)
+        assert_true(m_hess.lower_hessenberg?, "lower_hessenberg? returned false for a lower hessenberg matrix")
+        assert_true(!m_random.lower_hessenberg?, "lower_hessenberg? returned true for a non-lower hessenberg matrix") if !check_lower_hessenberg(m_random)
       end
 
       assert_invariants(m_hess)
@@ -788,20 +790,22 @@ class SparseMatrixTest < Test::Unit::TestCase
 
   def check_upper_hessenberg(m)
     # algorithm to test matrix m is upper_hessenberg
+    # Returns true if matrix m is upper hessenberg. False otherwise.
     if !m.square?
       assert(!m.upper_hessenberg?, 'Non-square matrix cannot be upper hessenberg')
     else
       (0...m.rows).each do |y|
         (0...m.cols).each do |x|
-          if y > x + 1
-            assert_equal(0, m.at(x, y), 'Nonzero value below tri-diagonal band, cannot be upper hessenberg')
+          if (y > x + 1) && (m.at(y, x) != 0)
+            return false
           end
         end
       end
+      true
     end
   end
 
-  def tst_upper_hessenberg_nonsquare
+  def test_upper_hessenberg?(_nonsquare)
     # tests upper_hessenberg? with a nonsquare matrix
     r = 0
     c = 0
@@ -823,13 +827,13 @@ class SparseMatrixTest < Test::Unit::TestCase
     assert_invariants(m)
   end
 
-  def tst_upper_hessenberg_square
+  def test_upper_hessenberg_square
     # tests upper_hessenberg with a square matrix
     i = 0
     while i < 10
       rc = rand(0..MAX_ROWS)
       m_hess = upper_hessenberg_matrix(rc, 0, 1000)
-      m_random = rand_matrix(rc, rc)
+      m_random = rand_square_sparse
 
       # Preconditions
       begin
@@ -837,8 +841,8 @@ class SparseMatrixTest < Test::Unit::TestCase
 
       # Postconditions
       begin
-        check_upper_hessenberg(m_hess)
-        check_upper_hessenberg(m_random)
+        assert_true(m_hess.upper_hessenberg?, "upper_hessenberg? returned false for a upper hessenberg matrix")
+        assert_true(!m_random.upper_hessenberg?, "upper_hessenberg? returned true for a non upper hessenberg matrix") if !check_upper_hessenberg(m_random)
       end
 
       assert_invariants(m_hess)
