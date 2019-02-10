@@ -34,8 +34,10 @@ class SparseMatrix
 
   class << self
     include MatrixExceptions
-    def zero(rows, cols = rows)
-      SparseMatrix.new(rows, cols)
+    def create(rows, cols: rows, val: 0)
+      m = SparseMatrix.new(rows, cols)
+      m.map! {|_, _, _| val} unless val == 0
+      m
     end
 
     def identity(n)
@@ -485,7 +487,7 @@ private
   end
 
   def mul_matrix(x)
-    MatrixSolver.matrix_mult(self, x, SparseMatrix.zero(rows, x.cols))
+    MatrixSolver.matrix_mult(self, x, SparseMatrix.new(rows, x.cols))
   end
 
   def mul_scalar(x)
