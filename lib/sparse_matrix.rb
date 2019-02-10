@@ -1,6 +1,8 @@
 # frozen_string_literal: true
+require 'matrix'
 require_relative 'csr_iterator'
 require_relative 'matrix_solver'
+
 
 # Compressed Sparse Row Matrix
 class SparseMatrix
@@ -36,13 +38,26 @@ class SparseMatrix
 
     def [](*rows)
       # 0x0 matrix
-      return SparseMatrix.new(rows.length) if rows.length == 0
+      return SparseMatrix.new(rows.length) if rows.length.zero?
 
       m = SparseMatrix.new(rows.length, rows[0].length)
 
       (0...m.rows).each do |r|
         (0...m.cols).each do |c|
           m.put(r, c, rows[r][c])
+        end
+      end
+      m
+    end
+
+    def from_ruby_matrix(ruby_matrix)
+      return SparseMatrix.new(ruby_matrix.row_count) if ruby_matrix.row_count.zero?
+
+      m = SparseMatrix.new(ruby_matrix.row_count, ruby_matrix.column_count)
+
+      (0...m.rows).each do |r|
+        (0...m.cols).each do |c|
+          m.put(r, c, ruby_matrix[r, c])
         end
       end
       m
@@ -163,7 +178,9 @@ class SparseMatrix
   end
 
   def det
-    raise 'Not implemented'
+    raise 'NonSquareException' unless square?
+
+    to_ruby_matrix.det
   end
 
   def sum
@@ -205,7 +222,10 @@ class SparseMatrix
   def inverse
     raise 'NotInvertibleException' unless invertible?
 
-    raise 'Not implemented'
+    ruby_matrix = to_ruby_matrix
+    inverse = ruby_matrix.inv
+
+    SparseMatrix.from_ruby_matrix(inverse)
   end
 
   def rank
@@ -224,6 +244,7 @@ class SparseMatrix
 
   def trace
     raise 'NonTraceableException' unless traceable?
+
     diagonal.sum(init=0)
   end
 
@@ -237,8 +258,10 @@ class SparseMatrix
 
   def identity?
     return false unless square?
+
     map_diagonal_nocopy do |v|
       return false unless v == 1
+
       v
     end
     nnz == @rows
@@ -259,7 +282,7 @@ class SparseMatrix
   end
 
   def invertible?
-    det != 0
+    !det.zero?
   end
 
   def symmetric?
@@ -361,6 +384,18 @@ class SparseMatrix
     else
       false
     end
+  end
+
+  def to_ruby_matrix
+    matrix_array = Array.new(@rows) { Array.new(@cols, 0) }
+
+    (0...@rows).each do |x|
+      (0...@cols).each do |y|
+        matrix_array[x][y] = at(x, y)
+      end
+    end
+
+    Matrix[*matrix_array]
   end
 
   def iterator
