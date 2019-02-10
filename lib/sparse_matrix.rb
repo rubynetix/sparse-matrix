@@ -298,7 +298,7 @@ class SparseMatrix
   end
 
   def positive?
-    @data.find { :negative? } == nil
+    @data.find(&:negative?).nil?
   end
 
   def invertible?

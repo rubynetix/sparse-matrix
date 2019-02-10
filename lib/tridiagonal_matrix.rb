@@ -8,7 +8,7 @@ class TriDiagonalMatrix < SparseMatrix
 
   def initialize(rows, cols = rows)
     raise NonSquareException unless rows == cols
-    raise TypeError unless rows > 2 && cols > 2
+    # raise TypeError unless rows > 2 && cols > 2
 
     @upper_dia = Array.new(rows-1, 0)
     @main_dia = Array.new(rows, 0)
@@ -62,22 +62,34 @@ class TriDiagonalMatrix < SparseMatrix
     alias I identity
   end
 
-  def det
-    prev_det = 1 # det of a 0x0 is 1
-    det = @main_dia[0] # det of a 1x1 is the number itself
-    index = 1
-    while index < @rows
-      temp_prev = det
-      det = @main_dia[index] * det \
-          - @lower_dia[index - 1] * @upper_dia[index - 1] * prev_det
-      prev_det = temp_prev
-      index += 1
-    end
-    det
+  def nnz
+    @upper_dia.count { |x| x != 0 } + @main_dia.count { |x| x != 0 } + @lower_dia.count { |x| x != 0 }
   end
 
-  def nil?
-    @rows == 0 && @cols == 0
+  def set_zero
+    @upper_dia = Array.new(rows-1, 0)
+    @main_dia = Array.new(rows, 0)
+    @lower_dia = Array.new(rows-1, 0)
+  end
+
+  def set_identity
+    @upper_dia = Array.new(rows-1, 0)
+    @main_dia = Array.new(rows, 1)
+    @lower_dia = Array.new(rows-1, 0)
+  end
+
+  def resize!(size)
+    if size > @rows
+      size_up!(@main_dia, size)
+      size_up!(@lower_dia, size - 1)
+      size_up!(@upper_dia, size - 1)
+    elsif size < @rows
+      size_down!(@main_dia, size)
+      size_down!(@lower_dia, size - 1)
+      size_down!(@upper_dia, size - 1)
+    end
+    @rows = @cols = size
+    self
   end
 
   def at(r, c)
@@ -98,18 +110,30 @@ class TriDiagonalMatrix < SparseMatrix
     diag[idx] = val unless diag.nil?
   end
 
-  def resize!(size)
-    if size > @rows
-      size_up!(@main_dia, size)
-      size_up!(@lower_dia, size - 1)
-      size_up!(@upper_dia, size - 1)
-    elsif size < @rows
-      size_down!(@main_dia, size)
-      size_down!(@lower_dia, size - 1)
-      size_down!(@upper_dia, size - 1)
+  def det
+    prev_det = 1 # det of a 0x0 is 1
+    det = @main_dia[0] # det of a 1x1 is the number itself
+    index = 1
+    while index < @rows
+      temp_prev = det
+      det = @main_dia[index] * det \
+          - @lower_dia[index - 1] * @upper_dia[index - 1] * prev_det
+      prev_det = temp_prev
+      index += 1
     end
-    @rows = @cols = size
-    self
+    det
+  end
+
+  def diagonal
+    @main_dia.clone
+  end
+
+  def tridiagonal
+    clone
+  end
+
+  def nil?
+    @rows == 0 && @cols == 0
   end
 
   def iterator
@@ -124,6 +148,18 @@ class TriDiagonalMatrix < SparseMatrix
     m = clone
     m.transpose!
     m
+  end
+
+  def transpose!
+    temp = @lower_dia
+    @lower_dia = @upper_dia
+    @upper_dia = temp
+  end
+
+  def positive?
+    @upper_dia.find(&:negative?).nil? and
+        @main_dia.find(&:negative?).nil? and
+        @lower_dia.find(&:negative?).nil?
   end
 
   def lower_triangular?
@@ -141,14 +177,8 @@ class TriDiagonalMatrix < SparseMatrix
   def upper_hessenberg?
     true
   end
-  
-private
 
-  def transpose!
-    temp = @lower_dia
-    @lower_dia = @upper_dia
-    @upper_dia = temp
-  end
+private
 
   def on_band?(r, c)
     (r - c).abs <= 1

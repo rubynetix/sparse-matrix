@@ -19,4 +19,7 @@ jobs:
         - ruby test/matrix_identities_test.rb
     - stage: sparse_tests
       script:
-        - ruby test/sparse_*.rb
+        - ruby test/sparse_matrix_test.rb
+    - stage: tridiagonal_tests
+      script:
+        - ruby test/tridiagonal_matrix_test.rb

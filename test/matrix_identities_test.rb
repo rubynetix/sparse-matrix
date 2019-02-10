@@ -1,6 +1,6 @@
 require 'test/unit'
 require_relative '../lib/sparse_matrix'
-require_relative './test_helper_matrix_util'
+require_relative 'common/test_helper_matrix_util'
 
 class MatrixIdentitiesTest < Test::Unit::TestCase
   include MatrixTestUtil
