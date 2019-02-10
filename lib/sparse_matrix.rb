@@ -223,19 +223,17 @@ class SparseMatrix
   ##
   # Returns an array containing the values along the main diagonal of the matrix
   def diagonal
-    if !square?
-      raise NonSquareException, "Can not get diagonal of non-square matrix."
-    else
-      diag = Array.new(@rows, 0)
-      iter = iterator
-      while iter.has_next?
-        item = iter.next
-        if item[0] == item[1]
-          diag[item[0]] = item[2]
-        end
+    raise NonSquareException, "Can not get diagonal of non-square matrix." unless square?
+
+    diag = Array.new(@rows, 0)
+    iter = iterator
+    while iter.has_next?
+      item = iter.next
+      if item[0] == item[1]
+        diag[item[0]] = item[2]
       end
-      return diag
     end
+    diag
   end
 
   def tridiagonal
@@ -253,9 +251,7 @@ class SparseMatrix
   def inverse
     raise 'NotInvertibleException' unless invertible?
 
-    ruby_matrix = to_ruby_matrix
-    inverse = ruby_matrix.inv
-
+    inverse = to_ruby_matrix.inv
     SparseMatrix.from_ruby_matrix(inverse)
   end
 
@@ -302,13 +298,7 @@ class SparseMatrix
   end
 
   def positive?
-    # TODO: Implement in O(m) time
-    (0..@rows-1).each do |r|
-      (0..@cols-1).each do |c|
-        return false if at(r, c).negative?
-      end
-    end
-    true
+    @data.find(&:negative?).nil?
   end
 
   def invertible?
@@ -324,17 +314,10 @@ class SparseMatrix
   end
 
   def orthogonal?
-    if !square?
-      return false
-    else
-      t = transpose
-      i = t.*(self)
-      if i.identity?
-        return true
-      else
-        return false
-      end
-    end
+    return false unless square?
+    t = transpose
+    i = t * self
+    i.identity?
   end
 
   ##
@@ -358,72 +341,60 @@ class SparseMatrix
   # Returns true if all the entries above the main diagonal are zero.
   # Returns false otherwise.
   def lower_triangular?
-    if square?
-      iter = iterator
-      while iter.has_next?
-        item = iter.next
-        if item[1] > item[0] && item[2] != 0
-          return false
-        end
+    return false unless square?
+    iter = iterator
+    while iter.has_next?
+      item = iter.next
+      if item[1] > item[0] && item[2] != 0
+        return false
       end
-      true
-    else
-      false
     end
+    true
   end
 
   ##
   # Returns true if all the entries below the main diagonal are zero.
   # Returns false otherwise.
   def upper_triangular?
-    if square?
-      iter = iterator
-      while iter.has_next?
-        item = iter.next
-        if item[0] > item[1] && item[2] != 0
-          return false
-        end
+    return false unless square?
+    iter = iterator
+    while iter.has_next?
+      item = iter.next
+      if item[0] > item[1] && item[2] != 0
+        return false
       end
-      true
-    else
-      false
     end
+    true
   end
 
   ##
   # Returns true if all the entries above the first superdiagonal are zero.
   # Returns false otherwise.
   def lower_hessenberg?
-    if square?
-      iter = iterator
-      while iter.has_next?
-        item = iter.next
-        if item[1] > (item[0] + 1) && item[2] != 0
-          return false
-        end
+    return false unless square?
+    iter = iterator
+    while iter.has_next?
+      r, c, v = iter.next
+      if c > (r + 1) && v != 0
+        return false
       end
-      true
-    else
-      false
     end
+    true
   end
 
   ##
-  # Returns true if all the entries below the main diagonal are zero.
+  # Returns true if all the entries below the first subdiagonal diagonal are zero.
   # Returns false otherwise.
   def upper_hessenberg?
-    if square?
+    return false unless square?
       iter = iterator
       while iter.has_next?
-        item = iter.next
-        if item[0] > (item[1] + 1) && item[2] != 0
+        r, c, v = iter.next
+        if r > (c + 1) && v != 0
           return false
         end
       end
       true
-    else
-      false
-    end
   end
 
   def to_ruby_matrix
