@@ -7,7 +7,11 @@ class SparseMatrix
   attr_reader(:rows, :cols)
 
   def initialize(rows, cols = rows)
-    raise TypeError unless rows >= 0 and cols >= 0
+    # If one dimension is 0, both dimensions must be 0
+    if rows == 0 or cols == 0
+      rows = 0
+      cols = 0
+    end
 
     @data = []
     @row_vector = Array.new(rows + 1, 0)
@@ -49,11 +53,44 @@ class SparseMatrix
 
   def set_identity
     set_zero
-    map_diagonal_nocopy { 1 }
+    map_diagonal! { 1 }
   end
 
-  def resize(rows, cols)
-    raise 'Not implemented'
+  def resize!(rows, cols)
+    if rows < @rows
+      last_idx = @row_vector[rows]
+      @row_vector = @row_vector.take(rows+1)
+      @data = @data.take(last_idx)
+      @col_vector = @col_vector.take(last_idx)
+    elsif rows > @rows
+      (@rows...rows).each do
+        @row_vector.push(nnz)
+      end
+    end
+
+    if cols < @cols
+      row_dec = 0
+      new_data_vector = []
+      new_col_vector = []
+
+      (0...rows).each do |r|
+        idx, row_end = @row_vector[r], @row_vector[r+1]
+        while idx < row_end and idx < nnz and cols > @col_vector[idx]
+          new_data_vector.push(@data[idx])
+          new_col_vector.push(@col_vector[idx])
+          row_dec += 1
+          idx += 1
+        end
+
+        @row_vector[r] -= row_dec
+      end
+
+      @data = new_data_vector
+      @col_vector = new_col_vector
+    end
+
+    @rows = rows
+    @cols = cols
   end
 
   def at(row, col)
@@ -118,7 +155,7 @@ class SparseMatrix
 
   def sum
     total = 0
-    map_nz_nocopy { |val| total += val }
+    map_nz! { |val| total += val }
     total
   end
 
@@ -165,8 +202,9 @@ class SparseMatrix
   end
 
   def identity?
+    # TODO: Optimize using diagonal iterator
     return false unless square?
-    map_diagonal_nocopy do |v|
+    map_diagonal! do |v|
       return false unless v == 1
       v
     end
@@ -265,9 +303,7 @@ class SparseMatrix
     m
   end
 
-protected
-
-  def map_nocopy
+  def map!
     (0...@rows).each do |x|
       (0...@cols).each do |y|
         current = at(x, y)
@@ -277,7 +313,7 @@ protected
     end
   end
 
-  def map_diagonal_nocopy
+  def map_diagonal!
     (0...@rows).each do |x|
       current = at(x, x)
       new_val = yield(current, x)
@@ -285,7 +321,7 @@ protected
     end
   end
 
-  def map_nz_nocopy
+  def map_nz!
     # TODO: Optimize to O(m) time
     (0...@rows).each do |r|
       (0...@cols).each do |c|
@@ -295,8 +331,6 @@ protected
   end
 
 private
-
-  attr_accessor(:data, :col_vector, :row_vector)
 
   def plus_matrix(o)
     raise 'Not implemented'
@@ -323,9 +357,7 @@ private
   # If a value does not exist at that location, the val returned is nil
   # and the index indicates the insertion location
   def get_index(row, col)
-    row_start = @row_vector[row]
-    row_end = @row_vector[row + 1]
-    index = row_start
+    index, row_end = @row_vector[row], @row_vector[row + 1]
 
     while (index < row_end) and (index < nnz) and (col >= @col_vector[index])
       return [index, @data[index]] if @col_vector[index] == col
