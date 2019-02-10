@@ -131,7 +131,6 @@ module MatrixTestCase
   end
 
   def test_resize
-    puts "resize"
     m = @factory.random
     n = rand(0..MAX_ROWS)
     r = m.rows
@@ -162,35 +161,33 @@ module MatrixTestCase
     assert_invariants(m)
   end
 
-  # def test_resize_down
-  #   # A more explicit case where we check that
-  #   # a value was removed
-  #   r = rand(2..MAX_ROWS)
-  #   c = rand(2..MAX_COLS)
-  #   dr = r - 1
-  #   dc = c - 1
-  #   m = @factory.new(r, c)
-  #   m.put(r-1, c-1, 1)
-  #
-  #   # Preconditions
-  #   begin
-  #     assert_equal(r, m.rows, "Number of rows is invalid. Expected: #{r}, Actual: #{m.rows}")
-  #     assert_equal(c, m.cols, "Number of cols is invalid: Expected: #{c}, Actual: #{m.cols}")
-  #     assert_true(dr <= m.rows, 'Resize down row count is larger than original matrix row count')
-  #     assert_true(dc <= m.cols, 'Resize down column count is larger than original matrix column count')
-  #   end
-  #
-  #   m.resize!(dr, dc)
-  #
-  #   # Postconditions
-  #   begin
-  #     assert_equal(dr, m.rows, "Resize rows is incorrect. Expected: #{dr}, Actual: #{m.rows}")
-  #     assert_equal(dc, m.cols, "Resize cols is incorrect. Expected: #{dc}, Actual: #{m.cols}")
-  #     assert_equal(0, m.nnz, 'Number of non-zero elements is invalid. The only non-zero element should have been pushed out during resize down')
-  #   end
-  #
-  #   assert_invariants(m)
-  # end
+  def test_resize_down
+    # A more explicit case where we check that
+    # a value was removed
+    n = rand(2..MAX_ROWS)
+    dn = n - 1
+    m = @factory.zero(n)
+    m.put(n - 1, n - 1, 1)
+
+    # Preconditions
+    begin
+      assert_equal(n, m.rows, "Number of rows is invalid. Expected: #{n}, Actual: #{m.rows}")
+      assert_equal(n, m.cols, "Number of cols is invalid: Expected: #{n}, Actual: #{m.cols}")
+      assert_true(dn <= m.rows, 'Resize down row count is larger than original matrix row count')
+      assert_true(dn <= m.cols, 'Resize down column count is larger than original matrix column count')
+    end
+
+    m.resize!(dn, dn)
+
+    # Postconditions
+    begin
+      assert_equal(dn, m.rows, "Resize rows is incorrect. Expected: #{dn}, Actual: #{m.rows}")
+      assert_equal(dn, m.cols, "Resize cols is incorrect. Expected: #{dn}, Actual: #{m.cols}")
+      assert_equal(0, m.nnz, 'Number of non-zero elements is invalid. The only non-zero element should have been pushed out during resize down')
+    end
+
+    assert_invariants(m)
+  end
 
   def test_set_zero
     m = @factory.random
