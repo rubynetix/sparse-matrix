@@ -10,11 +10,9 @@ class TriDiagonalIterator
 
   def next
     diag, offset = @idx % 3, @idx / 3
-
     val = @diags[diag][offset]
     row = offset + row_offset(@idx)
     col = offset + col_offset(@idx)
-    # puts "idx #{@idx} --- \n diag #{diag}, off #{offset}, roff #{row_offset(@idx)}, coff #{col_offset(@idx)}"
     @idx += 1
 
     [row, col, val]

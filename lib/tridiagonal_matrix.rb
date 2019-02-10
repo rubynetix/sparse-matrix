@@ -31,7 +31,7 @@ class TriDiagonalMatrix < SparseMatrix
   end
 
   def nil?
-    rows == 0 && cols == 0
+    @rows == 0 && @cols == 0
   end
 
   def at(r, c)
