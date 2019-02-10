@@ -28,4 +28,18 @@ class TriDiagonalMatrix < SparseMatrix
     end
     det
   end
+
+  def resize!(n)
+    if n < @rows
+      @upper_dia = @upper_dia[0...@upper_dia.length - (@rows - n)]
+      @main_dia = @main_dia[0...@main_dia.length - (@rows - n)]
+      @lower_dia = @lower_dia[0...@lower_dia.length - (@rows - n)]
+    else
+      @upper_dia.concat(Array.new(n-@rows, 0))
+      @main_dia.concat(Array.new(n-@rows, 0))
+      @lower_dia.concat(Array.new(n-@rows, 0))
+    end
+    @rows = n
+    @cols = n
+  end
 end
