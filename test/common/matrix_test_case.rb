@@ -91,23 +91,22 @@ module MatrixTestCase
     assert_invariants(m)
   end
 
-  # def test_cols
-  #   r = rand(1..MAX_ROWS)
-  #   c = rand(0..MAX_COLS)
-  #   m = @factory.new(r, c)
-  #
-  #   # Preconditions
-  #   begin
-  #     assert_true(c >= 0, "Number of cols is invalid: #{c}")
-  #   end
-  #
-  #   # Postconditions
-  #   begin
-  #     assert_equal(c, m.cols, "Number of matrix columns is incorrect. Expected: #{c}, Actual: #{m.cols}")
-  #   end
-  #
-  #   assert_invariants(m)
-  # end
+  def test_cols
+    n = rand(1..MAX_ROWS)
+    m = @factory.random_square(size: n)
+
+    # Preconditions
+    begin
+      assert_true(n >= 0, "Number of cols is invalid: #{n}")
+    end
+
+    # Postconditions
+    begin
+      assert_equal(n, m.cols, "Number of matrix columns is incorrect. Expected: #{n}, Actual: #{m.cols}")
+    end
+
+    assert_invariants(m)
+  end
 
   def test_det
     m = @factory.random_square
