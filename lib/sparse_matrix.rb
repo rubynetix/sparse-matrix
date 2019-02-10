@@ -502,7 +502,7 @@ private
       to_rm.push item if item[1] >= cols
     end
     to_rm.each do |r, c, _|
-      delete r, c
+      put r, c, 0
     end
     @cols = cols
   end
