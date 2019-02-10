@@ -7,5 +7,6 @@ install_gem() {
     fi
 }
 
-install_gem bundler
+gem update --system
+gem install bundler
 bundler install
