@@ -185,11 +185,11 @@ private
   end
 
   def size_up!(diag, len)
-    diag.concat(Array.new(len + 1 - diag.length, 0))
+    diag.concat(Array.new(len - diag.length, 0))
   end
 
   def size_down!(diag, len)
-    diag.slice!(len...diag.length-1) unless len >= diag.length
+    diag.slice!(len...diag.length) unless len >= diag.length
   end
 
   # Assumes that (r, c) is inside the matrix boundaries
