@@ -496,34 +496,6 @@ class SparseMatrixTest < Test::Unit::TestCase
     assert_invariants(m)
   end
 
-  def test_zero?
-    ms = [
-      rand_sparse,
-      SparseMatrix.new(0),
-      SparseMatrix.identity(rand(0..100)),
-      SparseMatrix.zero(rand(0..MAX_ROWS), rand(0..MAX_COLS))
-    ]
-
-    ms.each do |m|
-      # Preconditions
-      begin
-      end
-
-      is_zero = m.zero?
-
-      # Postconditions
-      begin
-        if m.nnz > 0
-          assert_false(is_zero, 'Non-zero matrix recognized as zero')
-        else
-          assert_true(is_zero, 'Zero matrix not recognized as zero')
-        end
-      end
-
-      assert_invariants(m)
-    end
-  end
-
   def tst_rank
     m = rand_sparse
 

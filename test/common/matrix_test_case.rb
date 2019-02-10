@@ -239,7 +239,6 @@ module MatrixTestCase
   end
 
   def test_at
-    puts "at"
     v = rand(MIN_VAL..MAX_VAL)
     m = @factory.random
     r = c = nil
@@ -1105,34 +1104,33 @@ module MatrixTestCase
     assert_invariants(mt)
   end
 
-  # def test_zero?
-  #   ms = [
-  #       @factory.rand,
-  #       @factory.new(0),
-  #       @factory.identity(rand(0..100)),
-  #       @factory.zero(rand(0..MAX_ROWS), rand(0..MAX_COLS))
-  #   ]
-  #
-  #   ms.each do |m|
-  #     # Preconditions
-  #     begin
-  #     end
-  #
-  #     is_zero = m.zero?
-  #
-  #     # Postconditions
-  #     begin
-  #       if m.nnz > 0
-  #         assert_false(is_zero, 'Non-zero matrix recognized as zero')
-  #       else
-  #         assert_true(is_zero, 'Zero matrix not recognized as zero')
-  #       end
-  #     end
-  #
-  #     assert_invariants(m)
-  #   end
-  # end
-  #
+  def test_zero?
+    ms = [
+        @factory.random,
+        @factory.identity(rand(0..100)),
+        @factory.zero(rand(0..MAX_ROWS))
+    ]
+
+    ms.each do |m|
+      # Preconditions
+      begin
+      end
+
+      is_zero = m.zero?
+
+      # Postconditions
+      begin
+        if m.nnz > 0
+          assert_false(is_zero, 'Non-zero matrix recognized as zero')
+        else
+          assert_true(is_zero, 'Zero matrix not recognized as zero')
+        end
+      end
+
+      assert_invariants(m)
+    end
+  end
+
   # def tst_rank
   #   m = @factory.random
   #
