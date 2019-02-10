@@ -120,28 +120,6 @@ class SparseMatrixTest < Test::Unit::TestCase
     assert_invariants(m)
   end
 
-  def test_at
-    v = rand(MIN_VAL..MAX_VAL)
-    m = SparseMatrix.new(100, 100)
-    r = rand(0..99)
-    c = rand(0..99)
-
-    m.put(r, c, v)
-
-    # Preconditions
-    begin
-      assert_true(r >= 0 && r <= m.rows - 1, 'Invalid row: Out of matrix row range')
-      assert_true(c >= 0 && c <= m.cols - 1, 'Invalid column: Out of matrix column range')
-    end
-
-    # Postconditions
-    begin
-      assert_equal(v, m.at(r, c), "Incorrect value at row:#{r}, col:#{c}. Expected: #{v}, Actual:#{m.at(r, c)}")
-    end
-
-    assert_invariants(m)
-  end
-
   def test_to_s
     test_ms = [
       SparseMatrix.new(0, 0),

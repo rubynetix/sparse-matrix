@@ -141,13 +141,14 @@ class SparseMatrix
       else
         @data[index] = val
       end
-      return
+      return true
     end
 
     unless val.zero?
       # Inserting a new element
       insert(row, col, index, val)
     end
+    true
   end
 
   def +(o)
