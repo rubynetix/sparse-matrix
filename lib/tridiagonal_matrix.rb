@@ -103,7 +103,10 @@ class TriDiagonalMatrix < SparseMatrix
   end
 
   def put(r, c, val)
-    raise "Insertion violates tri-diagonal structure." unless on_band?(r, c)
+    unless on_band?(r, c)
+      warn "Insertion at (#{r}, #{c}) would violate tri-diagonal structure. No element inserted."
+      return
+    end
 
     resize!([r, c].max + 1) unless [r, c].max + 1 <= @rows
     diag, idx = get_index(r, c)
@@ -185,11 +188,11 @@ private
   end
 
   def size_up!(diag, len)
-    diag.concat(Array.new(len + 1 - diag.length, 0))
+    diag.concat(Array.new(len - diag.length, 0))
   end
 
   def size_down!(diag, len)
-    diag.slice!(len...diag.length-1) unless len >= diag.length
+    diag.slice!(len...diag.length) unless len >= diag.length
   end
 
   # Assumes that (r, c) is inside the matrix boundaries

@@ -1,6 +1,7 @@
 require_relative 'tridiagonal_matrix'
+require_relative 'matrix_factory'
 
-class TriDiagonalMatrixFactory
+class TriDiagonalMatrixFactory < MatrixFactory
   def initialize(*args); end
 
   def new(rows, cols = rows)
@@ -17,25 +18,6 @@ class TriDiagonalMatrixFactory
     new(n).map_diagonal { 1 }
   end
 
-  def random(rows: rand(1..100), cols: rand(1..100), range: -100..100, fill_factor: rand(0..50))
-    m = new(rows)
-    nnz = (rand(1..(3 * rows - 2)) * fill_factor / 100).floor
-
-    while nnz > 0
-      r = rand(0..rows - 1)
-      c = r + rand(-1..1)
-      if m.at(r, c) == 0
-        m.put(r, c, rand(range))
-        nnz -= 1
-      end
-    end
-    m
-  end
-
-  def random_square(size: rand(1..100), range: -100..100, fill_factor: rand(0..50))
-    random(rows: size, cols: size, range: range, fill_factor: fill_factor)
-  end
-
   private
 
   def force_square(rows, cols)
@@ -43,5 +25,14 @@ class TriDiagonalMatrixFactory
       warn "Tried to create #{rows} x #{cols} tridiagonal matrix.\nForcing to square #{rows} x #{rows} matrix"
     end
     rows
+  end
+
+  def random_loc(rows, _ = rows)
+    r = rand(0..rows - 1)
+    [r, r + rand(-1..1)]
+  end
+
+  def num_nz(rows, cols, fill_factor)
+    (((3 * rows) - 2) * fill_factor / 100).floor
   end
 end
