@@ -1,13 +1,20 @@
 # frozen_string_literal: true
+require 'matrix'
 require_relative 'csr_iterator'
 require_relative 'matrix_solver'
+require_relative 'matrix_exceptions'
+
 
 # Compressed Sparse Row Matrix
 class SparseMatrix
-  attr_reader(:rows, :cols, :data)
+  attr_reader(:rows, :cols)
 
   def initialize(rows, cols = rows)
-    raise TypeError unless rows >= 0 and cols >= 0
+    # If one dimension is 0, both dimensions must be 0
+    if rows == 0 or cols == 0
+      rows = 0
+      cols = 0
+    end
 
     @data = []
     @row_vector = Array.new(rows + 1, 0)
@@ -26,6 +33,7 @@ class SparseMatrix
   end
 
   class << self
+    include MatrixExceptions
     def zero(rows, cols = rows)
       SparseMatrix.new(rows, cols)
     end
@@ -36,13 +44,26 @@ class SparseMatrix
 
     def [](*rows)
       # 0x0 matrix
-      return SparseMatrix.new(rows.length) if rows.length == 0
+      return SparseMatrix.new(rows.length) if rows.length.zero?
 
       m = SparseMatrix.new(rows.length, rows[0].length)
 
       (0...m.rows).each do |r|
         (0...m.cols).each do |c|
           m.put(r, c, rows[r][c])
+        end
+      end
+      m
+    end
+
+    def from_ruby_matrix(ruby_matrix)
+      return SparseMatrix.new(ruby_matrix.row_count) if ruby_matrix.row_count.zero?
+
+      m = SparseMatrix.new(ruby_matrix.row_count, ruby_matrix.column_count)
+
+      (0...m.rows).each do |r|
+        (0...m.cols).each do |c|
+          m.put(r, c, ruby_matrix[r, c])
         end
       end
       m
@@ -63,20 +84,45 @@ class SparseMatrix
 
   def set_identity
     set_zero
-    map_diagonal_nocopy { 1 }
+    map_diagonal! { 1 }
   end
 
-  def resize(rows, cols)
-    if rows > @rows
-      increase_rows rows
-    elsif rows < @rows
-      decrease_rows rows
+  def resize!(rows, cols)
+    if rows < @rows
+      last_idx = @row_vector[rows]
+      @row_vector = @row_vector.take(rows+1)
+      @data = @data.take(last_idx)
+      @col_vector = @col_vector.take(last_idx)
+    elsif rows > @rows
+      (@rows...rows).each do
+        @row_vector.push(nnz)
+      end
     end
-    if cols > @cols
-      @cols = cols
-    elsif cols < @cols
-      decrease_cols cols
+
+    if cols < @cols
+      row_dec = 0
+      new_data_vector = []
+      new_col_vector = []
+
+      (0...rows).each do |r|
+        idx, row_end = @row_vector[r], @row_vector[r+1]
+        while idx < row_end and idx < nnz and @col_vector[idx] < cols
+          new_data_vector.push(@data[idx])
+          new_col_vector.push(@col_vector[idx])
+          idx += 1
+        end
+
+        @row_vector[r] -= row_dec
+        row_dec += row_end - idx
+      end
+
+      @row_vector[rows] -= row_dec
+      @data = new_data_vector
+      @col_vector = new_col_vector
     end
+
+    @rows = rows
+    @cols = cols
   end
 
   def at(row, col)
@@ -117,7 +163,7 @@ class SparseMatrix
   end
 
   def **(x)
-    throw RuntimeError unless square?
+    throw NonSquareException unless square?
     throw TypeError unless x.is_a? Integer
     throw ArgumentError unless x > 1
     new_m = dup
@@ -163,12 +209,14 @@ class SparseMatrix
   end
 
   def det
-    raise 'Not implemented'
+    raise 'NonSquareException' unless square?
+
+    to_ruby_matrix.det
   end
 
   def sum
     total = 0
-    map_nz_nocopy { |val| total += val }
+    map_nz! { |val| total += val }
     total
   end
 
@@ -205,7 +253,10 @@ class SparseMatrix
   def inverse
     raise 'NotInvertibleException' unless invertible?
 
-    raise 'Not implemented'
+    ruby_matrix = to_ruby_matrix
+    inverse = ruby_matrix.inv
+
+    SparseMatrix.from_ruby_matrix(inverse)
   end
 
   def rank
@@ -223,7 +274,8 @@ class SparseMatrix
   end
 
   def trace
-    raise 'NonTraceableException' unless traceable?
+    raise NonTraceableException unless traceable?
+
     diagonal.sum(init=0)
   end
 
@@ -236,8 +288,9 @@ class SparseMatrix
   end
 
   def identity?
+    # TODO: Optimize using diagonal iterator
     return false unless square?
-    map_diagonal_nocopy do |v|
+    map_diagonal! do |v|
       return false unless v == 1
       v
     end
@@ -259,7 +312,7 @@ class SparseMatrix
   end
 
   def invertible?
-    det != 0
+    !det.zero?
   end
 
   def symmetric?
@@ -363,6 +416,18 @@ class SparseMatrix
     end
   end
 
+  def to_ruby_matrix
+    matrix_array = Array.new(@rows) { Array.new(@cols, 0) }
+
+    (0...@rows).each do |x|
+      (0...@cols).each do |y|
+        matrix_array[x][y] = at(x, y)
+      end
+    end
+
+    Matrix[*matrix_array]
+  end
+
   def iterator
     CSRIterator.new(@row_vector, @col_vector, @data)
   end
@@ -399,9 +464,7 @@ class SparseMatrix
     m
   end
 
-protected
-
-  def map_nocopy
+  def map!
     (0...@rows).each do |x|
       (0...@cols).each do |y|
         current = at(x, y)
@@ -411,7 +474,7 @@ protected
     end
   end
 
-  def map_diagonal_nocopy
+  def map_diagonal!
     (0...@rows).each do |x|
       current = at(x, x)
       new_val = yield(current, x)
@@ -419,13 +482,16 @@ protected
     end
   end
 
-  def map_nz_nocopy
-    iterator.iterate{|_, _, val| yield val unless val.zero?}
+  def map_nz!
+    # TODO: Optimize to O(m) time
+    (0...@rows).each do |r|
+      (0...@cols).each do |c|
+        yield(at(r, c)) unless at(r, c).zero?
+      end
+    end
   end
 
 private
-
-  attr_accessor(:data, :col_vector, :row_vector)
 
   def plus_matrix(o)
     map {|val, r, c| val + o.at(r, c)}
@@ -452,9 +518,7 @@ private
   # If a value does not exist at that location, the val returned is nil
   # and the index indicates the insertion location
   def get_index(row, col)
-    row_start = @row_vector[row]
-    row_end = @row_vector[row + 1]
-    index = row_start
+    index, row_end = @row_vector[row], @row_vector[row + 1]
 
     while (index < row_end) and (index < nnz) and (col >= @col_vector[index])
       return [index, @data[index]] if @col_vector[index] == col
@@ -505,66 +569,6 @@ private
       put r, c, 0
     end
     @cols = cols
-  end
-
-  def determinant_3x3
-    +at(0, 0) * at(1, 1) * at(2, 2) - at(0, 0) * at(1, 2) * at(2, 1) \
-          - at(0, 1) * at(1, 0) * at(2, 2) + at(0, 1) * at(1, 2) * at(2, 0) \
-          + at(0, 2) * at(1, 0) * at(2, 1) - at(0, 2) * at(1, 1) * at(2, 0)
-  end
-
-  def determinant_4x4 # TODO: note "I would much rather not have this function; only kept at it's used in Matrix.rb"
-    +at(0, 0) * at(1, 1) * at(2, 2) * at(3, 3) \
-          - at(0, 0) * at(1, 1) * at(2, 3) * at(3, 2) \
-          - at(0, 0) * at(1, 2) * at(2, 1) * at(3, 3) \
-          + at(0, 0) * at(1, 2) * at(2, 3) * at(3, 1) \
-          + at(0, 0) * at(1, 3) * at(2, 1) * at(3, 2) \
-          - at(0, 0) * at(1, 3) * at(2, 2) * at(3, 1) \
-          - at(0, 1) * at(1, 0) * at(2, 2) * at(3, 3) \
-          + at(0, 1) * at(1, 0) * at(2, 3) * at(3, 2) \
-          + at(0, 1) * at(1, 2) * at(2, 0) * at(3, 3) \
-          - at(0, 1) * at(1, 2) * at(2, 3) * at(3, 0) \
-          - at(0, 1) * at(1, 3) * at(2, 0) * at(3, 2) \
-          + at(0, 1) * at(1, 3) * at(2, 2) * at(3, 0) \
-          + at(0, 2) * at(1, 0) * at(2, 1) * at(3, 3) \
-          - at(0, 2) * at(1, 0) * at(2, 3) * at(3, 1) \
-          - at(0, 2) * at(1, 1) * at(2, 0) * at(3, 3) \
-          + at(0, 2) * at(1, 1) * at(2, 3) * at(3, 0) \
-          + at(0, 2) * at(1, 3) * at(2, 0) * at(3, 1) \
-          - at(0, 2) * at(1, 3) * at(2, 1) * at(3, 0) \
-          - at(0, 3) * at(1, 0) * at(2, 1) * at(3, 2) \
-          + at(0, 3) * at(1, 0) * at(2, 2) * at(3, 1) \
-          + at(0, 3) * at(1, 1) * at(2, 0) * at(3, 2) \
-          - at(0, 3) * at(1, 1) * at(2, 2) * at(3, 0) \
-          - at(0, 3) * at(1, 2) * at(2, 0) * at(3, 1) \
-          + at(0, 3) * at(1, 2) * at(2, 1) * at(3, 0)
-  end
-
-  # TODO: swap rows - matrix.rb function
-  def determinant_bareiss
-    # raise NotImplementedError
-    m = copy
-    no_pivot = proc { return 0 }
-    sign = +1
-    pivot = 1
-    @rows.times do |k|
-      previous_pivot = pivot
-      if (pivot = m.at(k, k)).zero?
-        switch = (k + 1...@rows).find(no_pivot) do |row|
-          m.at(row, k) != 0
-        end
-        # Swap two rows
-        a[switch], a[k] = a[k], a[switch]
-        pivot = m.at(k, k)
-        sign = -sign
-      end
-      (k + 1).upto(@rows - 1) do |i|
-        (k + 1).upto(@rows - 1) do |j|
-          m.put i, j, (pivot * m.at(i, j) - m.at(i, k) * m.at(k, j)) / previous_pivot
-        end
-      end
-    end
-    sign * pivot
   end
 
 end
