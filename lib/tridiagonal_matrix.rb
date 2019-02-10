@@ -7,6 +7,7 @@ class TriDiagonalMatrix < SparseMatrix
   attr_reader(:rows, :cols)
 
   def initialize(rows, cols = rows)
+    raise NonSquareException unless rows == cols
     raise TypeError unless rows > 2 && cols > 2
 
     @upper_dia = Array.new(rows-1, 0)
@@ -14,6 +15,54 @@ class TriDiagonalMatrix < SparseMatrix
     @lower_dia = Array.new(rows-1, 0)
     @rows = rows
     @cols = cols
+  end
+
+  def initialize_clone(other)
+    super
+    @upper_dia = other.instance_variable_get(:@upper_dia).clone
+    @main_dia = other.instance_variable_get(:@main_dia).clone
+    @lower_dia = other.instance_variable_get(:@lower_dia).clone
+    @rows = other.rows
+    @cols = other.cols
+  end
+
+  class << self
+    include MatrixExceptions
+    def zero(rows, cols = rows)
+      TriDiagonalMatrix.new(rows, cols)
+    end
+
+    def identity(n)
+      TriDiagonalMatrix.new(n).map_diagonal { 1 }
+    end
+
+    def [](*rows)
+      # 0x0 matrix
+      return TriDiagonalMatrix.new(rows.length) if rows.length.zero?
+
+      raise ArgumentError unless rows.length == 3 and
+          rows[0].length == rows[1].length - 1 and
+          rows[2].length == rows[1].length - 1
+      m = TriDiagonalMatrix.new(rows[1].length)
+      m.instance_variable_set(:@upper_dia, rows[0])
+      m.instance_variable_set(:@main_dia, rows[1])
+      m.instance_variable_set(:@lower_dia, rows[2])
+      m
+    end
+
+    def from_sparse_matrix(s)
+      raise NonSquareException unless s.square?
+      m = TriDiagonalMatrix.new(s.rows)
+
+      (0...m.rows).each do |r|
+        (0...m.cols).each do |c|
+          m.put(r, c, s[r, c]) if r - c <= 1
+        end
+      end
+      m
+    end
+
+    alias I identity
   end
 
   def det
@@ -70,7 +119,23 @@ class TriDiagonalMatrix < SparseMatrix
     TriDiagonalIterator.new(@lower_dia, @main_dia, @upper_dia)
   end
 
-  private
+  def symmetric?
+    @lower_dia == @upper_dia
+  end
+
+  def transpose
+    m = clone
+    m.transpose!
+    m
+  end
+
+private
+
+  def transpose!
+    temp = @lower_dia
+    @lower_dia = @upper_dia
+    @upper_dia = temp
+  end
 
   def on_band?(r, c)
     (r - c).abs <= 1

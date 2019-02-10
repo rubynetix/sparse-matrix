@@ -434,6 +434,7 @@ class SparseMatrix
 
   alias t transpose
   alias tr trace
+  alias [] at
 
   # Utility functions
   def map
