@@ -8,8 +8,8 @@ module MatrixTestCase
   TEST_ITER = 10
   MAX_ROWS = 100
   MAX_COLS = 100
-  MIN_VAL = -10_000
-  MAX_VAL = 10_000
+  MIN_VAL = -100
+  MAX_VAL = 100
 
   def assert_base_invariants(m)
     assert_true(m.rows >= 0)
@@ -51,31 +51,34 @@ module MatrixTestCase
       assert_invariants(m)
     end
   end
-  #
-  # def test_nnz
-  #   n = rand(0..20)
-  #   m = @factory.new(n)
-  #   x = (0...m.cols).to_a.shuffle.take(n)
-  #   y = (0...m.rows).to_a.shuffle.take(n)
-  #   (0...n).each do |i|
-  #     m.put(x[i], y[i], rand(1..1000))
-  #   end
-  #   # Preconditions
-  #   begin
-  #     assert_true(n >= 0, "Number of non-zero elements is invalid: #{n}")
-  #   end
-  #
-  #   # Postconditions
-  #   begin
-  #     assert_equal(n, m.nnz, "Number of non-zero elements in the matrix is incorrect. Expected: #{n}, Actual: #{m.nnz}")
-  #   end
-  #
-  #   assert_invariants(m)
-  # end
+
+  def test_nnz
+    n = rand(0..10)
+    m = @factory.zero(MAX_ROWS)
+
+    ins = 0
+    while ins < n
+      x = rand(0...m.rows)
+      y = rand(0...m.cols)
+      succ = m.put(x, y, rand(MAX_VAL..MAX_VAL))
+      ins += 1 if succ
+    end
+
+    # Preconditions - N/A
+    begin
+    end
+
+    # Postconditions
+    begin
+      assert_equal(n, m.nnz, "Number of non-zero elements in the matrix is incorrect. Expected: #{n}, Actual: #{m.nnz}")
+    end
+
+    assert_invariants(m)
+  end
 
   def test_rows
-    r = rand(0..MAX_ROWS)
-    c = rand(1..MAX_COLS)
+    r = rand(2..MAX_ROWS)
+    c = rand(2..MAX_COLS)
     m = @factory.new(r, c)
 
     # Preconditions

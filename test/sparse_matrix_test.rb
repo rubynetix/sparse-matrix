@@ -39,27 +39,6 @@ class SparseMatrixTest < Test::Unit::TestCase
     end
   end
 
-  def test_nnz
-    n = rand(0..20)
-    m = SparseMatrix.new(n, n)
-    x = (0...m.cols).to_a.shuffle.take(n)
-    y = (0...m.rows).to_a.shuffle.take(n)
-    (0...n).each do |i|
-      m.put(x[i], y[i], rand(1..1000))
-    end
-    # Preconditions
-    begin
-      assert_true(n >= 0, "Number of non-zero elements is invalid: #{n}")
-    end
-
-    # Postconditions
-    begin
-      assert_equal(n, m.nnz, "Number of non-zero elements in the matrix is incorrect. Expected: #{n}, Actual: #{m.nnz}")
-    end
-
-    assert_invariants(m)
-  end
-
   def test_resize
     m = rand_sparse
     nr = rand(0..MAX_ROWS)
