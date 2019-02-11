@@ -90,7 +90,6 @@ module MatrixIdentitiesTestCase
       assert_equal((@a * @b) * -1, (@a * -1) * @b, "Grouping identity does not hold.")
 
       # Multiplicative inverse identities
-      # TODO: Activate assertions with inverse implementation
       generate_invertible_matrices
       assert_equal(@a * @a_inv, @i, "Multiplicative inverse identity does not hold.")
       assert_equal(@a_inv.inverse, @a, "Multiplicative inverse identity does not hold.")
@@ -108,7 +107,6 @@ module MatrixIdentitiesTestCase
       assert_equal((@c + @d) * @a, (@c * @a) + (@d * @a), "Multiplication does not distribute over addition.")
 
       # Inverse distributes over multiplication
-      # TODO: Activate assertions with inverse implementation
       generate_invertible_matrices
       assert_equal(@a_inv * -1, (@a * -1).inverse, "Inverse does not distribute over multiplication.")
       assert_equal((@a * @b).inverse, @b_inv * @a_inv, "Inverse does not distribute over multiplication.")
@@ -134,7 +132,6 @@ module MatrixIdentitiesTestCase
     end
   end
 
-  # TODO: Activate test with inverse implementation
   def test_symmetric_identities
     # Verify symmetric identities hold
     (0..TEST_ITER).each do
@@ -154,7 +151,6 @@ module MatrixIdentitiesTestCase
     end
   end
 
-  # TODO: Activate test with inverse implementation
   def test_general_matrix_identities
     # Verify more general matrix identities hold.
     #

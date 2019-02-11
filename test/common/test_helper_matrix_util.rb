@@ -67,9 +67,7 @@ module MatrixTestUtil
     # the result m, will be an invertible matrix with no zeros on the diagonal
     # and random values everywhere else.
     a = lower_triangular_matrix(factory, n, l, h, fill_factor: 0.1)
-    # puts "a:\n#{a.to_s}"
     b = upper_triangular_matrix(factory, n, l, h, fill_factor: 0.1)
-    # puts "b:\n#{b.to_s}"
     # insert a random non-zero element into all zero values along the diagonal of a and b
     (0...n).each do |i|
       while a.at(i, i) == 0
@@ -81,8 +79,6 @@ module MatrixTestUtil
         b.put(i, i, e) unless e == 0
       end
     end
-    # puts "a:\n#{a.to_s}"
-    # puts "b:\n#{b.to_s}"
     m = a * b
     m
   end
