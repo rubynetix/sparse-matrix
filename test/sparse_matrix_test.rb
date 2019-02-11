@@ -76,6 +76,31 @@ class SparseMatrixTest < Test::Unit::TestCase
   #   assert_invariants(adj)
   # end
 
+  def test_at
+    v = rand(MIN_VAL..MAX_VAL)
+    m = @factory.random rows: 11, cols: 11, fill_factor: 5
+    r, c = @factory.random_loc(m.rows, m.cols)
+    m.put(r, c, v)
+    puts r, c, v
+    puts m
+    print m.row_vector
+    print m.col_vector
+    print m.data
+
+    # Preconditions
+    begin
+      assert_true(r >= 0 && r <= m.rows - 1, 'Invalid row: Out of matrix row range')
+      assert_true(c >= 0 && c <= m.cols - 1, 'Invalid column: Out of matrix column range')
+    end
+
+    # Postconditions
+    begin
+      assert_equal(v, m.at(r, c), "Incorrect value at row:#{r}, col:#{c}. Expected: #{v}, Actual:#{m.at(r, c)}")
+    end
+
+    assert_invariants(m)
+  end
+
   def test_rank
     m = @factory.random
 

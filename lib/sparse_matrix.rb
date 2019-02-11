@@ -7,7 +7,7 @@ require_relative 'matrix_exceptions'
 
 # Compressed Sparse Row Matrix
 class SparseMatrix
-  attr_reader(:rows, :cols)
+  attr_reader(:rows, :cols, :row_vector, :col_vector, :data)
 
   def initialize(rows, cols = rows)
     # If one dimension is 0, both dimensions must be 0
@@ -34,6 +34,7 @@ class SparseMatrix
 
   class << self
     include MatrixExceptions
+
     def create(rows, cols: rows, val: 0)
       m = SparseMatrix.new(rows, cols)
       m.map! {|_, _, _| val} unless val == 0
@@ -41,7 +42,7 @@ class SparseMatrix
     end
 
     def identity(n)
-      SparseMatrix.new(n).map_diagonal { 1 }
+      SparseMatrix.new(n).map_diagonal {1}
     end
 
     def [](*rows)
@@ -86,13 +87,13 @@ class SparseMatrix
 
   def set_identity
     set_zero
-    map_diagonal! { 1 }
+    map_diagonal! {1}
   end
 
   def resize!(rows, cols)
     if rows < @rows
       last_idx = @row_vector[rows]
-      @row_vector = @row_vector.take(rows+1)
+      @row_vector = @row_vector.take(rows + 1)
       @data = @data.take(last_idx)
       @col_vector = @col_vector.take(last_idx)
     elsif rows > @rows
@@ -107,7 +108,7 @@ class SparseMatrix
       new_col_vector = []
 
       (0...rows).each do |r|
-        idx, row_end = @row_vector[r], @row_vector[r+1]
+        idx, row_end = @row_vector[r], @row_vector[r + 1]
         while idx < row_end and idx < nnz and @col_vector[idx] < cols
           new_data_vector.push(@data[idx])
           new_col_vector.push(@col_vector[idx])
@@ -231,7 +232,7 @@ class SparseMatrix
 
   def sum
     total = 0
-    map_nz! { |val| total += val }
+    map_nz! {|val| total += val}
     total
   end
 
@@ -250,7 +251,7 @@ class SparseMatrix
   end
 
   def tridiagonal
-    map { |val, r, c| (r == c || c == r - 1 || c == r + 1) ? val : 0 }
+    map {|val, r, c| (r == c || c == r - 1 || c == r + 1) ? val : 0}
   end
 
   def minor(row, col)
@@ -303,7 +304,7 @@ class SparseMatrix
   def trace
     raise NonTraceableException unless traceable?
 
-    diagonal.sum(init=0)
+    diagonal.sum(init = 0)
   end
 
   def null?
@@ -410,16 +411,16 @@ class SparseMatrix
   # Returns false otherwise.
   def upper_hessenberg?
     return false unless square?
-      iter = iterator
-      while iter.has_next?
-        r, c, v = iter.next
-        return false if r > (c + 1) && v != 0
-      end
-      true
+    iter = iterator
+    while iter.has_next?
+      r, c, v = iter.next
+      return false if r > (c + 1) && v != 0
+    end
+    true
   end
 
   def to_ruby_matrix
-    matrix_array = Array.new(@rows) { Array.new(@cols, 0) }
+    matrix_array = Array.new(@rows) {Array.new(@cols, 0)}
 
     (0...@rows).each do |x|
       (0...@cols).each do |y|
@@ -459,7 +460,7 @@ class SparseMatrix
 
   def map_nz
     m = clone
-    m.iterator.iterate{|_, _, val| yield(val) unless val.zero?}
+    m.iterator.iterate {|_, _, val| yield(val) unless val.zero?}
     m
   end
 
@@ -511,7 +512,7 @@ class SparseMatrix
   end
 
   def plus_scalar(x)
-    map {|val, _, _| val + x }
+    map {|val, _, _| val + x}
   end
 
   def mul_matrix(x)
@@ -519,25 +520,15 @@ class SparseMatrix
   end
 
   def mul_scalar(x)
-    map {|val, _, _| val * x }
+    map {|val, _, _| val * x}
   end
 
   def rref
     raise 'Not implemented'
   end
 
-  def bsearch_cols(c_start, c_end, val)
-    return c_start if c_start > c_end
-
-    mid = (c_end + c_start) / 2
-    return mid if @col_vector[mid] == val
-    return bsearch_cols c_start, mid - 1, val if @col_vector[mid] > val
-
-    bsearch_cols mid + 1, c_end, val
-  end
-
   def minor_submatrix(row, col)
-    m = SparseMatrix.new(rows-1, cols-1)
+    m = SparseMatrix.new(rows - 1, cols - 1)
     it = iterator
     while it.has_next?
       r, c, val = it.next
@@ -551,13 +542,24 @@ class SparseMatrix
     m
   end
 
+  def bsearch_cols(left, right, val)
+    return right if left > right
+
+    mid = ((left + right) / 2).floor
+    return mid if @col_vector[mid] == val
+
+    left = mid + 1 if @col_vector[mid] > val
+    right = mid - 1 if @col_vector[mid] < val
+    bsearch_cols left, right, val
+  end
+
   # Returns the [index, val] corresponding to
   # an element in the matrix at position row, col
   # If a value does not exist at that location, the val returned is nil
   # and the index indicates the insertion location
   def get_index(row, col)
     r_start = @row_vector[row]
-    r_end = @row_vector[row + 1]
+    r_end = @row_vector[row + 1] - 1
 
     index = bsearch_cols r_start, r_end, col
     [index, nil]
