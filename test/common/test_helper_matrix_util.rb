@@ -66,6 +66,7 @@ module MatrixTestUtil
     # and b is an upper triangular matrix with no zeros on the diagonal
     # the result m, will be an invertible matrix with no zeros on the diagonal
     # and random values everywhere else.
+    assert_false(l == 0 && h == 0, "Low and High Values for invertible matrix can not both be 0.")
     a = lower_triangular_matrix(factory, n, l, h, fill_factor: 0.1)
     b = upper_triangular_matrix(factory, n, l, h, fill_factor: 0.1)
     # insert a random non-zero element into all zero values along the diagonal of a and b
