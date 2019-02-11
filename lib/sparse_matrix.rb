@@ -202,7 +202,7 @@ class SparseMatrix
   end
 
   def to_s
-    return "nil\n" if nil?
+    return "null\n" if null?
 
     it = iterator
     col_width = Array.new(cols, 1)
@@ -288,7 +288,7 @@ class SparseMatrix
     diagonal.sum(init=0)
   end
 
-  def nil?
+  def null?
     @rows.zero? || @cols.zero?
   end
 
@@ -416,10 +416,6 @@ class SparseMatrix
     CSRIterator.new(@row_vector, @col_vector, @data)
   end
 
-  alias t transpose
-  alias tr trace
-  alias [] at
-
   # Utility functions
   def map
     m = clone
@@ -476,7 +472,21 @@ class SparseMatrix
     end
   end
 
-private
+  # Method aliases
+  alias t transpose
+  alias tr trace
+  alias [] at
+  alias get at
+  alias set put
+  alias insert put
+  alias []= put
+  alias plus +
+  alias subtract -
+  alias multiply *
+  alias exp **
+
+  private
+
   def plus_matrix(o)
     map {|val, r, c| val + o.at(r, c)}
   end

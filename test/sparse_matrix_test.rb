@@ -39,188 +39,6 @@ class SparseMatrixTest < Test::Unit::TestCase
     end
   end
 
-  def test_to_s
-    test_ms = [
-      SparseMatrix.new(0, 0),
-      SparseMatrix.[]([10, 2, 3]),
-      SparseMatrix.identity(3),
-      SparseMatrix.[]([100, 0, 0, 0], [0, 1, 1, 0], [0, -1, 0, 0])
-    ]
-
-    exps = [
-        "nil\n", # the null case
-        "10 2 3\n", # vector case
-        "1 0 0\n0 1 0\n0 0 1\n", # matrix case
-        "100  0 0 0\n  0  1 1 0\n  0 -1 0 0\n" # Note the formatting. Values are left-padded to the longest
-    # elements column-wise
-    ]
-
-    test_ms.zip(exps).each do |m, e|
-      # Preconditions
-      begin
-      end
-
-      s = m.to_s
-
-      # Postconditions
-      begin
-        assert_equal(e, s, 'Incorrect to_s format')
-
-        # More generically
-        if m.nil?
-          assert_equal(1, char_count("\n", s), 'Nil Matrix incorrect to_s format')
-        else
-          # number of \n == rows()
-          assert_equal(m.rows, char_count("\n", s), "Matrix incorrect to_s format ")
-          # all rows have the same length
-          len = nil
-          s.each_line("\n") do |l|
-            len = l.size if len.nil?
-            assert_equal(len, l.size, 'Matrix to_s format, incorrect row length')
-          end
-        end
-      end
-
-      assert_invariants(m)
-    end
-  end
-
-  def test_add_matrix
-    (0..TEST_ITER).each do
-      r = rand(1..MAX_ROWS)
-      c = rand(1..MAX_COLS)
-      m1 = rand_sparse(rows: r, cols: c)
-      m2 = rand_sparse(rows: r, cols: c)
-
-      # Preconditions
-      begin
-        assert_equal(m1.rows, m2.rows, "Cannot add matrices of different dimensions.")
-        assert_equal(m1.cols, m2.cols, "Cannot add matrices of different dimensions.")
-      end
-
-      m3 = m1 + m2
-
-      # Postconditions
-      begin
-        assert_equal(m1.sum + m2.sum, m3.sum, "Matrix addition incorrect. Expected Sum:#{m1.sum + m2.sum}, Actual Sum:#{m3.sum}")
-
-        if m1.traceable?
-          assert_equal(m1.trace + m2.trace, m3.trace, "Matrix addition incorrect. Expected Trace:#{m1.trace + m2.trace}, Actual Trace:#{m3.trace}")
-        end
-
-        assert_equal(m1, m3 - m2, "Matrix addition error.")
-
-        (0...m1.rows).each do |r2|
-          (0...m1.cols).each do |c2|
-            assert_equal(m1.at(r2, c2) + m2.at(r2, c2), m3.at(r2, c2), "Matrix addition error at row:#{r2}, col:#{c2}. Expected:#{m1.at(r2, c2) + m2.at(r2, c2)}, Actual:#{m3.at(r2, c2)}")
-          end
-        end
-      end
-
-      assert_invariants(m1)
-      assert_invariants(m2)
-      assert_invariants(m3)
-    end
-  end
-
-  def test_subtract_matrix
-    (0..TEST_ITER).each do
-      r = rand(1..MAX_ROWS)
-      c = rand(1..MAX_COLS)
-      m1 = rand_sparse(rows: r, cols: c)
-      m2 = rand_sparse(rows: r, cols: c)
-
-      # Preconditions
-      begin
-        assert_equal(m1.rows, m2.rows, "Cannot subtract matrices of different dimensions.")
-        assert_equal(m1.cols, m2.cols, "Cannot subtract matrices of different dimensions.")
-      end
-
-      m3 = m1 - m2
-
-      # Postconditions
-      begin
-        assert_equal(m1.sum - m2.sum, m3.sum, "Matrix subtraction incorrect. Expected Sum:#{m1.sum - m2.sum}, Actual Sum:#{m3.sum}")
-
-        if m1.traceable?
-          assert_equal(m1.trace - m2.trace, m3.trace, "Matrix subtraction incorrect. Expected Trace:#{m1.trace - m2.trace}, Actual Trace:#{m3.trace}")
-        end
-
-        assert_equal(m1, m3 + m2, 'Matrix subtraction error.')
-
-        (0...m1.rows).each do |r2|
-          (0...m1.cols).each do |c2|
-            assert_equal(m1.at(r2, c2) - m2.at(r2, c2), m3.at(r2, c2), "Incorrect subtraction at row:#{r2}, col:#{c2}. Expected:#{m1.at(r2, c2) - m2.at(r2, c2)}, Actual:#{m3.at(r2, c2)}")
-          end
-        end
-      end
-
-      assert_invariants(m1)
-      assert_invariants(m2)
-      assert_invariants(m3)
-    end
-  end
-
-  def test_matrix_mult
-    m1 = rand_sparse
-    m2 = rand_sparse(rows: m1.cols)
-
-    # Preconditions
-    begin
-      assert_equal(m1.cols, m2.rows)
-    end
-
-    m3 = m1 * m2
-
-    # Postconditions
-    begin
-      assert_equal(m1.rows, m3.rows)
-      assert_equal(m2.cols, m3.cols)
-    end
-  end
-
-  def test_scalar_mult
-    r = rand(0..MAX_ROWS)
-    c = rand(1..MAX_COLS)
-    m = rand_sparse(rows: r, cols: c)
-    rand_range(1, 1000, 20).each do |mult|
-      # Preconditions
-      begin
-      end
-
-      new_m = m * mult
-
-      # Postconditions
-      begin
-        (0...r).each do |i|
-          (0...c).each do |j|
-            assert_equal(m.at(i, j) * mult, new_m.at(i, j), "Incorrect scalar multiplication at row:#{i}, col:#{j}. Expected:#{m.at(i, j) * mult}, Actual:#{new_m.at(i, j)}")
-          end
-        end
-      end
-
-      assert_invariants(m)
-    end
-  end
-
-  def test_matrix_division
-    m1 = rand_sparse
-    m2 = rand_sparse(rows: m1.cols)
-
-    # Preconditions
-    begin
-      assert_equal(m1.cols, m2.rows)
-    end
-
-    m3 = m1 / m2
-
-    # Postconditions
-    begin
-      assert_equal(m1.rows, m3.rows)
-      assert_equal(m2.cols, m3.cols)
-    end
-  end
-
   # Helper function for test_diagonal?
   def nnz_off_diagonal?(m)
     (0..m.rows - 1).each do |i|
@@ -233,7 +51,7 @@ class SparseMatrixTest < Test::Unit::TestCase
   end
 
   def test_diagonal?
-    m = rand_square_sparse
+    m = @factory.random_square
 
     # Preconditions
     begin
@@ -261,9 +79,9 @@ class SparseMatrixTest < Test::Unit::TestCase
   end
 
   def test_equals
-    m = rand_sparse
+    m = @factory.random
     m_same = m.clone
-    m_diff = rand_sparse
+    m_diff = @factory.random
 
     # Preconditions
     begin
@@ -285,7 +103,7 @@ class SparseMatrixTest < Test::Unit::TestCase
   end
 
   def tst_cofactor
-    m = rand_sparse
+    m = @factory.random
 
     # Preconditions
     begin
@@ -312,7 +130,7 @@ class SparseMatrixTest < Test::Unit::TestCase
   end
 
   def tst_adjoint
-    m = rand_square_sparse
+    m = @factory.random_square
 
     # Preconditions
     begin
@@ -332,7 +150,7 @@ class SparseMatrixTest < Test::Unit::TestCase
   end
 
   def tst_rank
-    m = rand_sparse
+    m = @factory.random
 
     # Preconditions
     begin
@@ -359,25 +177,8 @@ class SparseMatrixTest < Test::Unit::TestCase
     assert_invariants(m)
   end
 
-  def test_orthogonal?
-    m = rand_square_sparse
-
-    # Preconditions
-    begin
-    end
-
-    orth = m.orthogonal?
-
-    # Post conditions
-    begin
-      assert_equal(m.transpose == m.inverse, orth, 'Conflict between orthogonal result and transpose/inverse equality')
-    end
-
-    assert_invariants(m)
-  end
-
   def test_to_ruby_matrix
-    m = rand_square_sparse
+    m = @factory.random_square
 
     # Preconditions
     begin
