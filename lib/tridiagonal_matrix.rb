@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 require_relative 'sparse_matrix'
-require_relative 'tri_diagonal_iterator'
+require_relative 'tridiagonal_iterator'
 
 # Tridiagonal Sparse Matrix
 class TriDiagonalMatrix < SparseMatrix

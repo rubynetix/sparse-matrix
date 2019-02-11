@@ -39,43 +39,6 @@ class SparseMatrixTest < Test::Unit::TestCase
     end
   end
 
-  # def test_cofactor
-  #   m = @factory.random_square(size: 3)
-  #
-  #   # Preconditions
-  #   begin
-  #   end
-  #
-  #   cof = m.cofactor
-  #
-  #   # Postconditions
-  #   begin
-  #     assert_equal(m.adjugate, cof.transpose, "Cofactor matrix should be equal to the transpose of the adjugate")
-  #   end
-  #
-  #   assert_invariants(m)
-  # end
-  #
-  # def test_adjugate
-  #   m = @factory.random_square
-  #
-  #   # Preconditions
-  #   begin
-  #     assert_true(m.square?, 'Cannot calculate adjoint of non-square matrix')
-  #   end
-  #
-  #   adj = m.adjoint
-  #
-  #   # Postconditions
-  #   begin
-  #     cof = m.cofactor
-  #     assert_equal(adj, cof.transpose, 'Adjoint not equal to transpose of cofactor matrix')
-  #   end
-  #
-  #   assert_invariants(m)
-  #   assert_invariants(adj)
-  # end
-
   def test_rank
     m = @factory.random
 
