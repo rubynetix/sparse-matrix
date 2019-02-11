@@ -154,74 +154,9 @@ class SparseMatrix
     true
   end
 
-  def +(o)
-    o.is_a?(SparseMatrix) ? plus_matrix(o) : plus_scalar(o)
-  end
-
-  def -(o)
-    o.is_a?(SparseMatrix) ? plus_matrix(o * -1) : plus_scalar(-o)
-  end
-
-  def *(o)
-    o.is_a?(SparseMatrix) ? mul_matrix(o) : mul_scalar(o)
-  end
-
   def /(o)
     throw TypeError unless o.is_a? SparseMatrix
     mul_matrix(o.inverse)
-  end
-
-  def **(x)
-    throw NonSquareException unless square?
-    throw TypeError unless x.is_a? Integer
-    throw ArgumentError unless x > 1
-    m_pow2 = dup
-    while x.even?
-      m_pow2 *= m_pow2
-      x = x >> 1
-    end
-    new_m = m_pow2.dup
-    x = x >> 1
-    while x.positive?
-      m_pow2 *= m_pow2
-      new_m *= m_pow2 if x.odd?
-      x = x >> 1
-    end
-    new_m
-  end
-
-  def ==(other)
-    return false unless other.is_a? SparseMatrix
-    return false unless (other.rows.equal? @rows) && (other.cols.equal? @cols)
-
-    iter = iterator
-    o_iter = other.iterator
-    while iter.has_next? && o_iter.has_next?
-      return false unless iter.next == o_iter.next
-    end
-    !iter.has_next? && !o_iter.has_next?
-  end
-
-  def to_s
-    return "null\n" if null?
-
-    it = iterator
-    col_width = Array.new(cols, 1)
-
-    while it.has_next?
-      _, c, val = it.next
-      col_width[c] = [col_width[c], val.to_s.length].max
-    end
-
-    s = ""
-    (0...rows).each do |r|
-      (0...cols).each do |c|
-        s += at(r, c).to_s.rjust(col_width[c])
-        s += " " if c < cols - 1
-      end
-      s += "\n"
-    end
-    s
   end
 
   ##
@@ -240,32 +175,6 @@ class SparseMatrix
 
   def tridiagonal
     map { |val, r, c| (r == c || c == r - 1 || c == r + 1) ? val : 0 }
-  end
-
-  def minor(row, col)
-    minor_submatrix(row, col).det
-  end
-
-  def cofactor
-    raise NonSquareException, "Cannot get cofactor matrix from non-square matrix" unless square?
-
-    m = SparseMatrix.new(rows, cols)
-    (0...rows).each do |r|
-      (0...cols).each do |c|
-        if r + c % 2 == 0
-          sign = 1
-        else
-          sign = -1
-        end
-
-        m.put(r, c, sign * minor(r, c))
-      end
-    end
-    m
-  end
-
-  def adjugate
-    cofactor.transpose
   end
 
   def inverse
@@ -287,39 +196,6 @@ class SparseMatrix
       m.put col, row, val
     end
     m
-  end
-
-  def trace
-    raise NonTraceableException unless traceable?
-
-    diagonal.sum(init=0)
-  end
-
-  def null?
-    @rows.zero? || @cols.zero?
-  end
-
-  def zero?
-    nnz.zero?
-  end
-
-  def positive?
-    @data.find(&:negative?).nil?
-  end
-
-  def symmetric?
-    self == dup.transpose
-  end
-
-  def traceable?
-    square?
-  end
-
-  def orthogonal?
-    return false unless square?
-    t = transpose
-    i = t * self
-    i.identity?
   end
 
   ##
@@ -473,23 +349,23 @@ class SparseMatrix
     map {|val, _, _| val * x }
   end
 
-  def rref
-    raise 'Not implemented'
-  end
+  def mul_matrix(x)
+    res = SparseMatrix.new(rows, x.cols)
 
-  def minor_submatrix(row, col)
-    m = SparseMatrix.new(rows-1, cols-1)
-    it = iterator
-    while it.has_next?
-      r, c, val = it.next
-      new_row = r > row ? r - 1 : r
-      new_col = c > col ? c - 1 : c
-
-      if r != row and c != col
-        m.put(new_row, new_col, val)
+    (0...@rows).each do |r|
+      (0...@cols).each do |c|
+        dot_prod = 0
+        (0...@cols).each do |i|
+          dot_prod += at(r, i) * x.at(i, c)
+        end
+        res.put(r, c, dot_prod)
       end
     end
-    m
+    res
+  end
+
+  def rref
+    raise 'Not implemented'
   end
 
   # Returns the [index, val] corresponding to

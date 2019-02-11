@@ -28,8 +28,69 @@ module MatrixCommon
     true
   end
 
+  def null?
+    @rows.zero? || @cols.zero?
+  end
+
+  def zero?
+    nnz.zero?
+  end
+
+  def positive?
+    @data.find(&:negative?).nil?
+  end
+
+  def symmetric?
+    self == dup.transpose
+  end
+
+  def traceable?
+    square?
+  end
+
+  def orthogonal?
+    return false unless square?
+    t = transpose
+    i = t * self
+    i.identity?
+  end
+
   def invertible?
     !det.zero?
+  end
+
+  def ==(other)
+    return false unless other.is_a? MatrixCommon
+    return false unless (other.rows.equal? @rows) && (other.cols.equal? @cols)
+
+    iter = iterator
+    o_iter = other.iterator
+    while iter.has_next? && o_iter.has_next?
+      return false unless iter.next == o_iter.next
+    end
+    !iter.has_next? && !o_iter.has_next?
+  end
+
+  def to_s
+    return "null\n" if null?
+
+    it = iterator
+    col_width = Array.new(cols, 1)
+
+    while it.has_next?
+      _, c, val = it.next
+      col_width[c] = [col_width[c], val.to_s.length].max
+    end
+
+    s = ""
+    (0...rows).each do |r|
+      (0...cols).each do |c|
+        s += at(r, c).to_s.rjust(col_width[c])
+        s += " " if c < cols - 1
+      end
+      s += "\n"
+    end
+    s
   end
 
   def sum

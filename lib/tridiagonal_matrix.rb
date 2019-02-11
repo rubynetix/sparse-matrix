@@ -231,13 +231,13 @@ class TriDiagonalMatrix
   alias [] at
   alias get at
   alias set put
-  alias insert put
   alias []= put
   alias plus +
   alias subtract -
   alias multiply *
   alias exp **
   alias adjoint adjugate
+
 
 private
 
