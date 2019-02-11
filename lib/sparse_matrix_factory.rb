@@ -23,8 +23,6 @@ class SparseMatrixFactory < MatrixFactory
     SparseMatrix.[](*rows)
   end
 
-  private
-
   def random_loc(rows, cols)
     [rand(0..rows - 1), rand(0..cols - 1)]
   end
