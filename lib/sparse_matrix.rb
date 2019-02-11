@@ -169,10 +169,17 @@ class SparseMatrix
     throw NonSquareException unless square?
     throw TypeError unless x.is_a? Integer
     throw ArgumentError unless x > 1
-    new_m = dup
-    while x >= 2
-      new_m *= self
-      x -= 1
+    m_pow2 = dup
+    while x.even?
+      m_pow2 *= m_pow2
+      x = x >> 1
+    end
+    new_m = m_pow2.dup
+    x = x >> 1
+    while x.positive?
+      m_pow2 *= m_pow2
+      new_m *= m_pow2 if x.odd?
+      x = x >> 1
     end
     new_m
   end
@@ -232,9 +239,7 @@ class SparseMatrix
     iter = iterator
     while iter.has_next?
       item = iter.next
-      if item[0] == item[1]
-        diag[item[0]] = item[2]
-      end
+      diag[item[0]] = item[2] if item[0] == item[1]
     end
     diag
   end
@@ -330,9 +335,7 @@ class SparseMatrix
     if square?
       while iter.has_next?
         item = iter.next
-        if item[0] != item[1] && item[2] != 0
-          return false
-        end
+        return false if item[0] != item[1] && item[2] != 0
       end
     else
       return false
@@ -348,9 +351,7 @@ class SparseMatrix
     iter = iterator
     while iter.has_next?
       item = iter.next
-      if item[1] > item[0] && item[2] != 0
-        return false
-      end
+      return false if item[1] > item[0] && item[2] != 0
     end
     true
   end
@@ -363,9 +364,7 @@ class SparseMatrix
     iter = iterator
     while iter.has_next?
       item = iter.next
-      if item[0] > item[1] && item[2] != 0
-        return false
-      end
+      return false if item[0] > item[1] && item[2] != 0
     end
     true
   end
@@ -378,9 +377,7 @@ class SparseMatrix
     iter = iterator
     while iter.has_next?
       r, c, v = iter.next
-      if c > (r + 1) && v != 0
-        return false
-      end
+      return false if c > (r + 1) && v != 0
     end
     true
   end
@@ -393,9 +390,7 @@ class SparseMatrix
       iter = iterator
       while iter.has_next?
         r, c, v = iter.next
-        if r > (c + 1) && v != 0
-          return false
-        end
+        return false if r > (c + 1) && v != 0
       end
       true
   end
@@ -487,40 +482,6 @@ class SparseMatrix
 
   private
 
-  # Utility functions
-  def map
-    m = self.copy
-    (0...m.rows-1).each do |x|
-      (0...m.cols-1).each do |y|
-        current = m.at(x, y)
-        new_val = yield(current, x, y)
-        m.put(x, y, new_val) if new_val != current
-      end
-    end
-    m
-  end
-
-  def map_diagonal
-    m = self.copy
-    (0...m.rows-1).each do |x|
-      current = m.at(x, x)
-      new_val = yield(current, x)
-      m.put(x, x, new_val) if new_val != current
-    end
-    m
-  end
-
-  def map_nz
-    (0..@rows-1).each do |r|
-      (0..@cols-1).each do |c|
-        unless at(r, c) == 0
-          yield(at(r,c))
-        end
-      end
-    end
-  end
-
-private
   def plus_matrix(o)
     map {|val, r, c| val + o.at(r, c)}
   end
