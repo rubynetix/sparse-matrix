@@ -116,7 +116,7 @@ class TriDiagonalMatrix < SparseMatrix
 
   def put(r, c, val)
     unless on_band?(r, c)
-      warn "Insertion at (#{r}, #{c}) would violate tri-diagonal structure. No element inserted."
+      # warn "Insertion at (#{r}, #{c}) would violate tri-diagonal structure. No element inserted."
       return false
     end
 
@@ -212,16 +212,22 @@ class TriDiagonalMatrix < SparseMatrix
 
 private
 
+  def to_sparse_matrix
+    m = SparseMatrix.new(@rows, @cols)
+    iterator.iterate{|r, c, val| m.put(r, c, val)}
+    m
+  end
+
   def plus_matrix(o)
-    map {|val, r, c| val + o.at(r, c)}
+    to_sparse_matrix + o
   end
 
   def plus_scalar(x)
     map {|val, r, c| on_band?(r, c) ? val + x : val }
   end
 
-  def mul_matrix(x)
-    MatrixSolver.matrix_mult(self, x, SparseMatrix.new(rows, x.cols))
+  def mul_matrix(o)
+    to_sparse_matrix * o
   end
 
   def size_up!(diag, len)
