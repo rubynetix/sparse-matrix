@@ -1,5 +1,6 @@
 require 'test/unit'
 require_relative '../../lib/sparse_matrix'
+require_relative '../../lib/tridiagonal_matrix'
 require_relative 'test_helper_matrix_util'
 
 module MatrixTestCase
@@ -396,32 +397,38 @@ module MatrixTestCase
   #     assert_invariants(m3)
   #   end
   # end
-  #
-  # def test_scalar_plus
-  #   m1 = @factory.random
-  #   num = rand(MIN_VAL..MAX_VAL)
-  #
-  #   # Preconditions
-  #   begin
-  #   end
-  #
-  #   m2 = m1 + num
-  #
-  #   # Postconditions
-  #   begin
-  #     assert_equal(m1.sum + num * m1.rows * m1.cols, m2.sum, "Matrix scalar addition incorrect. Expected Sum:#{m1.sum + num * m1.nnz}, Actual Sum:#{m2.sum}")
-  #
-  #     (0...m1.rows).each do |r|
-  #       (0...m1.cols).each do |c|
-  #         assert_equal(m1.at(r, c) + num, m2.at(r, c), "Incorrect scalar addition at row:#{r}, col:#{c}. Expected:#{m1.at(r, c) + num}, Actual:#{m2.at(r, c)}")
-  #       end
-  #     end
-  #   end
-  #
-  #   assert_invariants(m1)
-  #   assert_invariants(m2)
-  # end
-  #
+
+  def test_scalar_plus
+    m1 = @factory.random(rows: 5, cols: 5, range: (0..9))
+    num = 10
+
+    # Preconditions
+    begin
+    end
+
+    m2 = m1 + num
+
+    # Postconditions
+    begin
+
+      assert_equal(m1.sum + num * m1.rows * m1.cols, m2.sum, "Matrix scalar addition incorrect. Expected Sum:#{m1.sum + num * m1.nnz}, Actual Sum:#{m2.sum}") if m1.instance_of?(SparseMatrix)
+      assert_equal(m1.sum + num * ((3 * m1.rows) - 2), m2.sum, "Matrix scalar addition incorrect. Expected Sum:#{m1.sum + num * ((3 * m1.rows) - 2)}, Actual Sum:#{m2.sum}") if m1.instance_of?(TriDiagonalMatrix)
+
+      (0...m1.rows).each do |r|
+        (0...m1.cols).each do |c|
+          if m1.instance_of?(SparseMatrix)
+            assert_equal(m1.at(r, c) + num, m2.at(r, c), "Incorrect scalar addition at row:#{r}, col:#{c}. Expected:#{m1.at(r, c) + num}, Actual:#{m2.at(r, c)}")
+          elsif m1.instance_of?(TriDiagonalMatrix)
+            assert_equal(m1.at(r, c) + num, m2.at(r, c), "Incorrect scalar addition at row:#{r}, col:#{c}. Expected:#{m1.at(r, c) + num}, Actual:#{m2.at(r, c)}") if m2.on_band?(r, c)
+          end
+        end
+      end
+    end
+
+    assert_invariants(m1)
+    assert_invariants(m2)
+  end
+
   # def test_subtract_matrix
   #   (0..TEST_ITER).each do
   #     r = rand(1..MAX_ROWS)
