@@ -65,4 +65,4 @@ puts "\nMatrix is upper Hessenberg?:    \n#{s4.upper_hessenberg?}"
 # 4. Other helpful ways to manipulate your sparse matrix
 puts "\nOperate on all elements:        \n#{s4.map{|val, row, col| val + 5}}"
 puts "\nOperate on diagonal elements:   \n#{s4.map_diagonal{|val, row, col| val + 5}}"
-puts "\nOperate on non-zero elements:   \n#{s4.map_nz{|val| val + 5}}"
+puts "\nOperate on non-zero elements:   \n#{s4.map_nz{|row, col, val| val + 5}}"

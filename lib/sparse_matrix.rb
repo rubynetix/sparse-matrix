@@ -231,7 +231,7 @@ class SparseMatrix
 
   def sum
     total = 0
-    map_nz! { |val| total += val }
+    map_nz! { |row, col, val| total += val }
     total
   end
 
@@ -459,7 +459,7 @@ class SparseMatrix
 
   def map_nz
     m = clone
-    m.iterator.iterate{|_, _, val| yield(val) unless val.zero?}
+    m.iterator.iterate{|row, col, val| yield([row, col, val]) unless val.zero?}
     m
   end
 
@@ -482,12 +482,7 @@ class SparseMatrix
   end
 
   def map_nz!
-    # TODO: Optimize to O(m) time
-    (0...@rows).each do |r|
-      (0...@cols).each do |c|
-        yield(at(r, c)) unless at(r, c).zero?
-      end
-    end
+    iterator.iterate{|row, col, val| yield([row, col, val]) unless val.zero?}
   end
 
   # Method aliases
