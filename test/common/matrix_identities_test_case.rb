@@ -13,15 +13,12 @@ module MatrixIdentitiesTestCase
   def generate_matrices
     @a = @factory.random_square(size: rand(2..MAX_ROWS))
     @a_t =  @a.transpose
-    # @a_inv = @a.inverse
 
     @b = @factory.random_square(size: @a.rows)
     @b_t = @b.transpose
-    # @b_inv = @b.inverse
 
     @c = @factory.random_square(size: @a.rows)
     @c_t = @c.transpose
-    # @c_inv = @c.inverse
 
     @d = @factory.random_square(size: @a.rows)
     @d_t = @d.transpose
