@@ -7,7 +7,7 @@ class SparseMatrixFactory < MatrixFactory
     @suppress_warnings = suppress_warnings
   end
 
-  def new(rows, cols, val = 0)
+  def new(rows, cols = rows, val = 0)
     SparseMatrix.create(rows, cols: cols, val: val)
   end
 

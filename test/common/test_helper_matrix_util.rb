@@ -19,7 +19,7 @@ module MatrixTestUtil
 
     (0..n*n*fill_factor).each do
       x, y = factory.random_loc(m.rows, m.cols)
-      m.put(y, x, rand(l...h)) if y > x
+      m.put(y, x, rand(l...h)) if y >= x
     end
     m
   end
@@ -31,7 +31,7 @@ module MatrixTestUtil
 
     (0..n*n*fill_factor).each do
       x, y = factory.random_loc(m.rows, m.cols)
-      m.put(y, x, rand(l...h)) if x < y
+      m.put(y, x, rand(l...h)) if x <= y
     end
     m
   end
