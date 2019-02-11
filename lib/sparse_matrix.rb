@@ -527,13 +527,13 @@ class SparseMatrix
   end
 
   def bsearch_cols(c_start, c_end, val)
-    return c_start if c_start >= c_end
+    return c_start if c_start > c_end
 
     mid = (c_end + c_start) / 2
     return mid if @col_vector[mid] == val
-    return bsearch_cols c_start, mid, val if @col_vector[mid] > val
+    return bsearch_cols c_start, mid - 1, val if @col_vector[mid] > val
 
-    bsearch_cols mid, c_end, val
+    bsearch_cols mid + 1, c_end, val
   end
 
   def minor_submatrix(row, col)
