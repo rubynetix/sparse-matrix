@@ -10,9 +10,8 @@ stages:
 
 jobs:
   include:
-    - stage: build
-      script:
-        - ./scripts/setup.sh
     - stage: test
+      before_install:
+        - ./scripts/setup.sh
       script:
         - find test -name '*_test.rb' | xargs -n1 -I{} ruby -Itest {}
