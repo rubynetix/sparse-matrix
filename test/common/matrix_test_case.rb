@@ -527,6 +527,26 @@ module MatrixTestCase
     end
   end
 
+  def test_matrix_division
+    m1 = @factory.random
+    m2 = @factory.random_square(size: m1.cols)
+
+    # Preconditions
+    begin
+      assert_equal(m1.cols, m2.rows)
+      # "Cannot calculate inverse of singular matrix
+      return if not m2.invertible?
+    end
+
+    m3 = m1 / m2
+
+    # Postconditions
+    begin
+      assert_equal(m1.rows, m3.rows)
+      assert_equal(m2.cols, m3.cols)
+    end
+  end
+
   # def test_exponentiation
   #   exp = 3
   #   exp = rand(2..12)

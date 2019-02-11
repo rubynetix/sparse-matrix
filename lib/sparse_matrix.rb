@@ -165,6 +165,11 @@ class SparseMatrix
     o.is_a?(SparseMatrix) ? mul_matrix(o) : mul_scalar(o)
   end
 
+  def /(o)
+    throw TypeError unless o.is_a? SparseMatrix
+    mul_matrix(o.inverse)
+  end
+
   def **(x)
     throw NonSquareException unless square?
     throw TypeError unless x.is_a? Integer
