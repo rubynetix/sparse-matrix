@@ -12,85 +12,50 @@ module MatrixTestUtil
     a
   end
 
-  def rand_sparse(rows: rand(1..100), cols: rand(1..100), range: (-100..100))
-    m = SparseMatrix.new(rows, cols)
-    nnz = rand(1..(rows * cols) / 2.floor)
-
-    while nnz > 0
-      r = rand(0..rows - 1)
-      c = rand(0..cols - 1)
-      if m.at(r, c) == 0
-        m.put(r, c, rand(range))
-        nnz -= 1
-      end
-    end
-    m
-  end
-
-  def rand_square_sparse(size: 100, range: -100..100)
-    rand_sparse(rows: size, cols: size, range: range)
-  end
-
-  def upper_triangular_matrix(n, l, h)
+  def upper_triangular_matrix(factory, n, l, h, fill_factor: 0.1)
     # return a upper triangular matrix with n rows and columns
     # with non-zero values in the range l..h
-    m = SparseMatrix.new(n, n)
-    (0...m.rows).each do |y|
-      (0...m.cols).each do |x|
-        if y > x
-          m.put(x, y, 0)
-        else
-          if rand(0..1) == 0
-            m.put(x, y, 0)
-          else
-            m.put(x, y, rand(l...h))
-          end
-        end
-      end
+    m = factory.new(n, n)
+
+    (0..n*n*fill_factor).each do
+      x, y = factory.random_loc(m.rows, m.cols)
+      m.put(y, x, rand(l...h)) if y > x
     end
     m
   end
 
-  def lower_triangular_matrix(n, l, h)
+  def lower_triangular_matrix(factory, n, l, h, fill_factor: 0.1)
     # return a lower triangular matrix with n rows and columns
     # with non-zero values in the range l..h
-    m = SparseMatrix.new(n, n)
-    (0...m.rows).each do |y|
-      (0...m.cols).each do |x|
-        if x > y
-          m.put(x, y, 0)
-        else
-          if rand(0..1) == 0
-            m.put(x, y, 0)
-          else
-            m.put(x, y, rand(l...h))
-          end
-        end
-      end
+    m = factory.new(n, n)
+
+    (0..n*n*fill_factor).each do
+      x, y = factory.random_loc(m.rows, m.cols)
+      m.put(y, x, rand(l...h)) if x < y
     end
     m
   end
 
-  def upper_hessenberg_matrix(n, l, h)
+  def upper_hessenberg_matrix(factory, n, l, h, fill_factor: 0.05)
     # return a upper hessenberg matrix with n rows and columns
     # with non-zero values in the range l..h
-    m = SparseMatrix.new(n, n)
-    (0...m.rows).each do |y|
-      (0...m.cols).each do |x|
-        m.put(y, x, rand(l...h)) if (y <= x + 1) && (rand(0..1) == 0)
-      end
+    m = factory.new(n, n)
+
+    (0..n*n*fill_factor).each do
+      x, y = factory.random_loc(m.rows, m.cols)
+      m.put(y, x, rand(l...h)) if y <= x + 1
     end
     m
   end
 
-  def lower_hessenberg_matrix(n, l, h)
+  def lower_hessenberg_matrix(factory, n, l, h, fill_factor: 0.05)
     # return a lower hessenberg matrix with n rows and columns
     # with non-zero values in the range l..h
-    m = SparseMatrix.new(n, n)
-    (0...m.rows).each do |y|
-      (0...m.cols).each do |x|
-        m.put(y, x, rand(l...h)) if (x <= y + 1) && (rand(0..1) == 0)
-      end
+    m = factory.new(n, n)
+
+    (0..n*n*fill_factor).each do
+      x, y = factory.random_loc(m.rows, m.cols)
+      m.put(y, x, rand(l...h)) if x <= y + 1
     end
     m
   end
@@ -118,4 +83,6 @@ module MatrixTestUtil
     s.each_char { |chr| cnt += 1 if c == chr }
     cnt
   end
+
+
 end

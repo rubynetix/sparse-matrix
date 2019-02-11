@@ -10,9 +10,16 @@ class TriDiagonalMatrix < SparseMatrix
     raise NonSquareException unless rows == cols
     # raise TypeError unless rows > 2 && cols > 2
 
-    @upper_dia = Array.new(rows-1, 0)
-    @main_dia = Array.new(rows, 0)
-    @lower_dia = Array.new(rows-1, 0)
+    if rows.positive?
+      @upper_dia = Array.new(rows-1, 0)
+      @main_dia = Array.new(rows, 0)
+      @lower_dia = Array.new(rows-1, 0)
+    else
+      @upper_dia = []
+      @main_dia = []
+      @lower_dia = []
+    end
+
     @rows = rows
     @cols = cols
   end
