@@ -47,6 +47,7 @@ class TriDiagonalMatrixFactory < MatrixFactory
   end
 
   def num_nz(rows, cols, fill_factor)
-    (((3 * rows) - 2) * fill_factor / 100).floor
+    return 0 if rows == 0
+    [1, (((3 * rows) - 2) * fill_factor / 100).floor].max
   end
 end

@@ -30,6 +30,12 @@ class SparseMatrixFactory < MatrixFactory
   private
 
   def num_nz(rows, cols, fill_factor)
-    (rows * cols * fill_factor / 100).floor
+    return 0 if rows.zero? or cols.zero?
+
+    if rows * cols < 100
+      fill_factor = [40, fill_factor * 10].min
+    end
+
+    [1, (rows * cols * fill_factor / 100).floor].max
   end
 end

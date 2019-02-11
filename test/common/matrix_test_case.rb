@@ -792,52 +792,42 @@ module MatrixTestCase
     assert_invariants(m_diff)
   end
 
-  # def tst_cofactor
-  #   m = @factory.random
-  #
-  #   # Preconditions
-  #   begin
-  #   end
-  #
-  #   cof_row = rand(0..m.rows)
-  #   cof_col = rand(0..m.cols)
-  #
-  #   cof = m.cofactor(cof_row, cof_col)
-  #
-  #   # Postconditions
-  #   begin
-  #     if m.cols == 1 || m.rows == 1
-  #       assert_true(cof.null?, 'Co-factor of vector non-nil')
-  #     else
-  #       assert_equal(cof.cols, m.cols - 1)
-  #       assert_equal(cof.rows, m.rows - 1)
-  #
-  #       # TODO: Check the actual values of the cofactor matrix
-  #     end
-  #   end
-  #
-  #   assert_invariants(m)
-  # end
-  #
-  # def tst_adjoint
-  #   m = @factory.random_square
-  #
-  #   # Preconditions
-  #   begin
-  #     assert_true(m.square?, 'Cannot calculate adjoint of non-square matrix')
-  #   end
-  #
-  #   adj = m.adjoint
-  #
-  #   # Postconditions
-  #   begin
-  #     cof = m.cofactor
-  #     assert_equal(adj, cof.transpose, 'Adjoint not equal to transpose of cofactor matrix')
-  #   end
-  #
-  #   assert_invariants(m)
-  #   assert_invariants(adj)
-  # end
+  def test_cofactor
+    m = @factory.random_square(size: rand(3..15))
+
+    # Preconditions
+    begin
+    end
+
+    cof = m.cofactor
+
+    # Postconditions
+    begin
+      assert_equal(m.adjugate, cof.transpose, "Cofactor matrix should be equal to the transpose of the adjugate")
+    end
+
+    assert_invariants(m)
+  end
+
+  def test_adjugate
+    m = @factory.random_square
+
+    # Preconditions
+    begin
+      assert_true(m.square?, 'Cannot calculate adjoint of non-square matrix')
+    end
+
+    adj = m.adjoint
+
+    # Postconditions
+    begin
+      cof = m.cofactor
+      assert_equal(adj, cof.transpose, 'Adjoint not equal to transpose of cofactor matrix')
+    end
+
+    assert_invariants(m)
+    assert_invariants(adj)
+  end
 
   def test_identity?
     i = @factory.identity(rand(1..MAX_ROWS))
@@ -880,7 +870,6 @@ module MatrixTestCase
   def test_positive?
     pos_m = @factory.random(range: 1..MAX_VAL)
     neg_m = @factory.random(range: MIN_VAL..-1)
-
     # Preconditions
     begin
     end
