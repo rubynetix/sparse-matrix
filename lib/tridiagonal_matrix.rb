@@ -160,7 +160,7 @@ class TriDiagonalMatrix < SparseMatrix
     clone
   end
 
-  def nil?
+  def null?
     @rows == 0 && @cols == 0
   end
 
