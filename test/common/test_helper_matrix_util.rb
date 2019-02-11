@@ -60,6 +60,33 @@ module MatrixTestUtil
     m
   end
 
+  def invertible_sparse_matrix(factory, n, l, h)
+    # return m = ab
+    # where a is a lower triangular matrix with no zeros on the diagonal
+    # and b is an upper triangular matrix with no zeros on the diagonal
+    # the result m, will be an invertible matrix with no zeros on the diagonal
+    # and random values everywhere else.
+    a = lower_triangular_matrix(factory, n, l, h, fill_factor: 0.1)
+    # puts "a:\n#{a.to_s}"
+    b = upper_triangular_matrix(factory, n, l, h, fill_factor: 0.1)
+    # puts "b:\n#{b.to_s}"
+    # insert a random non-zero element into all zero values along the diagonal of a and b
+    (0...n).each do |i|
+      while a.at(i, i) == 0
+        e = rand(l..h)
+        a.put(i, i, e) unless e == 0
+      end
+      while b.at(i, i) == 0
+        e = rand(l..h)
+        b.put(i, i, e) unless e == 0
+      end
+    end
+    # puts "a:\n#{a.to_s}"
+    # puts "b:\n#{b.to_s}"
+    m = a * b
+    m
+  end
+
   def sparse_to_matrix(s)
     a = Array.new(s.rows) { Array.new(s.cols) { 0 } }
     it = s.iterator
