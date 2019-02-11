@@ -10,9 +10,16 @@ class TriDiagonalMatrix < SparseMatrix
     raise NonSquareException unless rows == cols
     # raise TypeError unless rows > 2 && cols > 2
 
-    @upper_dia = Array.new(rows-1, val)
-    @main_dia = Array.new(rows, val)
-    @lower_dia = Array.new(rows-1, val)
+    if rows.positive?
+      @upper_dia = Array.new(rows-1, val)
+      @main_dia = Array.new(rows, val)
+      @lower_dia = Array.new(rows-1, val)
+    else
+      @upper_dia = []
+      @main_dia = []
+      @lower_dia = []
+    end
+
     @rows = rows
     @cols = cols
   end
@@ -119,6 +126,18 @@ class TriDiagonalMatrix < SparseMatrix
     true
   end
 
+  def +(o)
+    o.instance_of?(TriDiagonalMatrix) ? plus_matrix(o) : plus_scalar(o)
+  end
+
+  def -(o)
+    o.instance_of?(TriDiagonalMatrix) ? plus_matrix(o * -1) : plus_scalar(-o)
+  end
+
+  def *(o)
+    o.instance_of?(TriDiagonalMatrix) ? mul_matrix(o) : mul_scalar(o)
+  end
+
   def det
     prev_det = 1 # det of a 0x0 is 1
     det = @main_dia[0] # det of a 1x1 is the number itself
@@ -187,10 +206,22 @@ class TriDiagonalMatrix < SparseMatrix
     true
   end
 
-private
-
   def on_band?(r, c)
     (r - c).abs <= 1
+  end
+
+private
+
+  def plus_matrix(o)
+    map {|val, r, c| val + o.at(r, c)}
+  end
+
+  def plus_scalar(x)
+    map {|val, r, c| on_band?(r, c) ? val + x : val }
+  end
+
+  def mul_matrix(x)
+    MatrixSolver.matrix_mult(self, x, SparseMatrix.new(rows, x.cols))
   end
 
   def size_up!(diag, len)
