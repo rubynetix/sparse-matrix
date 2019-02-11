@@ -253,12 +253,30 @@ class SparseMatrix
     map { |val, r, c| (r == c || c == r - 1 || c == r + 1) ? val : 0 }
   end
 
-  def cofactor(row, col)
-    raise 'Not implemented'
+  def minor(row, col)
+    minor_submatrix(row, col).det
   end
 
-  def adjoint
-    raise 'Not implemented'
+  def cofactor
+    raise NonSquareException, "Cannot get cofactor matrix from non-square matrix" unless square?
+
+    m = SparseMatrix.new(rows, cols)
+    (0...rows).each do |r|
+      (0...cols).each do |c|
+        if r + c % 2 == 0
+          sign = 1
+        else
+          sign = -1
+        end
+
+        m.put(r, c, sign * minor(r, c))
+      end
+    end
+    m
+  end
+
+  def adjugate
+    cofactor.transpose
   end
 
   def inverse
@@ -269,11 +287,11 @@ class SparseMatrix
   end
 
   def rank
-    raise 'Not implemented'
+    to_ruby_matrix.rank
   end
 
   def transpose
-    m = SparseMatrix.new @cols, @rows
+    m = SparseMatrix.new(cols, rows)
     iter = iterator
     while iter.has_next?
       row, col, val = iter.next
@@ -484,6 +502,7 @@ class SparseMatrix
   alias subtract -
   alias multiply *
   alias exp **
+  alias adjoint adjugate
 
   private
 
@@ -506,6 +525,22 @@ class SparseMatrix
   def rref
     raise 'Not implemented'
   end
+
+  def minor_submatrix(row, col)
+    m = SparseMatrix.new(rows-1, cols-1)
+    it = iterator
+    while it.has_next?
+      r, c, val = it.next
+      new_row = r > row ? r - 1 : r
+      new_col = c > col ? c - 1 : c
+
+      if r != row and c != col
+        m.put(new_row, new_col, val)
+      end
+    end
+    m
+  end
+
 
   # Returns the [index, val] corresponding to
   # an element in the matrix at position row, col
