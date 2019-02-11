@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 require_relative 'matrix_common'
 require_relative 'matrix_exceptions'
-require_relative 'tri_diagonal_iterator'
+require_relative 'tridiagonal_iterator'
 
 
 # Tridiagonal Sparse Matrix

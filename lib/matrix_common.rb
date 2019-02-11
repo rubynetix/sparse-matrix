@@ -95,7 +95,7 @@ module MatrixCommon
 
   def sum
     total = 0
-    map_nz! { |val| total += val }
+    map_nz! { |row, col, val| total += val }
     total
   end
 
@@ -208,15 +208,6 @@ module MatrixCommon
     m
   end
 
-  def map_nz!
-    # TODO: Optimize to O(m) time
-    (0...@rows).each do |r|
-      (0...@cols).each do |c|
-        yield(at(r, c)) unless at(r, c).zero?
-      end
-    end
-  end
-
   def map_diagonal
     m = clone
     (0...m.rows).each do |x|
@@ -233,6 +224,10 @@ module MatrixCommon
       new_val = yield(current, x)
       put(x, x, new_val) if new_val != current
     end
+  end
+
+  def map_nz!
+    iterator.iterate{|row, col, val| yield([row, col, val]) unless val.zero?}
   end
 
   private
