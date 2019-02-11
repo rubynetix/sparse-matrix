@@ -116,7 +116,7 @@ class TriDiagonalMatrix < SparseMatrix
 
   def put(r, c, val)
     unless on_band?(r, c)
-      warn "Insertion at (#{r}, #{c}) would violate tri-diagonal structure. No element inserted."
+      # warn "Insertion at (#{r}, #{c}) would violate tri-diagonal structure. No element inserted."
       return false
     end
 
