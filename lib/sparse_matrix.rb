@@ -1,17 +1,18 @@
 # frozen_string_literal: true
 require 'matrix'
 require_relative 'csr_iterator'
-#require_relative 'matrix_solver'
+require_relative 'matrix_common'
 require_relative 'matrix_exceptions'
 
 
 # Compressed Sparse Row Matrix
 class SparseMatrix
+  include MatrixCommon
   attr_reader(:rows, :cols)
 
   def initialize(rows, cols = rows)
     # If one dimension is 0, both dimensions must be 0
-    if rows == 0 or cols == 0
+    if rows.zero? or cols.zero?
       rows = 0
       cols = 0
     end
@@ -223,18 +224,6 @@ class SparseMatrix
     s
   end
 
-  def det
-    raise 'NonSquareException' unless square?
-
-    to_ruby_matrix.det
-  end
-
-  def sum
-    total = 0
-    map_nz! { |val| total += val }
-    total
-  end
-
   ##
   # Returns an array containing the values along the main diagonal of the matrix
   def diagonal
@@ -314,26 +303,8 @@ class SparseMatrix
     nnz.zero?
   end
 
-  def identity?
-    # TODO: Optimize using diagonal iterator
-    return false unless square?
-    map_diagonal! do |v|
-      return false unless v == 1
-      v
-    end
-    nnz == @rows
-  end
-
-  def square?
-    @rows == @cols
-  end
-
   def positive?
     @data.find(&:negative?).nil?
-  end
-
-  def invertible?
-    !det.zero?
   end
 
   def symmetric?
@@ -349,21 +320,6 @@ class SparseMatrix
     t = transpose
     i = t * self
     i.identity?
-  end
-
-  ##
-  # Returns true if the matrix only contains non-zero values on the main diagonal
-  def diagonal?
-    iter = iterator
-    if square?
-      while iter.has_next?
-        item = iter.next
-        return false if item[0] != item[1] && item[2] != 0
-      end
-    else
-      return false
-    end
-    true
   end
 
   ##
@@ -496,7 +452,6 @@ class SparseMatrix
   alias [] at
   alias get at
   alias set put
-  alias insert put
   alias []= put
   alias plus +
   alias subtract -
@@ -511,22 +466,7 @@ class SparseMatrix
   end
 
   def plus_scalar(x)
-    map {|val, _, _| val + x }
-  end
-
-  def mul_matrix(x)
-    res = SparseMatrix.new(rows, x.cols)
-
-    (0...@rows).each do |r|
-      (0...@cols).each do |c|
-        dot_prod = 0
-        (0...@cols).each do |i|
-          dot_prod += at(r, i) * x.at(i, c)
-        end
-        res.put(r, c, dot_prod)
-      end
-    end
-    res
+    map { |val, _, _| val + x }
   end
 
   def mul_scalar(x)
@@ -551,7 +491,6 @@ class SparseMatrix
     end
     m
   end
-
 
   # Returns the [index, val] corresponding to
   # an element in the matrix at position row, col
