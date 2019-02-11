@@ -210,6 +210,31 @@ class TriDiagonalMatrix < SparseMatrix
     (r - c).abs <= 1
   end
 
+  def to_ruby_matrix
+    matrix_array = Array.new(@rows) { Array.new(@cols, 0) }
+
+    (0...@rows).each do |x|
+      (0...@cols).each do |y|
+        matrix_array[x][y] = at(x, y)
+      end
+    end
+
+    Matrix[*matrix_array]
+  end
+
+  # Method aliases
+  alias t transpose
+  alias tr trace
+  alias [] at
+  alias get at
+  alias set put
+  alias insert put
+  alias []= put
+  alias plus +
+  alias subtract -
+  alias multiply *
+  alias exp **
+
 private
 
   def to_sparse_matrix
