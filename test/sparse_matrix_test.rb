@@ -253,6 +253,24 @@ class SparseMatrixTest < Test::Unit::TestCase
     end
   end
 
+  def test_matrix_division
+    m1 = rand_sparse
+    m2 = rand_sparse(rows: m1.cols)
+
+    # Preconditions
+    begin
+      assert_equal(m1.cols, m2.rows)
+    end
+
+    m3 = m1 / m2
+
+    # Postconditions
+    begin
+      assert_equal(m1.rows, m3.rows)
+      assert_equal(m2.cols, m3.cols)
+    end
+  end
+
   # Helper function for test_diagonal?
   def nnz_off_diagonal?(m)
     (0..m.rows - 1).each do |i|
