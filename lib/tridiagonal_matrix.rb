@@ -217,10 +217,6 @@ private
     MatrixSolver.matrix_mult(self, x, SparseMatrix.new(rows, x.cols))
   end
 
-  def mul_scalar(x)
-    map_nz {|val, _, _| val * x }
-  end
-
   def size_up!(diag, len)
     diag.concat(Array.new(len - diag.length, 0))
   end
