@@ -1051,34 +1051,6 @@ module MatrixTestCase
     end
   end
 
-  # def tst_rank
-  #   m = @factory.random
-  #
-  #   # Preconditions
-  #   begin
-  #   end
-  #
-  #   r = m.rank
-  #
-  #   # Postconditions
-  #   begin
-  #     if m.nil? || m.zero?
-  #       assert_equal(0, r, 'Rank non-zero for zero matrix')
-  #       return
-  #     end
-  #
-  #     assert_true(r > 0, 'Rank non-positive for non-nil matrix') unless m.nil? || m.zero?
-  #     assert_true(r <= m.rows, 'Rank larger than number of rows')
-  #
-  #     if m.square?
-  #       assert_equal(sparse_to_matrix(m).rank, r, 'Rank not equal to Ruby::Matrix rank')
-  #       assert_equal(r, m.transpose.rank, 'Rank not equal to rank of transpose.')
-  #     end
-  #   end
-  #
-  #   assert_invariants(m)
-  # end
-
   def test_orthogonal?
     m = @factory.random_square
 

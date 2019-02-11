@@ -40,6 +40,7 @@ class SparseMatrixTest < Test::Unit::TestCase
   end
 
   def test_rank
+    # Rank implementation not finished in tridiagonal matrix.
     m = @factory.random
 
     # Preconditions
