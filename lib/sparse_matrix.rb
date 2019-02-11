@@ -532,6 +532,16 @@ class SparseMatrix
     raise 'Not implemented'
   end
 
+  def bsearch_cols(c_start, c_end, val)
+    return c_start if c_start > c_end
+
+    mid = (c_end + c_start) / 2
+    return mid if @col_vector[mid] == val
+    return bsearch_cols c_start, mid - 1, val if @col_vector[mid] > val
+
+    bsearch_cols mid + 1, c_end, val
+  end
+
   def minor_submatrix(row, col)
     m = SparseMatrix.new(rows-1, cols-1)
     it = iterator
@@ -547,18 +557,15 @@ class SparseMatrix
     m
   end
 
-
   # Returns the [index, val] corresponding to
   # an element in the matrix at position row, col
   # If a value does not exist at that location, the val returned is nil
   # and the index indicates the insertion location
   def get_index(row, col)
-    index, row_end = @row_vector[row], @row_vector[row + 1]
+    r_start = @row_vector[row]
+    r_end = @row_vector[row + 1]
 
-    while (index < row_end) and (index < nnz) and (col >= @col_vector[index])
-      return [index, @data[index]] if @col_vector[index] == col
-      index += 1
-    end
+    index = bsearch_cols r_start, r_end, col
     [index, nil]
   end
 
