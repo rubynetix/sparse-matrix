@@ -527,7 +527,7 @@ class SparseMatrix
   end
 
   def bsearch_cols(c_start, c_end, val)
-    return c_start if c_start >= c_end
+    return c_start if c_start > c_end
 
     mid = (c_end + c_start) / 2
     return mid if @col_vector[mid] == val
