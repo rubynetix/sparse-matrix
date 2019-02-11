@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 require 'matrix'
 require_relative 'csr_iterator'
-require_relative 'matrix_solver'
+#require_relative 'matrix_solver'
 require_relative 'matrix_exceptions'
 
 
@@ -515,7 +515,18 @@ class SparseMatrix
   end
 
   def mul_matrix(x)
-    MatrixSolver.matrix_mult(self, x, SparseMatrix.new(rows, x.cols))
+    res = SparseMatrix.new(rows, x.cols)
+
+    (0...@rows).each do |r|
+      (0...@cols).each do |c|
+        dot_prod = 0
+        (0...@cols).each do |i|
+          dot_prod += at(r, i) * x.at(i, c)
+        end
+        res.put(r, c, dot_prod)
+      end
+    end
+    res
   end
 
   def mul_scalar(x)

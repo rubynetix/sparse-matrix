@@ -5,9 +5,9 @@ class CSRIterator
     @row_vec = row_vec
     @col_vec = col_vec
     @data = data
-
     @row_idx = @row_vec.index { |val| val > 0 }
     @col_idx = 0
+
   end
 
   def has_next?
