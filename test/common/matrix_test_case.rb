@@ -675,7 +675,7 @@ module MatrixTestCase
 
   def test_upper_triangular_square
     (0..TEST_ITER).each do
-      rc = rand(0..MAX_ROWS)
+      rc = rand(1..MAX_ROWS)
       m_tri = upper_triangular_matrix(@factory, rc, 0, 1000)
       m_random = @factory.random_square
 
@@ -716,7 +716,7 @@ module MatrixTestCase
   def test_lower_hessenberg_square
     # tests lower_hessenberg with a square matrix
     (0..TEST_ITER).each do
-      rc = rand(0..MAX_ROWS)
+      rc = rand(1..MAX_ROWS)
       m_hess = lower_hessenberg_matrix(@factory, rc, 0, 1000)
       m_random = @factory.random_square
 
@@ -756,7 +756,7 @@ module MatrixTestCase
   def test_upper_hessenberg_square
     # tests upper_hessenberg with a square matrix
     (0..TEST_ITER).each do
-      rc = rand(0..MAX_ROWS)
+      rc = rand(1..MAX_ROWS)
       m_hess = upper_hessenberg_matrix(@factory, rc, 0, 1000)
       m_random = @factory.random_square(fill_factor: 1)
 

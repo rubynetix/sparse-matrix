@@ -22,7 +22,15 @@ class TriDiagonalMatrixFactory < MatrixFactory
 
   def random_loc(rows, _ = rows)
     r = rand(0..rows - 1)
-    [r, r + rand(-1..1)]
+    c = r + rand(-1..1)
+
+    if c >= rows
+      c = rows
+    elsif c.negative?
+      c = 0
+    end
+
+    [r, c]
   end
 
   def from_diags(diags)

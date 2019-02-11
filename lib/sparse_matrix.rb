@@ -283,9 +283,9 @@ class SparseMatrix
     diagonal.sum(init=0)
   end
 
-  def nil?
-    @rows.zero? || @cols.zero?
-  end
+  # def nil?
+  #   @rows.zero? || @cols.zero?
+  # end
 
   def zero?
     nnz.zero?
