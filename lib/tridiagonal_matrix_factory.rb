@@ -4,9 +4,9 @@ require_relative 'matrix_factory'
 class TriDiagonalMatrixFactory < MatrixFactory
   def initialize(*args); end
 
-  def new(rows, cols = rows)
+  def new(rows, cols = rows, val = 0)
     n = force_square(rows, cols)
-    TriDiagonalMatrix.new(n)
+    TriDiagonalMatrix.new(n, cols: n, val: val)
   end
 
   def zero(rows, cols = rows)
@@ -16,6 +16,10 @@ class TriDiagonalMatrixFactory < MatrixFactory
 
   def identity(n)
     new(n).map_diagonal { 1 }
+  end
+
+  def from_diags(diags)
+    TriDiagonalMatrix.[](*diags)
   end
 
   private
@@ -36,3 +40,4 @@ class TriDiagonalMatrixFactory < MatrixFactory
     (((3 * rows) - 2) * fill_factor / 100).floor
   end
 end
+
