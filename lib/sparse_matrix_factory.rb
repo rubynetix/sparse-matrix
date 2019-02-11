@@ -7,17 +7,23 @@ class SparseMatrixFactory < MatrixFactory
     @suppress_warnings = suppress_warnings
   end
 
-  def new(rows, cols = rows)
-    SparseMatrix.new(rows, cols)
+  def new(rows, cols, val = 0)
+    SparseMatrix.create(rows, cols: cols, val: val)
   end
 
   def zero(rows, cols = rows)
-    SparseMatrix.zero(rows, cols)
+    SparseMatrix.create(rows, cols: cols)
   end
 
   def identity(n)
     SparseMatrix.identity(n)
   end
+
+  def from_array(rows)
+    SparseMatrix.[](*rows)
+  end
+
+  private
 
   def random_loc(rows, cols)
     [rand(0..rows - 1), rand(0..cols - 1)]

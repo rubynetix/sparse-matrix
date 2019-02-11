@@ -34,8 +34,10 @@ class SparseMatrix
 
   class << self
     include MatrixExceptions
-    def zero(rows, cols = rows)
-      SparseMatrix.new(rows, cols)
+    def create(rows, cols: rows, val: 0)
+      m = SparseMatrix.new(rows, cols)
+      m.map! {|_, _, _| val} unless val == 0
+      m
     end
 
     def identity(n)
@@ -485,6 +487,40 @@ class SparseMatrix
 
   private
 
+  # Utility functions
+  def map
+    m = self.copy
+    (0...m.rows-1).each do |x|
+      (0...m.cols-1).each do |y|
+        current = m.at(x, y)
+        new_val = yield(current, x, y)
+        m.put(x, y, new_val) if new_val != current
+      end
+    end
+    m
+  end
+
+  def map_diagonal
+    m = self.copy
+    (0...m.rows-1).each do |x|
+      current = m.at(x, x)
+      new_val = yield(current, x)
+      m.put(x, x, new_val) if new_val != current
+    end
+    m
+  end
+
+  def map_nz
+    (0..@rows-1).each do |r|
+      (0..@cols-1).each do |c|
+        unless at(r, c) == 0
+          yield(at(r,c))
+        end
+      end
+    end
+  end
+
+private
   def plus_matrix(o)
     map {|val, r, c| val + o.at(r, c)}
   end
@@ -494,7 +530,7 @@ class SparseMatrix
   end
 
   def mul_matrix(x)
-    MatrixSolver.matrix_mult(self, x, SparseMatrix.zero(rows, x.cols))
+    MatrixSolver.matrix_mult(self, x, SparseMatrix.new(rows, x.cols))
   end
 
   def mul_scalar(x)

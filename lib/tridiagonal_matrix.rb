@@ -6,14 +6,14 @@ require_relative 'tri_diagonal_iterator'
 class TriDiagonalMatrix < SparseMatrix
   attr_reader(:rows, :cols)
 
-  def initialize(rows, cols = rows)
+  def initialize(rows, cols: rows, val: 0)
     raise NonSquareException unless rows == cols
     # raise TypeError unless rows > 2 && cols > 2
 
     if rows.positive?
-      @upper_dia = Array.new(rows-1, 0)
-      @main_dia = Array.new(rows, 0)
-      @lower_dia = Array.new(rows-1, 0)
+      @upper_dia = Array.new(rows-1, val)
+      @main_dia = Array.new(rows, val)
+      @lower_dia = Array.new(rows-1, val)
     else
       @upper_dia = []
       @main_dia = []
@@ -35,8 +35,13 @@ class TriDiagonalMatrix < SparseMatrix
 
   class << self
     include MatrixExceptions
+
+    def create(rows, cols: rows, val: 0)
+      TriDiagonalMatrix.new(rows, cols: cols, val: val)
+    end
+
     def zero(rows, cols = rows)
-      TriDiagonalMatrix.new(rows, cols)
+      TriDiagonalMatrix.new(rows, cols: cols)
     end
 
     def identity(n)

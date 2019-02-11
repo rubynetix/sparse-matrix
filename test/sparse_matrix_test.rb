@@ -363,25 +363,6 @@ class SparseMatrixTest < Test::Unit::TestCase
     assert_invariants(adj)
   end
 
-  def test_inverse
-    m = @factory.random_square(size: rand(25...50))
-
-    # Preconditions
-    begin
-      # "Cannot calculate inverse of singular matrix
-      return if not m.invertible?
-    end
-
-    inv = m.inverse
-
-    # Postconditions
-    begin
-      assert_equal(m * inv, SparseMatrix.identity(m.rows), 'Matrix times its inverse not equal identity')
-    end
-
-    assert_invariants(m)
-  end
-
   def tst_rank
     m = @factory.random
 
