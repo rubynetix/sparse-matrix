@@ -1023,24 +1023,24 @@ module MatrixTestCase
     assert_invariants(m)
   end
 
-  # def test_inverse
-  #   m = @factory.random_square(size: rand(25...50))
-  #
-  #   # Preconditions
-  #   begin
-  #     # "Cannot calculate inverse of singular matrix
-  #     return if not m.invertible?
-  #   end
-  #
-  #   inv = m.inverse
-  #
-  #   # Postconditions
-  #   begin
-  #     assert_equal(m * inv, @factory.identity(m.rows), 'Matrix times its inverse not equal identity')
-  #   end
-  #
-  #   assert_invariants(m)
-  # end
+  def test_inverse
+    m = @factory.random_square(size: rand(25...50))
+
+    # Preconditions
+    begin
+      # "Cannot calculate inverse of singular matrix
+      return if not m.invertible?
+    end
+
+    inv = m.inverse
+
+    # Postconditions
+    begin
+      assert_equal(m * inv, @factory.identity(m.rows), 'Matrix times its inverse not equal identity')
+    end
+
+    assert_invariants(m)
+  end
 
   def test_symmetric?
     m = @factory.random
