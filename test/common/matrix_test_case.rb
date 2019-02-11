@@ -283,52 +283,50 @@ module MatrixTestCase
     assert_invariants(m2)
   end
 
-  # # TODO: Only include in SparseMatrix tests
-  # def test_to_s
-  #   test_ms = [
-  #       SparseMatrix.new(0, 0),
-  #       SparseMatrix.[]([10, 2, 3]),
-  #       SparseMatrix.identity(3),
-  #       SparseMatrix.[]([100, 0, 0, 0], [0, 1, 1, 0], [0, -1, 0, 0])
-  #   ]
-  #
-  #   exps = [
-  #       "null\n", # the null case
-  #       "10 2 3\n", # vector case
-  #       "1 0 0\n0 1 0\n0 0 1\n", # matrix case
-  #       "100  0 0 0\n  0  1 1 0\n  0 -1 0 0\n" # Note the formatting. Values are left-padded to the longest
-  #   # elements column-wise
-  #   ]
-  #
-  #   test_ms.zip(exps).each do |m, e|
-  #     # Preconditions
-  #     begin
-  #     end
-  #
-  #     s = m.to_s
-  #
-  #     # Postconditions
-  #     begin
-  #       assert_equal(e, s, 'Incorrect to_s format')
-  #
-  #       # More generically
-  #       if m.nil?
-  #         assert_equal(1, char_count("\n", s), 'Nil Matrix incorrect to_s format')
-  #       else
-  #         # number of \n == rows()
-  #         assert_equal(m.rows, char_count("\n", s), "Matrix incorrect to_s format ")
-  #         # all rows have the same length
-  #         len = nil
-  #         s.each_line("\n") do |l|
-  #           len = l.size if len.nil?
-  #           assert_equal(len, l.size, 'Matrix to_s format, incorrect row length')
-  #         end
-  #       end
-  #     end
-  #
-  #     assert_invariants(m)
-  #   end
-  # end
+  def test_to_s
+    test_ms = [
+        @factory.new(0, 0),
+        @factory.identity(3),
+        @factory.new(3, 3)
+    ]
+    test_ms[2].put(0, 0, 100)
+    test_ms[2].put(2, 1, -1)
+
+    exps = [
+        "null\n", # the null case
+        "1 0 0\n0 1 0\n0 0 1\n", # matrix case
+        "100  0 0\n  0  0 0\n  0 -1 0\n" # Formatting - values are left-padded to the longest elements column-wise
+    ]
+
+    test_ms.zip(exps).each do |m, e|
+      # Preconditions
+      begin
+      end
+
+      s = m.to_s
+
+      # Postconditions
+      begin
+        assert_equal(e, s, 'Incorrect to_s format')
+
+        # More generically
+        if m.null?
+          assert_equal(1, char_count("\n", s), 'Nil Matrix incorrect to_s format')
+        else
+          # number of \n == rows()
+          assert_equal(m.rows, char_count("\n", s), "Matrix incorrect to_s format")
+          # all rows have the same length
+          len = nil
+          s.each_line("\n") do |l|
+            len = l.size if len.nil?
+            assert_equal(len, l.size, 'Matrix to_s format, incorrect row length')
+          end
+        end
+      end
+
+      assert_invariants(m)
+    end
+  end
 
   def test_sum
     m = @factory.random
