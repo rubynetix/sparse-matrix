@@ -647,7 +647,7 @@ module MatrixTestCase
 
   def test_lower_triangular_square
     (0..TEST_ITER).each do
-      rc = rand(0..MAX_ROWS)
+      rc = rand(1..MAX_ROWS)
       m_tri = lower_triangular_matrix(@factory, rc, 0, 1000)
       m_random = @factory.random_square
 
@@ -1119,22 +1119,22 @@ module MatrixTestCase
     end
   end
 
-  # def test_to_ruby_matrix
-  #   m = @factory.random_square
-  #
-  #   # Preconditions
-  #   begin
-  #   end
-  #
-  #   ruby_m = m.to_ruby_matrix
-  #
-  #   # Postcondition
-  #   begin
-  #     (0...m.rows).each do |r|
-  #       (0...m.cols).each do |c|
-  #         assert_equal(m.at(r, c), ruby_m[r,c], "Ruby matrix value is incorrect at row:#{r} col:#{c}. Value: #{ruby_m[r,c]}")
-  #       end
-  #     end
-  #   end
-  # end
+  def test_to_ruby_matrix
+    m = @factory.random_square
+
+    # Preconditions
+    begin
+    end
+
+    ruby_m = m.to_ruby_matrix
+
+    # Postcondition
+    begin
+      (0...m.rows).each do |r|
+        (0...m.cols).each do |c|
+          assert_equal(m.at(r, c), ruby_m[r,c], "Ruby matrix value is incorrect at row:#{r} col:#{c}. Value: #{ruby_m[r,c]}")
+        end
+      end
+    end
+  end
 end
