@@ -1,9 +1,12 @@
 # frozen_string_literal: true
-require_relative 'sparse_matrix'
+require_relative 'matrix_common'
+require_relative 'matrix_exceptions'
 require_relative 'tridiagonal_iterator'
 
+
 # Tridiagonal Sparse Matrix
-class TriDiagonalMatrix < SparseMatrix
+class TriDiagonalMatrix
+  include MatrixCommon
   attr_reader(:rows, :cols)
 
   def initialize(rows, cols: rows, val: 0)
@@ -126,17 +129,17 @@ class TriDiagonalMatrix < SparseMatrix
     true
   end
 
-  def +(o)
-    o.instance_of?(TriDiagonalMatrix) ? plus_matrix(o) : plus_scalar(o)
-  end
-
-  def -(o)
-    o.instance_of?(TriDiagonalMatrix) ? plus_matrix(o * -1) : plus_scalar(-o)
-  end
-
-  def *(o)
-    o.instance_of?(TriDiagonalMatrix) ? mul_matrix(o) : mul_scalar(o)
-  end
+  # def +(o)
+  #   o.is_a?(MatrixCommon) ? plus_matrix(o) : plus_scalar(o)
+  # end
+  #
+  # def -(o)
+  #   o.is_a?(MatrixCommon) ? plus_matrix(o * -1) : plus_scalar(-o)
+  # end
+  #
+  # def *(o)
+  #   o.is_a?(MatrixCommon) ? mul_matrix(o) : mul_scalar(o)
+  # end
 
   def det
     prev_det = 1 # det of a 0x0 is 1
@@ -228,12 +231,13 @@ class TriDiagonalMatrix < SparseMatrix
   alias [] at
   alias get at
   alias set put
-  alias insert put
   alias []= put
   alias plus +
   alias subtract -
   alias multiply *
   alias exp **
+  alias adjoint adjugate
+
 
 private
 
@@ -245,10 +249,6 @@ private
 
   def plus_matrix(o)
     to_sparse_matrix + o
-  end
-
-  def plus_scalar(x)
-    map {|val, r, c| on_band?(r, c) ? val + x : val }
   end
 
   def mul_matrix(o)

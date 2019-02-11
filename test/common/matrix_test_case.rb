@@ -830,7 +830,7 @@ module MatrixTestCase
   end
 
   def test_adjugate
-    m = @factory.random_square
+    m = @factory.random_square(size: rand(1..15))
 
     # Preconditions
     begin
