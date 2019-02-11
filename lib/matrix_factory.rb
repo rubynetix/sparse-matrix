@@ -11,7 +11,7 @@ class MatrixFactory
     m
   end
 
-  def random(rows: rand(1..100), cols: rand(1..100), range: -100..100, fill_factor: rand(0..50))
+  def random(rows: rand(1..100), cols: rand(1..100), range: -100..100, fill_factor: rand(0..12))
     m = new(rows, cols)
     nnz = num_nz(rows, cols, fill_factor)
 
@@ -25,7 +25,7 @@ class MatrixFactory
     m
   end
 
-  def random_square(size: rand(1..100), range: -100..100, fill_factor: rand(0..50))
+  def random_square(size: rand(1..100), range: -100..100, fill_factor: rand(0..12))
     random(rows: size, cols: size, range: range, fill_factor: fill_factor)
   end
 end

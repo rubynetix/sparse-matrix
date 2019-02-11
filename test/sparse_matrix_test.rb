@@ -48,11 +48,10 @@ class SparseMatrixTest < Test::Unit::TestCase
     ]
 
     exps = [
-        "nil\n", # the null case
+        "null\n", # the null case
         "10 2 3\n", # vector case
         "1 0 0\n0 1 0\n0 0 1\n", # matrix case
-        "100  0 0 0\n  0  1 1 0\n  0 -1 0 0\n" # Note the formatting. Values are left-padded to the longest
-    # elements column-wise
+        "100  0 0 0\n  0  1 1 0\n  0 -1 0 0\n" # Note the formatting. Values are left-padded to the longest elements column-wise
     ]
 
     test_ms.zip(exps).each do |m, e|
@@ -67,7 +66,7 @@ class SparseMatrixTest < Test::Unit::TestCase
         assert_equal(e, s, 'Incorrect to_s format')
 
         # More generically
-        if m.nil?
+        if m.null?
           assert_equal(1, char_count("\n", s), 'Nil Matrix incorrect to_s format')
         else
           # number of \n == rows()
@@ -89,8 +88,8 @@ class SparseMatrixTest < Test::Unit::TestCase
     (0..TEST_ITER).each do
       r = rand(1..MAX_ROWS)
       c = rand(1..MAX_COLS)
-      m1 = rand_sparse(rows: r, cols: c)
-      m2 = rand_sparse(rows: r, cols: c)
+      m1 = @factory.random(rows: r, cols: c)
+      m2 = @factory.random(rows: r, cols: c)
 
       # Preconditions
       begin
@@ -127,8 +126,8 @@ class SparseMatrixTest < Test::Unit::TestCase
     (0..TEST_ITER).each do
       r = rand(1..MAX_ROWS)
       c = rand(1..MAX_COLS)
-      m1 = rand_sparse(rows: r, cols: c)
-      m2 = rand_sparse(rows: r, cols: c)
+      m1 = @factory.random(rows: r, cols: c)
+      m2 = @factory.random(rows: r, cols: c)
 
       # Preconditions
       begin
@@ -162,8 +161,8 @@ class SparseMatrixTest < Test::Unit::TestCase
   end
 
   def test_matrix_mult
-    m1 = rand_sparse
-    m2 = rand_sparse(rows: m1.cols)
+    m1 = @factory.random
+    m2 = @factory.random(rows: m1.cols)
 
     # Preconditions
     begin
@@ -191,7 +190,7 @@ class SparseMatrixTest < Test::Unit::TestCase
   end
 
   def test_diagonal?
-    m = rand_square_sparse
+    m = @factory.random_square
 
     # Preconditions
     begin
@@ -219,9 +218,9 @@ class SparseMatrixTest < Test::Unit::TestCase
   end
 
   def test_equals
-    m = rand_sparse
+    m = @factory.random
     m_same = m.clone
-    m_diff = rand_sparse
+    m_diff = @factory.random
 
     # Preconditions
     begin
@@ -243,7 +242,7 @@ class SparseMatrixTest < Test::Unit::TestCase
   end
 
   def tst_cofactor
-    m = rand_sparse
+    m = @factory.random
 
     # Preconditions
     begin
@@ -270,7 +269,7 @@ class SparseMatrixTest < Test::Unit::TestCase
   end
 
   def tst_adjoint
-    m = rand_square_sparse
+    m = @factory.random_square
 
     # Preconditions
     begin
@@ -290,7 +289,7 @@ class SparseMatrixTest < Test::Unit::TestCase
   end
 
   def tst_rank
-    m = rand_sparse
+    m = @factory.random
 
     # Preconditions
     begin
@@ -317,25 +316,8 @@ class SparseMatrixTest < Test::Unit::TestCase
     assert_invariants(m)
   end
 
-  def test_orthogonal?
-    m = rand_square_sparse
-
-    # Preconditions
-    begin
-    end
-
-    orth = m.orthogonal?
-
-    # Post conditions
-    begin
-      assert_equal(m.transpose == m.inverse, orth, 'Conflict between orthogonal result and transpose/inverse equality')
-    end
-
-    assert_invariants(m)
-  end
-
   def test_to_ruby_matrix
-    m = rand_square_sparse
+    m = @factory.random_square
 
     # Preconditions
     begin
