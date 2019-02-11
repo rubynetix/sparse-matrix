@@ -541,24 +541,24 @@ module MatrixTestCase
     end
   end
 
-  def test_exponentiation
-    exp = 3
-    m = @factory.random_square
-    # No Preconditions
-
-    new_m = m**exp
-
-    # Postconditions
-    begin
-      expected = m
-      (2..exp).each do |_i|
-        expected *= m
-      end
-      assert_equal(expected, new_m, "Incorrect exponentiation. Expected:#{expected}, Actual:#{new_m}")
-    end
-
-    assert_invariants(m)
-  end
+  # def test_exponentiation
+  #   exp = 3
+  #   m = @factory.random_square
+  #   # No Preconditions
+  #
+  #   new_m = m**exp
+  #
+  #   # Postconditions
+  #   begin
+  #     expected = m
+  #     (2..exp).each do
+  #       expected *= m
+  #     end
+  #     assert_equal(expected, new_m, "Incorrect exponentiation. Expected:#{expected}, Actual:#{new_m}")
+  #   end
+  #
+  #   assert_invariants(m)
+  # end
 
   def test_put
     m = @factory.random_square
