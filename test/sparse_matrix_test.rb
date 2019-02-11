@@ -39,51 +39,6 @@ class SparseMatrixTest < Test::Unit::TestCase
     end
   end
 
-  def test_to_s
-    test_ms = [
-      SparseMatrix.new(0, 0),
-      SparseMatrix.[]([10, 2, 3]),
-      SparseMatrix.identity(3),
-      SparseMatrix.[]([100, 0, 0, 0], [0, 1, 1, 0], [0, -1, 0, 0])
-    ]
-
-    exps = [
-        "null\n", # the null case
-        "10 2 3\n", # vector case
-        "1 0 0\n0 1 0\n0 0 1\n", # matrix case
-        "100  0 0 0\n  0  1 1 0\n  0 -1 0 0\n" # Note the formatting. Values are left-padded to the longest elements column-wise
-    ]
-
-    test_ms.zip(exps).each do |m, e|
-      # Preconditions
-      begin
-      end
-
-      s = m.to_s
-
-      # Postconditions
-      begin
-        assert_equal(e, s, 'Incorrect to_s format')
-
-        # More generically
-        if m.null?
-          assert_equal(1, char_count("\n", s), 'Nil Matrix incorrect to_s format')
-        else
-          # number of \n == rows()
-          assert_equal(m.rows, char_count("\n", s), "Matrix incorrect to_s format ")
-          # all rows have the same length
-          len = nil
-          s.each_line("\n") do |l|
-            len = l.size if len.nil?
-            assert_equal(len, l.size, 'Matrix to_s format, incorrect row length')
-          end
-        end
-      end
-
-      assert_invariants(m)
-    end
-  end
-
   # Helper function for test_diagonal?
   def nnz_off_diagonal?(m)
     (0..m.rows - 1).each do |i|

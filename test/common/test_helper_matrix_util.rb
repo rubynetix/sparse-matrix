@@ -83,6 +83,4 @@ module MatrixTestUtil
     s.each_char { |chr| cnt += 1 if c == chr }
     cnt
   end
-
-
 end
