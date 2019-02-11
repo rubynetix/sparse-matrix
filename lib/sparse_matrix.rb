@@ -197,7 +197,7 @@ class SparseMatrix
   end
 
   def to_s
-    return "nil\n" if nil?
+    return "null\n" if null?
 
     it = iterator
     col_width = Array.new(cols, 1)
@@ -283,9 +283,9 @@ class SparseMatrix
     diagonal.sum(init=0)
   end
 
-  # def nil?
-  #   @rows.zero? || @cols.zero?
-  # end
+  def null?
+    @rows.zero? || @cols.zero?
+  end
 
   def zero?
     nnz.zero?

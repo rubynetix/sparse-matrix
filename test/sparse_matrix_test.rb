@@ -48,11 +48,10 @@ class SparseMatrixTest < Test::Unit::TestCase
     ]
 
     exps = [
-        "nil\n", # the null case
+        "null\n", # the null case
         "10 2 3\n", # vector case
         "1 0 0\n0 1 0\n0 0 1\n", # matrix case
-        "100  0 0 0\n  0  1 1 0\n  0 -1 0 0\n" # Note the formatting. Values are left-padded to the longest
-    # elements column-wise
+        "100  0 0 0\n  0  1 1 0\n  0 -1 0 0\n" # Note the formatting. Values are left-padded to the longest elements column-wise
     ]
 
     test_ms.zip(exps).each do |m, e|
@@ -67,7 +66,7 @@ class SparseMatrixTest < Test::Unit::TestCase
         assert_equal(e, s, 'Incorrect to_s format')
 
         # More generically
-        if m.nil?
+        if m.null?
           assert_equal(1, char_count("\n", s), 'Nil Matrix incorrect to_s format')
         else
           # number of \n == rows()

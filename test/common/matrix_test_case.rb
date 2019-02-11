@@ -293,7 +293,7 @@ module MatrixTestCase
   #   ]
   #
   #   exps = [
-  #       "nil\n", # the null case
+  #       "null\n", # the null case
   #       "10 2 3\n", # vector case
   #       "1 0 0\n0 1 0\n0 0 1\n", # matrix case
   #       "100  0 0 0\n  0  1 1 0\n  0 -1 0 0\n" # Note the formatting. Values are left-padded to the longest
