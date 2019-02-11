@@ -528,7 +528,7 @@ module MatrixTestCase
   # end
 
   def test_exponentiation
-    exp = 3
+    exp = rand(2..12)
     m = @factory.random_square
     # No Preconditions
 
