@@ -34,8 +34,10 @@ class SparseMatrix
 
   class << self
     include MatrixExceptions
-    def zero(rows, cols = rows)
-      SparseMatrix.new(rows, cols)
+    def create(rows, cols: rows, val: 0)
+      m = SparseMatrix.new(rows, cols)
+      m.map! {|_, _, _| val} unless val == 0
+      m
     end
 
     def identity(n)
@@ -141,13 +143,14 @@ class SparseMatrix
       else
         @data[index] = val
       end
-      return
+      return true
     end
 
     unless val.zero?
       # Inserting a new element
       insert(row, col, index, val)
     end
+    true
   end
 
   def +(o)
@@ -162,14 +165,26 @@ class SparseMatrix
     o.is_a?(SparseMatrix) ? mul_matrix(o) : mul_scalar(o)
   end
 
+  def /(o)
+    throw TypeError unless o.is_a? SparseMatrix
+    mul_matrix(o.inverse)
+  end
+
   def **(x)
     throw NonSquareException unless square?
     throw TypeError unless x.is_a? Integer
     throw ArgumentError unless x > 1
-    new_m = dup
-    while x >= 2
-      new_m *= self
-      x -= 1
+    m_pow2 = dup
+    while x.even?
+      m_pow2 *= m_pow2
+      x = x >> 1
+    end
+    new_m = m_pow2.dup
+    x = x >> 1
+    while x.positive?
+      m_pow2 *= m_pow2
+      new_m *= m_pow2 if x.odd?
+      x = x >> 1
     end
     new_m
   end
@@ -187,7 +202,7 @@ class SparseMatrix
   end
 
   def to_s
-    return "nil\n" if nil?
+    return "null\n" if null?
 
     it = iterator
     col_width = Array.new(cols, 1)
@@ -223,48 +238,60 @@ class SparseMatrix
   ##
   # Returns an array containing the values along the main diagonal of the matrix
   def diagonal
-    if !square?
-      raise NonSquareException, "Can not get diagonal of non-square matrix."
-    else
-      diag = Array.new(@rows, 0)
-      iter = iterator
-      while iter.has_next?
-        item = iter.next
-        if item[0] == item[1]
-          diag[item[0]] = item[2]
-        end
-      end
-      return diag
+    raise NonSquareException, "Can not get diagonal of non-square matrix." unless square?
+
+    diag = Array.new(@rows, 0)
+    iter = iterator
+    while iter.has_next?
+      item = iter.next
+      diag[item[0]] = item[2] if item[0] == item[1]
     end
+    diag
   end
 
   def tridiagonal
     map { |val, r, c| (r == c || c == r - 1 || c == r + 1) ? val : 0 }
   end
 
-  def cofactor(row, col)
-    raise 'Not implemented'
+  def minor(row, col)
+    minor_submatrix(row, col).det
   end
 
-  def adjoint
-    raise 'Not implemented'
+  def cofactor
+    raise NonSquareException, "Cannot get cofactor matrix from non-square matrix" unless square?
+
+    m = SparseMatrix.new(rows, cols)
+    (0...rows).each do |r|
+      (0...cols).each do |c|
+        if r + c % 2 == 0
+          sign = 1
+        else
+          sign = -1
+        end
+
+        m.put(r, c, sign * minor(r, c))
+      end
+    end
+    m
+  end
+
+  def adjugate
+    cofactor.transpose
   end
 
   def inverse
     raise 'NotInvertibleException' unless invertible?
 
-    ruby_matrix = to_ruby_matrix
-    inverse = ruby_matrix.inv
-
+    inverse = to_ruby_matrix.inv
     SparseMatrix.from_ruby_matrix(inverse)
   end
 
   def rank
-    raise 'Not implemented'
+    to_ruby_matrix.rank
   end
 
   def transpose
-    m = SparseMatrix.new @cols, @rows
+    m = SparseMatrix.new(cols, rows)
     iter = iterator
     while iter.has_next?
       row, col, val = iter.next
@@ -279,7 +306,7 @@ class SparseMatrix
     diagonal.sum(init=0)
   end
 
-  def nil?
+  def null?
     @rows.zero? || @cols.zero?
   end
 
@@ -302,13 +329,7 @@ class SparseMatrix
   end
 
   def positive?
-    # TODO: Implement in O(m) time
-    (0..@rows-1).each do |r|
-      (0..@cols-1).each do |c|
-        return false if at(r, c).negative?
-      end
-    end
-    true
+    @data.find(&:negative?).nil?
   end
 
   def invertible?
@@ -324,7 +345,10 @@ class SparseMatrix
   end
 
   def orthogonal?
-    raise 'Not implemented'
+    return false unless square?
+    t = transpose
+    i = t * self
+    i.identity?
   end
 
   ##
@@ -334,9 +358,7 @@ class SparseMatrix
     if square?
       while iter.has_next?
         item = iter.next
-        if item[0] != item[1] && item[2] != 0
-          return false
-        end
+        return false if item[0] != item[1] && item[2] != 0
       end
     else
       return false
@@ -348,72 +370,52 @@ class SparseMatrix
   # Returns true if all the entries above the main diagonal are zero.
   # Returns false otherwise.
   def lower_triangular?
-    if square?
-      iter = iterator
-      while iter.has_next?
-        item = iter.next
-        if item[1] > item[0] && item[2] != 0
-          return false
-        end
-      end
-      true
-    else
-      false
+    return false unless square?
+    iter = iterator
+    while iter.has_next?
+      item = iter.next
+      return false if item[1] > item[0] && item[2] != 0
     end
+    true
   end
 
   ##
   # Returns true if all the entries below the main diagonal are zero.
   # Returns false otherwise.
   def upper_triangular?
-    if square?
-      iter = iterator
-      while iter.has_next?
-        item = iter.next
-        if item[0] > item[1] && item[2] != 0
-          return false
-        end
-      end
-      true
-    else
-      false
+    return false unless square?
+    iter = iterator
+    while iter.has_next?
+      item = iter.next
+      return false if item[0] > item[1] && item[2] != 0
     end
+    true
   end
 
   ##
   # Returns true if all the entries above the first superdiagonal are zero.
   # Returns false otherwise.
   def lower_hessenberg?
-    if square?
-      iter = iterator
-      while iter.has_next?
-        item = iter.next
-        if item[1] > (item[0] + 1) && item[2] != 0
-          return false
-        end
-      end
-      true
-    else
-      false
+    return false unless square?
+    iter = iterator
+    while iter.has_next?
+      r, c, v = iter.next
+      return false if c > (r + 1) && v != 0
     end
+    true
   end
 
   ##
-  # Returns true if all the entries below the main diagonal are zero.
+  # Returns true if all the entries below the first subdiagonal diagonal are zero.
   # Returns false otherwise.
   def upper_hessenberg?
-    if square?
+    return false unless square?
       iter = iterator
       while iter.has_next?
-        item = iter.next
-        if item[0] > (item[1] + 1) && item[2] != 0
-          return false
-        end
+        r, c, v = iter.next
+        return false if r > (c + 1) && v != 0
       end
       true
-    else
-      false
-    end
   end
 
   def to_ruby_matrix
@@ -431,9 +433,6 @@ class SparseMatrix
   def iterator
     CSRIterator.new(@row_vector, @col_vector, @data)
   end
-
-  alias t transpose
-  alias tr trace
 
   # Utility functions
   def map
@@ -491,7 +490,21 @@ class SparseMatrix
     end
   end
 
-private
+  # Method aliases
+  alias t transpose
+  alias tr trace
+  alias [] at
+  alias get at
+  alias set put
+  alias insert put
+  alias []= put
+  alias plus +
+  alias subtract -
+  alias multiply *
+  alias exp **
+  alias adjoint adjugate
+
+  private
 
   def plus_matrix(o)
     map {|val, r, c| val + o.at(r, c)}
@@ -502,7 +515,7 @@ private
   end
 
   def mul_matrix(x)
-    MatrixSolver.matrix_mult(self, x, SparseMatrix.zero(rows, x.cols))
+    MatrixSolver.matrix_mult(self, x, SparseMatrix.new(rows, x.cols))
   end
 
   def mul_scalar(x)
@@ -512,6 +525,22 @@ private
   def rref
     raise 'Not implemented'
   end
+
+  def minor_submatrix(row, col)
+    m = SparseMatrix.new(rows-1, cols-1)
+    it = iterator
+    while it.has_next?
+      r, c, val = it.next
+      new_row = r > row ? r - 1 : r
+      new_col = c > col ? c - 1 : c
+
+      if r != row and c != col
+        m.put(new_row, new_col, val)
+      end
+    end
+    m
+  end
+
 
   # Returns the [index, val] corresponding to
   # an element in the matrix at position row, col
@@ -542,34 +571,4 @@ private
       @row_vector[r] -= 1
     end
   end
-
-  def increase_rows(rows)
-    (0..(rows - @rows)).each do |_num|
-      @row_vector.push @row_vector.last
-    end
-    @rows = rows
-  end
-
-  def decrease_rows(rows)
-    rm_rows = @row_vector.pop(@rows - rows)
-    num_vals_rmd = rm_rows.last - @row_vector.last
-    @col_vector.pop num_vals_rmd
-    @data.pop num_vals_rmd
-    @rows = rows
-  end
-
-  def decrease_cols(cols)
-    it = iterator
-    to_rm = []
-    while it.has_next?
-      item = it.next
-      to_rm.push item if item[1] >= cols
-    end
-    to_rm.each do |r, c, _|
-      put r, c, 0
-    end
-    @cols = cols
-  end
-
 end
-
