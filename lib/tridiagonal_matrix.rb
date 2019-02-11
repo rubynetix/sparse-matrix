@@ -160,10 +160,6 @@ class TriDiagonalMatrix < SparseMatrix
     clone
   end
 
-  def null?
-    @rows == 0 && @cols == 0
-  end
-
   def iterator
     TriDiagonalIterator.new(@lower_dia, @main_dia, @upper_dia)
   end
