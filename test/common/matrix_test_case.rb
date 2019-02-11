@@ -1,5 +1,6 @@
 require 'test/unit'
 require_relative '../../lib/sparse_matrix'
+require_relative '../../lib/tridiagonal_matrix'
 require_relative 'test_helper_matrix_util'
 
 module MatrixTestCase
@@ -58,10 +59,11 @@ module MatrixTestCase
 
     ins = 0
     while ins < n
-      x = rand(0...m.rows)
-      y = rand(0...m.cols)
-      succ = m.put(x, y, rand(MAX_VAL..MAX_VAL))
-      ins += 1 if succ
+      x, y = @factory.random_loc(m.rows, m.cols)
+      if m.at(x, y).zero?
+        m.put(x, y, rand(MAX_VAL..MAX_VAL))
+        ins += 1
+      end
     end
 
     # Preconditions - N/A
@@ -241,14 +243,8 @@ module MatrixTestCase
   def test_at
     v = rand(MIN_VAL..MAX_VAL)
     m = @factory.random
-    r = c = nil
-
-    loop do
-      r = rand(0...m.rows)
-      c = rand(0...m.cols)
-      succ = m.put(r, c, v)
-      break unless !succ
-    end
+    r, c = @factory.random_loc(m.rows, m.cols)
+    m.put(r, c, v)
 
     # Preconditions
     begin
@@ -265,15 +261,14 @@ module MatrixTestCase
   end
 
   def test_clone
-    m1 = rand_sparse
+    m1 = @factory.random
 
     # Preconditions
     begin
     end
 
     m2 = m1.clone
-    r = rand(0...m1.rows)
-    c = rand(0...m1.cols)
+    r, c = @factory.random_loc(m1.rows, m1.cols)
 
     # We want to assert that we are working on different copies
     m2.put(r, c, m2.at(r, c) + 1)
@@ -288,52 +283,50 @@ module MatrixTestCase
     assert_invariants(m2)
   end
 
-  # # TODO: Only include in SparseMatrix tests
-  # def test_to_s
-  #   test_ms = [
-  #       SparseMatrix.new(0, 0),
-  #       SparseMatrix.[]([10, 2, 3]),
-  #       SparseMatrix.identity(3),
-  #       SparseMatrix.[]([100, 0, 0, 0], [0, 1, 1, 0], [0, -1, 0, 0])
-  #   ]
-  #
-  #   exps = [
-  #       "nil\n", # the null case
-  #       "10 2 3\n", # vector case
-  #       "1 0 0\n0 1 0\n0 0 1\n", # matrix case
-  #       "100  0 0 0\n  0  1 1 0\n  0 -1 0 0\n" # Note the formatting. Values are left-padded to the longest
-  #   # elements column-wise
-  #   ]
-  #
-  #   test_ms.zip(exps).each do |m, e|
-  #     # Preconditions
-  #     begin
-  #     end
-  #
-  #     s = m.to_s
-  #
-  #     # Postconditions
-  #     begin
-  #       assert_equal(e, s, 'Incorrect to_s format')
-  #
-  #       # More generically
-  #       if m.nil?
-  #         assert_equal(1, char_count("\n", s), 'Nil Matrix incorrect to_s format')
-  #       else
-  #         # number of \n == rows()
-  #         assert_equal(m.rows, char_count("\n", s), "Matrix incorrect to_s format ")
-  #         # all rows have the same length
-  #         len = nil
-  #         s.each_line("\n") do |l|
-  #           len = l.size if len.nil?
-  #           assert_equal(len, l.size, 'Matrix to_s format, incorrect row length')
-  #         end
-  #       end
-  #     end
-  #
-  #     assert_invariants(m)
-  #   end
-  # end
+  def test_to_s
+    test_ms = [
+        @factory.new(0, 0),
+        @factory.identity(3),
+        @factory.new(3, 3)
+    ]
+    test_ms[2].put(0, 0, 100)
+    test_ms[2].put(2, 1, -1)
+
+    exps = [
+        "null\n", # the null case
+        "1 0 0\n0 1 0\n0 0 1\n", # matrix case
+        "100  0 0\n  0  0 0\n  0 -1 0\n" # Formatting - values are left-padded to the longest elements column-wise
+    ]
+
+    test_ms.zip(exps).each do |m, e|
+      # Preconditions
+      begin
+      end
+
+      s = m.to_s
+
+      # Postconditions
+      begin
+        assert_equal(e, s, 'Incorrect to_s format')
+
+        # More generically
+        if m.null?
+          assert_equal(1, char_count("\n", s), 'Nil Matrix incorrect to_s format')
+        else
+          # number of \n == rows()
+          assert_equal(m.rows, char_count("\n", s), "Matrix incorrect to_s format")
+          # all rows have the same length
+          len = nil
+          s.each_line("\n") do |l|
+            len = l.size if len.nil?
+            assert_equal(len, l.size, 'Matrix to_s format, incorrect row length')
+          end
+        end
+      end
+
+      assert_invariants(m)
+    end
+  end
 
   def test_sum
     m = @factory.random
@@ -359,192 +352,220 @@ module MatrixTestCase
     assert_invariants(m)
   end
 
-  # def test_add_matrix
-  #   (0..TEST_ITER).each do
-  #     r = rand(1..MAX_ROWS)
-  #     c = rand(1..MAX_COLS)
-  #     m1 = @factory.random(rows: r, cols: c)
-  #     m2 = @factory.random(rows: r, cols: c)
-  #
-  #     # Preconditions
-  #     begin
-  #       assert_equal(m1.rows, m2.rows, "Cannot add matrices of different dimensions.")
-  #       assert_equal(m1.cols, m2.cols, "Cannot add matrices of different dimensions.")
-  #     end
-  #
-  #     m3 = m1 + m2
-  #
-  #     # Postconditions
-  #     begin
-  #       assert_equal(m1.sum + m2.sum, m3.sum, "Matrix addition incorrect. Expected Sum:#{m1.sum + m2.sum}, Actual Sum:#{m3.sum}")
-  #
-  #       if m1.traceable?
-  #         assert_equal(m1.trace + m2.trace, m3.trace, "Matrix addition incorrect. Expected Trace:#{m1.trace + m2.trace}, Actual Trace:#{m3.trace}")
-  #       end
-  #
-  #       assert_equal(m1, m3 - m2, "Matrix addition error.")
-  #
-  #       (0...m1.rows).each do |r2|
-  #         (0...m1.cols).each do |c2|
-  #           assert_equal(m1.at(r2, c2) + m2.at(r2, c2), m3.at(r2, c2), "Matrix addition error at row:#{r2}, col:#{c2}. Expected:#{m1.at(r2, c2) + m2.at(r2, c2)}, Actual:#{m3.at(r2, c2)}")
-  #         end
-  #       end
-  #     end
-  #
-  #     assert_invariants(m1)
-  #     assert_invariants(m2)
-  #     assert_invariants(m3)
-  #   end
-  # end
-  #
-  # def test_scalar_plus
-  #   m1 = @factory.random
-  #   num = rand(MIN_VAL..MAX_VAL)
-  #
-  #   # Preconditions
-  #   begin
-  #   end
-  #
-  #   m2 = m1 + num
-  #
-  #   # Postconditions
-  #   begin
-  #     assert_equal(m1.sum + num * m1.rows * m1.cols, m2.sum, "Matrix scalar addition incorrect. Expected Sum:#{m1.sum + num * m1.nnz}, Actual Sum:#{m2.sum}")
-  #
-  #     (0...m1.rows).each do |r|
-  #       (0...m1.cols).each do |c|
-  #         assert_equal(m1.at(r, c) + num, m2.at(r, c), "Incorrect scalar addition at row:#{r}, col:#{c}. Expected:#{m1.at(r, c) + num}, Actual:#{m2.at(r, c)}")
-  #       end
-  #     end
-  #   end
-  #
-  #   assert_invariants(m1)
-  #   assert_invariants(m2)
-  # end
-  #
-  # def test_subtract_matrix
-  #   (0..TEST_ITER).each do
-  #     r = rand(1..MAX_ROWS)
-  #     c = rand(1..MAX_COLS)
-  #     m1 = @factory.random(rows: r, cols: c)
-  #     m2 = @factory.random(rows: r, cols: c)
-  #
-  #     # Preconditions
-  #     begin
-  #       assert_equal(m1.rows, m2.rows, "Cannot subtract matrices of different dimensions.")
-  #       assert_equal(m1.cols, m2.cols, "Cannot subtract matrices of different dimensions.")
-  #     end
-  #
-  #     m3 = m1 - m2
-  #
-  #     # Postconditions
-  #     begin
-  #       assert_equal(m1.sum - m2.sum, m3.sum, "Matrix subtraction incorrect. Expected Sum:#{m1.sum - m2.sum}, Actual Sum:#{m3.sum}")
-  #
-  #       if m1.traceable?
-  #         assert_equal(m1.trace - m2.trace, m3.trace, "Matrix subtraction incorrect. Expected Trace:#{m1.trace - m2.trace}, Actual Trace:#{m3.trace}")
-  #       end
-  #
-  #       assert_equal(m1, m3 + m2, 'Matrix subtraction error.')
-  #
-  #       (0...m1.rows).each do |r2|
-  #         (0...m1.cols).each do |c2|
-  #           assert_equal(m1.at(r2, c2) - m2.at(r2, c2), m3.at(r2, c2), "Incorrect subtraction at row:#{r2}, col:#{c2}. Expected:#{m1.at(r2, c2) - m2.at(r2, c2)}, Actual:#{m3.at(r2, c2)}")
-  #         end
-  #       end
-  #     end
-  #
-  #     assert_invariants(m1)
-  #     assert_invariants(m2)
-  #     assert_invariants(m3)
-  #   end
-  # end
-  #
-  # def test_scalar_subtract
-  #   m1 = @factory.random
-  #   num = rand(MIN_VAL..MAX_VAL)
-  #
-  #   # Preconditions
-  #   begin
-  #   end
-  #
-  #   m2 = m1 - num
-  #
-  #   # Postconditions
-  #   begin
-  #     assert_equal(m1.sum - num * m1.rows * m1.cols, m2.sum, "Matrix scalar subtraction incorrect. Expected Sum:#{m1.sum - num * m1.nnz}, Actual Sum:#{m2.sum}")
-  #
-  #     (0...m1.rows).each do |r|
-  #       (0...m1.cols).each do |c|
-  #         assert_equal(m1.at(r, c) - num, m2.at(r, c), "Incorrect scalar subraction at row:#{r}, col:#{c}. Expected:#{m1.at(r, c) - num}, Actual:#{m2.at(r, c)}")
-  #       end
-  #     end
-  #   end
-  #
-  #   assert_invariants(m1)
-  #   assert_invariants(m2)
-  # end
-  #
-  # def test_matrix_mult
-  #   m1 = @factory.random
-  #   m2 = @factory.random(rows: m1.cols)
-  #
-  #   # Preconditions
-  #   begin
-  #     assert_equal(m1.cols, m2.rows)
-  #   end
-  #
-  #   m3 = m1 * m2
-  #
-  #   # Postconditions
-  #   begin
-  #     assert_equal(m1.rows, m3.rows)
-  #     assert_equal(m2.cols, m3.cols)
-  #   end
-  # end
-  #
-  # def test_scalar_mult
-  #   r = rand(0..MAX_ROWS)
-  #   c = rand(1..MAX_COLS)
-  #   m = @factory.random(rows: r, cols: c)
-  #   rand_range(1, 1000, 20).each do |mult|
-  #     # Preconditions
-  #     begin
-  #     end
-  #
-  #     new_m = m * mult
-  #
-  #     # Postconditions
-  #     begin
-  #       (0...r).each do |i|
-  #         (0...c).each do |j|
-  #           assert_equal(m.at(i, j) * mult, new_m.at(i, j), "Incorrect scalar multiplication at row:#{i}, col:#{j}. Expected:#{m.at(i, j) * mult}, Actual:#{new_m.at(i, j)}")
-  #         end
-  #       end
-  #     end
-  #
-  #     assert_invariants(m)
-  #   end
-  # end
+  def test_matrix_add
+    (0..TEST_ITER).each do
+      n = rand(1..MAX_ROWS)
+      m1 = @factory.random_square(size: 5)
+      m2 = @factory.random_square(size: 5)
 
-  def test_exponentiation
-    exp = 3
-    m = @factory.random_square
-    # No Preconditions
+      # Preconditions
+      begin
+        assert_equal(m1.rows, m2.rows, "Cannot add matrices of different dimensions.")
+        assert_equal(m1.cols, m2.cols, "Cannot add matrices of different dimensions.")
+      end
 
-    new_m = m**exp
+      m3 = m1 + m2
+
+      # Postconditions
+      begin
+        assert_equal(m1.sum + m2.sum, m3.sum, "Matrix addition incorrect. Expected Sum:#{m1.sum + m2.sum}, Actual Sum:#{m3.sum}")
+
+        if m1.traceable?
+          assert_equal(m1.trace + m2.trace, m3.trace, "Matrix addition incorrect. Expected Trace:#{m1.trace + m2.trace}, Actual Trace:#{m3.trace}")
+        end
+
+        #assert_equal(m1, m3 - m2, "Matrix addition error.")
+
+        (0...m1.rows).each do |r2|
+          (0...m1.cols).each do |c2|
+            assert_equal(m1.at(r2, c2) + m2.at(r2, c2), m3.at(r2, c2), "Matrix addition error at row:#{r2}, col:#{c2}. Expected:#{m1.at(r2, c2) + m2.at(r2, c2)}, Actual:#{m3.at(r2, c2)}")
+          end
+        end
+      end
+
+      assert_invariants(m1)
+      assert_invariants(m2)
+    end
+  end
+
+  def test_scalar_plus
+    m1 = @factory.random
+    num = rand(MIN_VAL..MAX_VAL)
+
+    # Preconditions
+    begin
+    end
+
+    m2 = m1 + num
 
     # Postconditions
     begin
-      expected = m
-      (2..exp).each do |_i|
-        expected *= m
+
+      assert_equal(m1.sum + num * m1.rows * m1.cols, m2.sum, "Matrix scalar addition incorrect. Expected Sum:#{m1.sum + num * m1.nnz}, Actual Sum:#{m2.sum}") if m1.instance_of?(SparseMatrix)
+      assert_equal(m1.sum + num * ((3 * m1.rows) - 2), m2.sum, "Matrix scalar addition incorrect. Expected Sum:#{m1.sum + num * ((3 * m1.rows) - 2)}, Actual Sum:#{m2.sum}") if m1.instance_of?(TriDiagonalMatrix)
+
+      (0...m1.rows).each do |r|
+        (0...m1.cols).each do |c|
+          if m1.instance_of?(SparseMatrix)
+            assert_equal(m1.at(r, c) + num, m2.at(r, c), "Incorrect scalar addition at row:#{r}, col:#{c}. Expected:#{m1.at(r, c) + num}, Actual:#{m2.at(r, c)}")
+          elsif m1.instance_of?(TriDiagonalMatrix)
+            assert_equal(m1.at(r, c) + num, m2.at(r, c), "Incorrect scalar addition at row:#{r}, col:#{c}. Expected:#{m1.at(r, c) + num}, Actual:#{m2.at(r, c)}") if m2.on_band?(r, c)
+          end
+        end
       end
-      assert_equal(expected, new_m, "Incorrect exponentiation. Expected:#{expected}, Actual:#{new_m}")
     end
 
-    assert_invariants(m)
+    assert_invariants(m1)
+    assert_invariants(m2)
   end
+
+  def test_matrix_subtract
+    (0..TEST_ITER).each do
+      n = rand(1..MAX_ROWS)
+      m1 = @factory.random_square(size: n)
+      m2 = @factory.random_square(size: n)
+
+      # Preconditions
+      begin
+        assert_equal(m1.rows, m2.rows, "Cannot subtract matrices of different dimensions.")
+        assert_equal(m1.cols, m2.cols, "Cannot subtract matrices of different dimensions.")
+      end
+
+      m3 = m1 - m2
+
+      # Postconditions
+      begin
+        assert_equal(m1.sum - m2.sum, m3.sum, "Matrix subtraction incorrect. Expected Sum:#{m1.sum - m2.sum}, Actual Sum:#{m3.sum}")
+
+        if m1.traceable?
+          assert_equal(m1.trace - m2.trace, m3.trace, "Matrix subtraction incorrect. Expected Trace:#{m1.trace - m2.trace}, Actual Trace:#{m3.trace}")
+        end
+
+        (0...m1.rows).each do |r2|
+          (0...m1.cols).each do |c2|
+            assert_equal(m1.at(r2, c2) - m2.at(r2, c2), m3.at(r2, c2), "Incorrect subtraction at row:#{r2}, col:#{c2}. Expected:#{m1.at(r2, c2) - m2.at(r2, c2)}, Actual:#{m3.at(r2, c2)}")
+          end
+        end
+      end
+
+      assert_invariants(m1)
+      assert_invariants(m2)
+    end
+  end
+
+  def test_scalar_subtract
+    m1 = @factory.random
+    num = rand(MIN_VAL..MAX_VAL)
+
+    # Preconditions
+    begin
+    end
+
+    m2 = m1 - num
+
+    # Postconditions
+    begin
+      assert_equal(m1.sum - num * m1.rows * m1.cols, m2.sum, "Matrix scalar subtraction incorrect. Expected Sum:#{m1.sum - num * m1.nnz}, Actual Sum:#{m2.sum}") if m1.instance_of?(SparseMatrix)
+      assert_equal(m1.sum - num * ((3 * m1.rows) - 2), m2.sum, "Matrix scalar addition incorrect. Expected Sum:#{m1.sum - num * ((3 * m1.rows) - 2)}, Actual Sum:#{m2.sum}") if m1.instance_of?(TriDiagonalMatrix)
+
+
+      (0...m1.rows).each do |r|
+        (0...m1.cols).each do |c|
+          if m1.instance_of?(SparseMatrix)
+            assert_equal(m1.at(r, c) - num, m2.at(r, c), "Incorrect scalar addition at row:#{r}, col:#{c}. Expected:#{m1.at(r, c) + num}, Actual:#{m2.at(r, c)}")
+          elsif m1.instance_of?(TriDiagonalMatrix)
+            assert_equal(m1.at(r, c) - num, m2.at(r, c), "Incorrect scalar addition at row:#{r}, col:#{c}. Expected:#{m1.at(r, c) - num}, Actual:#{m2.at(r, c)}") if m2.on_band?(r, c)
+          end
+        end
+      end
+    end
+
+    assert_invariants(m1)
+    assert_invariants(m2)
+  end
+
+  def test_matrix_mult
+    m1 = @factory.random
+    m2 = @factory.random(rows: m1.cols)
+
+    # Preconditions
+    begin
+      assert_equal(m1.cols, m2.rows)
+    end
+
+    m3 = m1 * m2
+
+    # Postconditions
+    begin
+      assert_equal(m1.rows, m3.rows)
+      assert_equal(m2.cols, m3.cols)
+    end
+  end
+
+  def test_scalar_mult
+    n = rand(0..MAX_ROWS)
+    m = @factory.random_square(size: n)
+    rand_range(1, 10, 1).each do |mult|
+      # Preconditions
+      begin
+      end
+
+      new_m = m * mult
+
+      # Postconditions
+      begin
+        (0...m.rows).each do |i|
+          (0...m.cols).each do |j|
+            if m.instance_of?(SparseMatrix) || (m.instance_of?(TriDiagonalMatrix) && m.on_band?(i, j))
+              assert_equal(m.at(i, j) * mult, new_m.at(i, j), "Incorrect scalar multiplication at row:#{i}, col:#{j}. Expected:#{m.at(i, j) * mult}, Actual:#{new_m.at(i, j)}")
+            end
+          end
+        end
+      end
+
+      assert_invariants(m)
+    end
+  end
+
+  def test_matrix_division
+    m1 = @factory.random
+    m2 = @factory.random_square(size: m1.cols)
+
+    # Preconditions
+    begin
+      assert_equal(m1.cols, m2.rows)
+      # "Cannot calculate inverse of singular matrix
+      return if not m2.invertible?
+    end
+
+    m3 = m1 / m2
+
+    # Postconditions
+    begin
+      assert_equal(m1.rows, m3.rows)
+      assert_equal(m2.cols, m3.cols)
+    end
+  end
+
+  # def test_exponentiation
+  #   exp = 3
+  #   exp = rand(2..12)
+  #   m = @factory.random_square
+  #   # No Preconditions
+  #
+  #   new_m = m**exp
+  #
+  #   # Postconditions
+  #   begin
+  #     expected = m
+  #     (2..exp).each do
+  #       expected *= m
+  #     end
+  #     assert_equal(expected, new_m, "Incorrect exponentiation. Expected:#{expected}, Actual:#{new_m}")
+  #   end
+  #
+  #   assert_invariants(m)
+  # end
 
   def test_put
     m = @factory.random_square
@@ -584,44 +605,44 @@ module MatrixTestCase
     assert_invariants(m)
   end
 
-  # # Helper function for test_diagonal?
-  # def nnz_off_diagonal?(m)
-  #   (0..m.rows - 1).each do |i|
-  #     (0..m.cols - 1).each do |j|
-  #       next unless i != j
-  #       return true if m.at(i, j) != 0
-  #     end
-  #   end
-  #   false
-  # end
-  #
-  # def test_diagonal?
-  #   m = @factory.random_square
-  #
-  #   # Preconditions
-  #   begin
-  #   end
-  #
-  #   is_d = m.diagonal?
-  #
-  #   # Postconditions
-  #   begin
-  #     if is_d
-  #       assert_true(m.symmetric?, 'Diagonal test is incorrect. Result conflicts with symmetric test')
-  #       assert_true(m.square?, 'Diagonal test is incorrect. Matrix is not square')
-  #
-  #       # For all i,j where i != j -> at(i,j) == 0
-  #       iterate_matrix(m) do |i, j, v|
-  #         assert_equal(0, v, "Invalid non-zero value in diagonal matrix at: row:#{i}, col:#{j}") unless i == j
-  #       end
-  #     else
-  #       # For some i,j where i != j -> at(i,j) != 0
-  #       assert_true(nnz_off_diagonal?(m), 'Invalid non-diagonal matrix. All values off the main diagonal are zero')
-  #     end
-  #   end
-  #
-  #   assert_invariants(m)
-  # end
+  # Helper function for test_diagonal?
+  def nnz_off_diagonal?(m)
+    (0..m.rows - 1).each do |i|
+      (0..m.cols - 1).each do |j|
+        next unless i != j
+        return true if m.at(i, j) != 0
+      end
+    end
+    false
+  end
+
+  def test_diagonal?
+    m = @factory.random_square
+
+    # Preconditions
+    begin
+    end
+
+    is_d = m.diagonal?
+
+    # Postconditions
+    begin
+      if is_d
+        assert_true(m.symmetric?, 'Diagonal test is incorrect. Result conflicts with symmetric test')
+        assert_true(m.square?, 'Diagonal test is incorrect. Matrix is not square')
+
+        # For all i,j where i != j -> at(i,j) == 0
+        iterate_matrix(m) do |i, j, v|
+          assert_equal(0, v, "Invalid non-zero value in diagonal matrix at: row:#{i}, col:#{j}") unless i == j
+        end
+      else
+        # For some i,j where i != j -> at(i,j) != 0
+        assert_true(nnz_off_diagonal?(m), 'Invalid non-diagonal matrix. All values off the main diagonal are zero')
+      end
+    end
+
+    assert_invariants(m)
+  end
 
   def test_diagonal
     m = @factory.random_square
@@ -644,32 +665,10 @@ module MatrixTestCase
     assert_invariants(m)
   end
 
-  def test_lower_triangular?(_nonsquare)
-    r = 0
-    c = 0
-    while r != c
-      r = rand(0..MAX_ROWS)
-      c = rand(0..MAX_COLS)
-      m = @factory.random(rows: r, cols: c)
-    end
-
-    # Preconditions
-    begin
-    end
-
-    # Postconditions
-    begin
-      assert_equal(sparse_to_matrix(m).lower_triangular?, m.lower_triangular?, "Non-square Matrix lower triangular check is incorrect. Expected:#{sparse_to_matrix(m).lower_triangular?}, Actual:#{m.lower_triangular?}")
-    end
-
-    assert_invariants(m)
-  end
-
   def test_lower_triangular_square
-    i = 0
-    while i < 20
-      rc = rand(0..MAX_ROWS)
-      m_tri = lower_triangular_matrix(rc, 0, 1000)
+    (0..TEST_ITER).each do
+      rc = rand(1..MAX_ROWS)
+      m_tri = lower_triangular_matrix(@factory, rc, 0, 1000)
       m_random = @factory.random_square
 
       # Preconditions
@@ -684,37 +683,13 @@ module MatrixTestCase
 
       assert_invariants(m_tri)
       assert_invariants(m_random)
-
-      i += 1
     end
-  end
-
-  def test_upper_triangular?(_nonsquare)
-    r = 0
-    c = 0
-    while r != c
-      r = rand(0..MAX_ROWS)
-      c = rand(0..MAX_COLS)
-      m = @factory.random(rows: r, cols: c)
-    end
-
-    # Preconditions
-    begin
-    end
-
-    # Postconditions
-    begin
-      assert_equal(sparse_to_matrix(m).upper_triangular?, m.upper_triangular?, "Non-square Matrix upper triangular check is incorrect. Expected:#{sparse_to_matrix(m).upper_triangular?}, Actual:#{m.upper_triangular?}")
-    end
-
-    assert_invariants(m)
   end
 
   def test_upper_triangular_square
-    i = 0
-    while i < 20
-      rc = rand(0..MAX_ROWS)
-      m_tri = upper_triangular_matrix(rc, 0, 1000)
+    (0..TEST_ITER).each do
+      rc = rand(1..MAX_ROWS)
+      m_tri = upper_triangular_matrix(@factory, rc, 0, 1000)
       m_random = @factory.random_square
 
       # Preconditions
@@ -729,56 +704,33 @@ module MatrixTestCase
 
       assert_invariants(m_tri)
       assert_invariants(m_random)
-
-      i += 1
     end
   end
 
   def check_lower_hessenberg(m)
     # algorithm to test if matrix m is lower_hessenberg
     # Returns true if matrix m is lower hessenberg. False otherwise.
-    if !m.square?
+
+    unless m.square?
       assert_false(m.lower_hessenberg?, "Lower Hessenberg check for Non-square Matrix is incorrect. Expected: False, Actual:#{m.lower_hessenberg?}")
-    else
-      (0...m.rows).each do |y|
-        (0...m.cols).each do |x|
-          if (x > y + 1 ) && (m.at(y, x) != 0)
-            return false
-          end
+      return
+    end
+
+    (0...m.rows).each do |y|
+      (0...m.cols).each do |x|
+        if (x > y + 1) and (m.at(y, x) != 0)
+          return false
         end
       end
-      true
     end
-  end
-
-  def test_lower_hessenberg?(_nonsquare)
-    # tests lower_hessenberg? with a nonsquare matrix
-    r = 0
-    c = 0
-    while r != c
-      r = rand(0..10_000)
-      c = rand(0..10_000)
-      m = @factory.random(rows: r, cols: c)
-    end
-
-    # Preconditions
-    begin
-    end
-
-    # Postconditions
-    begin
-      check_lower_hessenberg(m)
-    end
-
-    assert_invariants(m)
+    true
   end
 
   def test_lower_hessenberg_square
     # tests lower_hessenberg with a square matrix
-    i = 0
-    while i < 20
-      rc = rand(0..MAX_ROWS)
-      m_hess = lower_hessenberg_matrix(rc, 0, 1000)
+    (0..TEST_ITER).each do
+      rc = rand(1..MAX_ROWS)
+      m_hess = lower_hessenberg_matrix(@factory, rc, 0, 1000)
       m_random = @factory.random_square
 
       # Preconditions
@@ -788,62 +740,38 @@ module MatrixTestCase
       # Postconditions
       begin
         assert_true(m_hess.lower_hessenberg?, "lower_hessenberg? returned false for a lower hessenberg matrix")
-        assert_true(!m_random.lower_hessenberg?, "lower_hessenberg? returned true for a non-lower hessenberg matrix") if !check_lower_hessenberg(m_random)
+        assert_equal(check_lower_hessenberg(m_random), m_random.lower_hessenberg?, "lower_hessenberg? returned true for a non-lower hessenberg matrix")
       end
 
       assert_invariants(m_hess)
       assert_invariants(m_random)
-
-      i += 1
     end
   end
 
   def check_upper_hessenberg(m)
     # algorithm to test matrix m is upper_hessenberg
     # Returns true if matrix m is upper hessenberg. False otherwise.
-    if !m.square?
-      assert(!m.upper_hessenberg?, 'Non-square matrix cannot be upper hessenberg')
-    else
-      (0...m.rows).each do |y|
-        (0...m.cols).each do |x|
-          if (y > x + 1) && (m.at(y, x) != 0)
-            return false
-          end
+    unless m.square?
+      assert_false(m.upper_hessenberg?, 'Non-square matrix cannot be upper hessenberg')
+      return
+    end
+
+    (0...m.rows).each do |y|
+      (0...m.cols).each do |x|
+        if (y > x + 1) && (m.at(y, x) != 0)
+          return false
         end
       end
-      true
     end
-  end
-
-  def test_upper_hessenberg?(_nonsquare)
-    # tests upper_hessenberg? with a nonsquare matrix
-    r = 0
-    c = 0
-    while r != c
-      r = rand(0..MAX_ROWS)
-      c = rand(0..MAX_COLS)
-      m = @factory.random(rows: r, cols: c)
-    end
-
-    # Preconditions
-    begin
-    end
-
-    # Postconditions
-    begin
-      check_upper_hessenberg(m)
-    end
-
-    assert_invariants(m)
+    true
   end
 
   def test_upper_hessenberg_square
     # tests upper_hessenberg with a square matrix
-    i = 0
-    while i < 10
-      rc = rand(0..MAX_ROWS)
-      m_hess = upper_hessenberg_matrix(rc, 0, 1000)
-      m_random = @factory.random_square
+    (0..TEST_ITER).each do
+      rc = rand(1..MAX_ROWS)
+      m_hess = upper_hessenberg_matrix(@factory, rc, 0, 1000)
+      m_random = @factory.random_square(fill_factor: 1)
 
       # Preconditions
       begin
@@ -857,81 +785,69 @@ module MatrixTestCase
 
       assert_invariants(m_hess)
       assert_invariants(m_random)
-
-      i += 1
     end
   end
 
-  # def test_equals
-  #   m = @factory.random
-  #   m_same = m.clone
-  #   m_diff = @factory.random
-  #
-  #   # Preconditions
-  #   begin
-  #     assert_true(m_same.rows >= 0, 'Invalid row count of clone comparison matrix. Row count outside of valid range')
-  #     assert_true(m_same.cols >= 0, 'Invalid column count of clone comparison matrix. Column count outside of valid range')
-  #     assert_true(m_diff.rows >= 0, 'Invalid row count of different comparison matrix. Row count outside of valid range')
-  #     assert_true(m_diff.cols >= 0, 'Invalid column count of different comparison matrix. Column count outside of valid range')
-  #   end
-  #
-  #   # Postconditions
-  #   begin
-  #     assert_equal(m, m_same, 'Equivalent matrices declared different')
-  #     assert_not_equal(m, m_diff, 'Different matrices declared equivalent')
-  #   end
-  #
-  #   assert_invariants(m)
-  #   assert_invariants(m_same)
-  #   assert_invariants(m_diff)
-  # end
-  #
-  # def tst_cofactor
-  #   m = @factory.random
-  #
-  #   # Preconditions
-  #   begin
-  #   end
-  #
-  #   cof_row = rand(0..m.rows)
-  #   cof_col = rand(0..m.cols)
-  #
-  #   cof = m.cofactor(cof_row, cof_col)
-  #
-  #   # Postconditions
-  #   begin
-  #     if m.cols == 1 || m.rows == 1
-  #       assert_true(cof.null?, 'Co-factor of vector non-nil')
-  #     else
-  #       assert_equal(cof.cols, m.cols - 1)
-  #       assert_equal(cof.rows, m.rows - 1)
-  #
-  #       # TODO: Check the actual values of the cofactor matrix
-  #     end
-  #   end
-  #
-  #   assert_invariants(m)
-  # end
-  #
-  # def tst_adjoint
-  #   m = @factory.random_square
-  #
-  #   # Preconditions
-  #   begin
-  #     assert_true(m.square?, 'Cannot calculate adjoint of non-square matrix')
-  #   end
-  #
-  #   adj = m.adjoint
-  #
-  #   # Postconditions
-  #   begin
-  #     cof = m.cofactor
-  #     assert_equal(adj, cof.transpose, 'Adjoint not equal to transpose of cofactor matrix')
-  #   end
-  #
-  #   assert_invariants(m)
-  #   assert_invariants(adj)
-  # end
+  def test_equals
+    m = @factory.random
+    m_same = m.clone
+    m_diff = @factory.random
+
+    # Preconditions
+    begin
+      assert_true(m_same.rows >= 0, 'Invalid row count of clone comparison matrix. Row count outside of valid range')
+      assert_true(m_same.cols >= 0, 'Invalid column count of clone comparison matrix. Column count outside of valid range')
+      assert_true(m_diff.rows >= 0, 'Invalid row count of different comparison matrix. Row count outside of valid range')
+      assert_true(m_diff.cols >= 0, 'Invalid column count of different comparison matrix. Column count outside of valid range')
+    end
+
+    # Postconditions
+    begin
+      assert_equal(m, m_same, 'Equivalent matrices declared different')
+      assert_not_equal(m, m_diff, 'Different matrices declared equivalent')
+    end
+
+    assert_invariants(m)
+    assert_invariants(m_same)
+    assert_invariants(m_diff)
+  end
+
+  def test_cofactor
+    m = @factory.random_square(size: rand(3..15))
+
+    # Preconditions
+    begin
+    end
+
+    cof = m.cofactor
+
+    # Postconditions
+    begin
+      assert_equal(m.adjugate, cof.transpose, "Cofactor matrix should be equal to the transpose of the adjugate")
+    end
+
+    assert_invariants(m)
+  end
+
+  def test_adjugate
+    m = @factory.random_square
+
+    # Preconditions
+    begin
+      assert_true(m.square?, 'Cannot calculate adjoint of non-square matrix')
+    end
+
+    adj = m.adjoint
+
+    # Postconditions
+    begin
+      cof = m.cofactor
+      assert_equal(adj, cof.transpose, 'Adjoint not equal to transpose of cofactor matrix')
+    end
+
+    assert_invariants(m)
+    assert_invariants(adj)
+  end
 
   def test_identity?
     i = @factory.identity(rand(1..MAX_ROWS))
@@ -974,7 +890,6 @@ module MatrixTestCase
   def test_positive?
     pos_m = @factory.random(range: 1..MAX_VAL)
     neg_m = @factory.random(range: MIN_VAL..-1)
-
     # Preconditions
     begin
     end
@@ -1163,24 +1078,28 @@ module MatrixTestCase
   #
   #   assert_invariants(m)
   # end
-  #
-  # def test_orthogonal?
-  #   m = @factory.random_square
-  #
-  #   # Preconditions
-  #   begin
-  #   end
-  #
-  #   orth = m.orthogonal?
-  #
-  #   # Post conditions
-  #   begin
-  #     assert_equal(m.transpose == m.inverse, orth, 'Conflict between orthogonal result and transpose/inverse equality')
-  #   end
-  #
-  #   assert_invariants(m)
-  # end
-  #
+
+  def test_orthogonal?
+    m = @factory.random_square
+
+    # Preconditions
+    begin
+    end
+
+    orth = m.orthogonal?
+
+    # Postconditions
+    begin
+      if m.invertible?
+        assert_equal(m.transpose == m.inverse, orth, 'Conflict between orthogonal result and transpose/inverse equality')
+      else
+        assert_false(orth)
+      end
+    end
+
+    assert_invariants(m)
+  end
+
   def test_tridiagonal
     (0..TEST_ITER).each do
       m = @factory.random_square
@@ -1209,22 +1128,22 @@ module MatrixTestCase
     end
   end
 
-  # def test_to_ruby_matrix
-  #   m = @factory.random_square
-  #
-  #   # Preconditions
-  #   begin
-  #   end
-  #
-  #   ruby_m = m.to_ruby_matrix
-  #
-  #   # Postcondition
-  #   begin
-  #     (0...m.rows).each do |r|
-  #       (0...m.cols).each do |c|
-  #         assert_equal(m.at(r, c), ruby_m[r,c], "Ruby matrix value is incorrect at row:#{r} col:#{c}. Value: #{ruby_m[r,c]}")
-  #       end
-  #     end
-  #   end
-  # end
+  def test_to_ruby_matrix
+    m = @factory.random_square
+
+    # Preconditions
+    begin
+    end
+
+    ruby_m = m.to_ruby_matrix
+
+    # Postcondition
+    begin
+      (0...m.rows).each do |r|
+        (0...m.cols).each do |c|
+          assert_equal(m.at(r, c), ruby_m[r,c], "Ruby matrix value is incorrect at row:#{r} col:#{c}. Value: #{ruby_m[r,c]}")
+        end
+      end
+    end
+  end
 end

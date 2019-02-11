@@ -10,9 +10,16 @@ class TriDiagonalMatrix < SparseMatrix
     raise NonSquareException unless rows == cols
     # raise TypeError unless rows > 2 && cols > 2
 
-    @upper_dia = Array.new(rows-1, val)
-    @main_dia = Array.new(rows, val)
-    @lower_dia = Array.new(rows-1, val)
+    if rows.positive?
+      @upper_dia = Array.new(rows-1, val)
+      @main_dia = Array.new(rows, val)
+      @lower_dia = Array.new(rows-1, val)
+    else
+      @upper_dia = []
+      @main_dia = []
+      @lower_dia = []
+    end
+
     @rows = rows
     @cols = cols
   end
@@ -109,7 +116,7 @@ class TriDiagonalMatrix < SparseMatrix
 
   def put(r, c, val)
     unless on_band?(r, c)
-      warn "Insertion at (#{r}, #{c}) would violate tri-diagonal structure. No element inserted."
+      # warn "Insertion at (#{r}, #{c}) would violate tri-diagonal structure. No element inserted."
       return false
     end
 
@@ -117,6 +124,18 @@ class TriDiagonalMatrix < SparseMatrix
     diag, idx = get_index(r, c)
     diag[idx] = val unless diag.nil?
     true
+  end
+
+  def +(o)
+    o.instance_of?(TriDiagonalMatrix) ? plus_matrix(o) : plus_scalar(o)
+  end
+
+  def -(o)
+    o.instance_of?(TriDiagonalMatrix) ? plus_matrix(o * -1) : plus_scalar(-o)
+  end
+
+  def *(o)
+    o.instance_of?(TriDiagonalMatrix) ? mul_matrix(o) : mul_scalar(o)
   end
 
   def det
@@ -187,10 +206,53 @@ class TriDiagonalMatrix < SparseMatrix
     true
   end
 
-private
-
   def on_band?(r, c)
     (r - c).abs <= 1
+  end
+
+  def to_ruby_matrix
+    matrix_array = Array.new(@rows) { Array.new(@cols, 0) }
+
+    (0...@rows).each do |x|
+      (0...@cols).each do |y|
+        matrix_array[x][y] = at(x, y)
+      end
+    end
+
+    Matrix[*matrix_array]
+  end
+
+  # Method aliases
+  alias t transpose
+  alias tr trace
+  alias [] at
+  alias get at
+  alias set put
+  alias insert put
+  alias []= put
+  alias plus +
+  alias subtract -
+  alias multiply *
+  alias exp **
+
+private
+
+  def to_sparse_matrix
+    m = SparseMatrix.new(@rows, @cols)
+    iterator.iterate{|r, c, val| m.put(r, c, val)}
+    m
+  end
+
+  def plus_matrix(o)
+    to_sparse_matrix + o
+  end
+
+  def plus_scalar(x)
+    map {|val, r, c| on_band?(r, c) ? val + x : val }
+  end
+
+  def mul_matrix(o)
+    to_sparse_matrix * o
   end
 
   def size_up!(diag, len)

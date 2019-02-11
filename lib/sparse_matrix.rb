@@ -165,6 +165,11 @@ class SparseMatrix
     o.is_a?(SparseMatrix) ? mul_matrix(o) : mul_scalar(o)
   end
 
+  def /(o)
+    throw TypeError unless o.is_a? SparseMatrix
+    mul_matrix(o.inverse)
+  end
+
   def **(x)
     throw NonSquareException unless square?
     throw TypeError unless x.is_a? Integer
@@ -197,7 +202,7 @@ class SparseMatrix
   end
 
   def to_s
-    return "nil\n" if nil?
+    return "null\n" if null?
 
     it = iterator
     col_width = Array.new(cols, 1)
@@ -248,12 +253,30 @@ class SparseMatrix
     map { |val, r, c| (r == c || c == r - 1 || c == r + 1) ? val : 0 }
   end
 
-  def cofactor(row, col)
-    raise 'Not implemented'
+  def minor(row, col)
+    minor_submatrix(row, col).det
   end
 
-  def adjoint
-    raise 'Not implemented'
+  def cofactor
+    raise NonSquareException, "Cannot get cofactor matrix from non-square matrix" unless square?
+
+    m = SparseMatrix.new(rows, cols)
+    (0...rows).each do |r|
+      (0...cols).each do |c|
+        if r + c % 2 == 0
+          sign = 1
+        else
+          sign = -1
+        end
+
+        m.put(r, c, sign * minor(r, c))
+      end
+    end
+    m
+  end
+
+  def adjugate
+    cofactor.transpose
   end
 
   def inverse
@@ -264,11 +287,11 @@ class SparseMatrix
   end
 
   def rank
-    raise 'Not implemented'
+    to_ruby_matrix.rank
   end
 
   def transpose
-    m = SparseMatrix.new @cols, @rows
+    m = SparseMatrix.new(cols, rows)
     iter = iterator
     while iter.has_next?
       row, col, val = iter.next
@@ -283,7 +306,7 @@ class SparseMatrix
     diagonal.sum(init=0)
   end
 
-  def nil?
+  def null?
     @rows.zero? || @cols.zero?
   end
 
@@ -411,10 +434,6 @@ class SparseMatrix
     CSRIterator.new(@row_vector, @col_vector, @data)
   end
 
-  alias t transpose
-  alias tr trace
-  alias [] at
-
   # Utility functions
   def map
     m = clone
@@ -471,7 +490,22 @@ class SparseMatrix
     end
   end
 
-private
+  # Method aliases
+  alias t transpose
+  alias tr trace
+  alias [] at
+  alias get at
+  alias set put
+  alias insert put
+  alias []= put
+  alias plus +
+  alias subtract -
+  alias multiply *
+  alias exp **
+  alias adjoint adjugate
+
+  private
+
   def plus_matrix(o)
     map {|val, r, c| val + o.at(r, c)}
   end
@@ -500,6 +534,21 @@ private
     return bsearch_cols c_start, mid, val if @col_vector[mid] > val
 
     bsearch_cols mid, c_end, val
+  end
+
+  def minor_submatrix(row, col)
+    m = SparseMatrix.new(rows-1, cols-1)
+    it = iterator
+    while it.has_next?
+      r, c, val = it.next
+      new_row = r > row ? r - 1 : r
+      new_col = c > col ? c - 1 : c
+
+      if r != row and c != col
+        m.put(new_row, new_col, val)
+      end
+    end
+    m
   end
 
   # Returns the [index, val] corresponding to
