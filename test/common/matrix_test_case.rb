@@ -1,5 +1,6 @@
 require 'test/unit'
 require_relative '../../lib/sparse_matrix'
+require_relative '../../lib/tridiagonal_matrix'
 require_relative 'test_helper_matrix_util'
 
 module MatrixTestCase
@@ -396,32 +397,38 @@ module MatrixTestCase
   #     assert_invariants(m3)
   #   end
   # end
-  #
-  # def test_scalar_plus
-  #   m1 = @factory.random
-  #   num = rand(MIN_VAL..MAX_VAL)
-  #
-  #   # Preconditions
-  #   begin
-  #   end
-  #
-  #   m2 = m1 + num
-  #
-  #   # Postconditions
-  #   begin
-  #     assert_equal(m1.sum + num * m1.rows * m1.cols, m2.sum, "Matrix scalar addition incorrect. Expected Sum:#{m1.sum + num * m1.nnz}, Actual Sum:#{m2.sum}")
-  #
-  #     (0...m1.rows).each do |r|
-  #       (0...m1.cols).each do |c|
-  #         assert_equal(m1.at(r, c) + num, m2.at(r, c), "Incorrect scalar addition at row:#{r}, col:#{c}. Expected:#{m1.at(r, c) + num}, Actual:#{m2.at(r, c)}")
-  #       end
-  #     end
-  #   end
-  #
-  #   assert_invariants(m1)
-  #   assert_invariants(m2)
-  # end
-  #
+
+  def test_scalar_plus
+    m1 = @factory.random
+    num = rand(MIN_VAL..MAX_VAL)
+
+    # Preconditions
+    begin
+    end
+
+    m2 = m1 + num
+
+    # Postconditions
+    begin
+
+      assert_equal(m1.sum + num * m1.rows * m1.cols, m2.sum, "Matrix scalar addition incorrect. Expected Sum:#{m1.sum + num * m1.nnz}, Actual Sum:#{m2.sum}") if m1.instance_of?(SparseMatrix)
+      assert_equal(m1.sum + num * ((3 * m1.rows) - 2), m2.sum, "Matrix scalar addition incorrect. Expected Sum:#{m1.sum + num * ((3 * m1.rows) - 2)}, Actual Sum:#{m2.sum}") if m1.instance_of?(TriDiagonalMatrix)
+
+      (0...m1.rows).each do |r|
+        (0...m1.cols).each do |c|
+          if m1.instance_of?(SparseMatrix)
+            assert_equal(m1.at(r, c) + num, m2.at(r, c), "Incorrect scalar addition at row:#{r}, col:#{c}. Expected:#{m1.at(r, c) + num}, Actual:#{m2.at(r, c)}")
+          elsif m1.instance_of?(TriDiagonalMatrix)
+            assert_equal(m1.at(r, c) + num, m2.at(r, c), "Incorrect scalar addition at row:#{r}, col:#{c}. Expected:#{m1.at(r, c) + num}, Actual:#{m2.at(r, c)}") if m2.on_band?(r, c)
+          end
+        end
+      end
+    end
+
+    assert_invariants(m1)
+    assert_invariants(m2)
+  end
+
   # def test_subtract_matrix
   #   (0..TEST_ITER).each do
   #     r = rand(1..MAX_ROWS)
@@ -459,32 +466,38 @@ module MatrixTestCase
   #     assert_invariants(m3)
   #   end
   # end
-  #
-  # def test_scalar_subtract
-  #   m1 = @factory.random
-  #   num = rand(MIN_VAL..MAX_VAL)
-  #
-  #   # Preconditions
-  #   begin
-  #   end
-  #
-  #   m2 = m1 - num
-  #
-  #   # Postconditions
-  #   begin
-  #     assert_equal(m1.sum - num * m1.rows * m1.cols, m2.sum, "Matrix scalar subtraction incorrect. Expected Sum:#{m1.sum - num * m1.nnz}, Actual Sum:#{m2.sum}")
-  #
-  #     (0...m1.rows).each do |r|
-  #       (0...m1.cols).each do |c|
-  #         assert_equal(m1.at(r, c) - num, m2.at(r, c), "Incorrect scalar subraction at row:#{r}, col:#{c}. Expected:#{m1.at(r, c) - num}, Actual:#{m2.at(r, c)}")
-  #       end
-  #     end
-  #   end
-  #
-  #   assert_invariants(m1)
-  #   assert_invariants(m2)
-  # end
-  #
+
+  def test_scalar_subtract
+    m1 = @factory.random
+    num = rand(MIN_VAL..MAX_VAL)
+
+    # Preconditions
+    begin
+    end
+
+    m2 = m1 - num
+
+    # Postconditions
+    begin
+      assert_equal(m1.sum - num * m1.rows * m1.cols, m2.sum, "Matrix scalar subtraction incorrect. Expected Sum:#{m1.sum - num * m1.nnz}, Actual Sum:#{m2.sum}") if m1.instance_of?(SparseMatrix)
+      assert_equal(m1.sum - num * ((3 * m1.rows) - 2), m2.sum, "Matrix scalar addition incorrect. Expected Sum:#{m1.sum - num * ((3 * m1.rows) - 2)}, Actual Sum:#{m2.sum}") if m1.instance_of?(TriDiagonalMatrix)
+
+
+      (0...m1.rows).each do |r|
+        (0...m1.cols).each do |c|
+          if m1.instance_of?(SparseMatrix)
+            assert_equal(m1.at(r, c) - num, m2.at(r, c), "Incorrect scalar addition at row:#{r}, col:#{c}. Expected:#{m1.at(r, c) + num}, Actual:#{m2.at(r, c)}")
+          elsif m1.instance_of?(TriDiagonalMatrix)
+            assert_equal(m1.at(r, c) - num, m2.at(r, c), "Incorrect scalar addition at row:#{r}, col:#{c}. Expected:#{m1.at(r, c) - num}, Actual:#{m2.at(r, c)}") if m2.on_band?(r, c)
+          end
+        end
+      end
+    end
+
+    assert_invariants(m1)
+    assert_invariants(m2)
+  end
+
   # def test_matrix_mult
   #   m1 = @factory.random
   #   m2 = @factory.random(rows: m1.cols)
@@ -502,49 +515,50 @@ module MatrixTestCase
   #     assert_equal(m2.cols, m3.cols)
   #   end
   # end
-  #
-  # def test_scalar_mult
-  #   r = rand(0..MAX_ROWS)
-  #   c = rand(1..MAX_COLS)
-  #   m = @factory.random(rows: r, cols: c)
-  #   rand_range(1, 1000, 20).each do |mult|
-  #     # Preconditions
-  #     begin
-  #     end
-  #
-  #     new_m = m * mult
-  #
-  #     # Postconditions
-  #     begin
-  #       (0...r).each do |i|
-  #         (0...c).each do |j|
-  #           assert_equal(m.at(i, j) * mult, new_m.at(i, j), "Incorrect scalar multiplication at row:#{i}, col:#{j}. Expected:#{m.at(i, j) * mult}, Actual:#{new_m.at(i, j)}")
-  #         end
-  #       end
-  #     end
-  #
-  #     assert_invariants(m)
-  #   end
-  # end
 
-  def test_exponentiation
-    exp = 3
-    m = @factory.random_square
-    # No Preconditions
-
-    new_m = m**exp
-
-    # Postconditions
-    begin
-      expected = m
-      (2..exp).each do |_i|
-        expected *= m
+  def test_scalar_mult
+    n = rand(0..MAX_ROWS)
+    m = @factory.random_square(size: 5)
+    rand_range(1, 10, 1).each do |mult|
+      # Preconditions
+      begin
       end
-      assert_equal(expected, new_m, "Incorrect exponentiation. Expected:#{expected}, Actual:#{new_m}")
-    end
 
-    assert_invariants(m)
+      new_m = m * mult
+
+      # Postconditions
+      begin
+        (0...m.rows).each do |i|
+          (0...m.cols).each do |j|
+            if m.instance_of?(SparseMatrix) || (m.instance_of?(TriDiagonalMatrix) && m.on_band?(i, j))
+              assert_equal(m.at(i, j) * mult, new_m.at(i, j), "Incorrect scalar multiplication at row:#{i}, col:#{j}. Expected:#{m.at(i, j) * mult}, Actual:#{new_m.at(i, j)}")
+            end
+          end
+        end
+      end
+
+      assert_invariants(m)
+    end
   end
+
+  # def test_exponentiation
+  #   exp = 3
+  #   m = @factory.random_square
+  #   # No Preconditions
+  #
+  #   new_m = m**exp
+  #
+  #   # Postconditions
+  #   begin
+  #     expected = m
+  #     (2..exp).each do
+  #       expected *= m
+  #     end
+  #     assert_equal(expected, new_m, "Incorrect exponentiation. Expected:#{expected}, Actual:#{new_m}")
+  #   end
+  #
+  #   assert_invariants(m)
+  # end
 
   def test_put
     m = @factory.random_square
