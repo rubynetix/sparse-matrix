@@ -548,8 +548,8 @@ class SparseMatrix
     mid = ((left + right) / 2).floor
     return mid if @col_vector[mid] == val
 
-    left = mid + 1 if @col_vector[mid] > val
-    right = mid - 1 if @col_vector[mid] < val
+    left = mid + 1 if @col_vector[mid] < val
+    right = mid - 1 if @col_vector[mid] > val
     bsearch_cols left, right, val
   end
 
